@@ -44,7 +44,7 @@ if (@CANDIDATE == 1) {
     }
 }
 
-my $SSL_DIR = shift || prompt "Which SSLeay to link to? ", $CANDIDATE[0][0];
+my $SSL_DIR = shift || prompt "Which SSLeay do you want to link against?", $CANDIDATE[0][0];
 
 warn "Apparently no SSLeay installation at '$SSL_DIR'\nAre you sure you got it correct????\n"
     unless -f "$SSL_DIR/include/ssl.h";

@@ -1,5 +1,23 @@
-Revision history for Perl extension SSL.
+1998-01-11   Gisle Aas <aas@sn.no>
 
-0.01  Thu Jan  8 22:00:03 1998
-	- original version; created by h2xs 1.18
+   Release 0.03
 
+   Fixed this file
+
+
+
+1998-01-11   Gisle Aas <aas@sn.no>
+
+   Release 0.02
+
+   More text in the README
+
+   Renamed Crypt::SSLeay::Context to Crypt::SSLeay::MainContext
+
+
+
+1998-01-10   Gisle Aas <aas@sn.no>
+
+   Release 0.01
+
+   Initial release.
