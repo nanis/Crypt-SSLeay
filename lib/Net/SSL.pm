@@ -1,16 +1,14 @@
 package Net::SSL;
 
-# $Id: SSL.pm,v 1.5 1998/01/13 22:09:09 aas Exp $
-
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
-my %REAL;
+my %REAL; # private to this package only
 
 require Crypt::SSLeay;
+$VERSION = '1.80';
 
 sub _default_context
 {
@@ -21,6 +19,7 @@ sub _default_context
 sub DESTROY {
     my $self = shift;
     delete $REAL{$self};
+    eval { $self->SUPER::DESTROY; };
 }
 
 sub configure

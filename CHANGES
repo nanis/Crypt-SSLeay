@@ -1,3 +1,11 @@
+$MODULE=Crypt::SSLeay; $VERSION = .18; $DATE="2000-11-25";
+
+- created perl/c destructors for the X509 cert for after its
+  fetched by Net::SSL.  Crypt::SSLeay seems to run without
+  memory leaks now under LWP and Net::SSL.
+
+- Updated Net::SSL::VERSION, bad version last release.
+
 $MODULE=Crypt::SSLeay; $VERSION = .17; $DATE="2000-09-04";
 
 - got rid of an implicit char* conversion compile warnings 

@@ -24,6 +24,5 @@ $buf = '';
 while ($sock->read($buf, 1024)) {
    print $buf;
 }
-	      
 
 

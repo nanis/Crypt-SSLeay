@@ -293,6 +293,10 @@ SSL_get_cipher(ssl)
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::X509	PREFIX = X509_
 
+void
+X509_free(cert)
+       X509* cert
+
 SV*
 subject_name(cert)
 	X509* cert

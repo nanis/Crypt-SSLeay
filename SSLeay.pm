@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.17';
+$VERSION = '0.18';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -29,6 +29,7 @@ use vars qw(%CIPHERS);
 # A xsupp bug made this nessesary
 sub Crypt::SSLeay::CTX::DESTROY  { shift->free; }
 sub Crypt::SSLeay::Conn::DESTROY { shift->free; }
+sub Crypt::SSLeay::X509::DESTROY { shift->free; }
 
 1;
 
@@ -117,6 +118,7 @@ using the make or nmake commands as shown below.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
+ AIX 4.3.2	RS/6000	OpenSSL 0.9.5a	5.6.0	 .17	2000-09-15	Peter Heimann
  Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas	
  WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .17	2000-09-04	Joshua Chamas
  Linux 2.2.12   x86     OpenSSL 0.9.5a  5.00503	 .16	2000-07-13      David Harris
@@ -130,7 +132,17 @@ using the make or nmake commands as shown below.
 
 =head1 BUILD NOTES
 
-=head2 Solaris - Symbol Error: __umoddi3 : referenced symbol not found
+=head2 AIX 4.3.2 - Symbol Error: __umoddi3 : referenced symbol not found
+
+The __umoddi3 problem applies here as well when compiling with gcc.
+
+Alternative solution:
+In Makefile.PL, prepend "-L/usr/local/<path to your gcc lib>/<version> " 
+to the $LIBS value. Add after line 82:
+
+ $LIBS = '-L' . dirname `gcc -print-libgcc-file-name` . ' ' . $LIBS;
+
+=head2 Solaris x86 - Symbol Error: __umoddi3 : referenced symbol not found
 
  Problem:
 
