@@ -5,7 +5,6 @@ use vars qw(@ISA $VERSION $NEW_ARGS);
 
 use MIME::Base64;
 use Socket;
-use URI::URL;
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);

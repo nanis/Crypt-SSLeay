@@ -1,3 +1,8 @@
+$MODULE=Crypt::SSLeay; $VERSION = .43; $DATE="2002-07-29";
+
+- Removed unused dependency on URI::URL, thanks to Ric Steinberger
+  for pointing out this problem under perl 5.8.0 
+
 $MODULE=Crypt::SSLeay; $VERSION = .41; $DATE="2002-07-07";
 
 - fixed t/net_ssl.t to work on Windows NT
