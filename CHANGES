@@ -1,22 +1,63 @@
-$MODULE=Crypt::SSLeay; $VERSION = .10; $DATE="08/10/99";
+$MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-16";
 
-1999-08-10   Joshua Chamas <joshua@chamas.com>
+1999-08-16   Joshua Chamas <joshua@chamas.com>
 
 + = improvement; - = bug fix
 
++ New connection strategy suggested by OpenSSL list,
+  first try connecting with SSLv23.  This negotiates
+  the more secure SSL3 first, and then downgrades to
+  SSLv2 if first unsuccessful.  For buggy servers that
+  can't handle the SSLv23 negotiation, Net::SSL then 
+  tries a raw SSLv2 connection.
+
+  This method works for all servers tested, and has
+  the advantage of tranmitting data via the most secure
+  SSL3 method if available.
+
++ Connects to buggy SSLv2 sites as well as SSLv3
+  sites & normal SSLv2 sites.
+
+  Buggy SSLv2:	https://banking.wellsfargo.com
+  SSLv3:	https://www.accountonline.com/CB/MainMenu.idcl
+  SSLv2:	https://www.nodeworks.com
+
+  To connect to sites that require only SSLv2, the 
+  Net::SSL first tries a connect to the site via
+  SSLv2, with buggy server options on.  
+
+  This connect will fail for sites that require SSLv3,
+  so Net::SSL will then try a connect with SSLv3.
+
+  The order tried is SSLv2 first, then SSLv3, with the 
+  assumption that most https servers accept SSLv2 connections,
+  and only a minority accept SSLv3 only.
+
+  This could easily be switched around to trying SSLv3 first,
+  but when testing this approach it seems that buggy SSLv2 
+  only servers hang on the SSLv3 negotiation, while SSLv3 only
+  servers reject SSLv2 negotiation immediately, so for now
+  it makes sense to try SSLv2 first, then SSLv3.
+
+  SSLv23 was tried to resolve this situation, but it doesn't
+  work on some SSLv2 only sites.
+
+$MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-10";
+
+1999-08-10   Joshua Chamas <joshua@chamas.com>
+
 + Worked through __umoddi3 undef symbol error 
-  for building on Solaris x86.  See REAME build notes.
+  for building on Solaris x86.  See README build notes.
 
 + I try to provide backwards compatible building
-  with SSLeay (< v.0.9.2), but last build with OpenSSL, 
-  so might have broken something.
+  with SSLeay (< v.0.9.2)
 
 + Will pick up ssl distributions installed at
   /usr/local/openssl, and /usr/local/ssl ... openssl
   headers should be at $SSL_DIR/include/openssl
-  for compilation to work.
+  for compilation to work, see README for installation hints.
 
-- Added SSL 3.0 support with SSLv23_client_method()
+- Added SSL 3.0 support with SSLv3_client_method()
   This method will autonegotiate SSL2 or SSL3,
   and works for web sites that require SSL3
 

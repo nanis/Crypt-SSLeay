@@ -66,7 +66,9 @@ my $ssl_header_prefix = '';
 my $client_method;
 if($candidate->[2] =~ /openssl/i) {
     $ssl_header_prefix = "openssl/";
-    $client_method = "SSLv3_client_method()";
+#    $client_method = "SSLv23_client_method()";
+#    $client_method = "SSLv3_client_method()";
+    $client_method = "SSLv2_client_method()";
 } else {
     $client_method = "SSLv2_client_method()";
 }    
@@ -76,8 +78,10 @@ if($candidate->[2] =~ /openssl/i) {
 open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
 print INCLUDE "#include \"".$ssl_header_prefix."ssl.h\"\n";
 print INCLUDE "#include \"".$ssl_header_prefix."crypto.h\"\n";
-print  INCLUDE "#define CRYPT_SSL_CLIENT_METHOD $client_method\n";
 close INCLUDE;
+
+# print  INCLUDE "#define CRYPT_SSL_CLIENT_METHOD $client_method\n";
+# client method:	$client_method
 
 print <<INFO;
 
@@ -89,7 +93,6 @@ ssl dir:	$SSL_DIR
 libraries:      $LIBS
 include dir:	$SSL_INC
 ssl header:     @{[$ssl_header_prefix]}ssl.h
-client method:	$client_method
 
 ========================================
 

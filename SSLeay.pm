@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -109,13 +109,14 @@ using the make or nmake commands as shown below.
 
 =head1 COMPATIBILITY
 
-This module has been built on the following platforms:
+ This module has been compiled on the following platforms:
 
- PLATFORM	CPU	SSL		PERL	 DATE		WHO
- --------	---	---		----	 ----		---
- Solaris 2.6	x86	OpenSSL 0.9.4	5.00501	 1999-08-11	Joshua Chamas	
- Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 1999-08-11	Joshua Chamas	
- WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-08-10	Joshua Chamas
+ PLATFORM	CPU 	SSL		PERL	 DATE		WHO
+ --------	--- 	---		----	 ----		---
+ Solaris 2.6	x86	OpenSSL 0.9.4	5.00501	 1999-08-12	Joshua Chamas	
+ Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 1999-08-12	Joshua Chamas	
+ WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-08-12	Joshua Chamas
+ Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503  1999-08-11	John Barrett
  WinNT SP4	x86	SSLeay 0.9.2	5.00404	 1999-08-10	Joshua Chamas
 
 =head1 BUILD NOTES

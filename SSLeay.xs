@@ -43,14 +43,24 @@ PROTOTYPES: DISABLE
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::CTX	PREFIX = SSL_CTX_
 
 SSL_CTX*
-SSL_CTX_new(packname)
+SSL_CTX_new(packname, ssl_version)
      SV* packname
+     int ssl_version
      CODE:
 #ifdef SSLEAY8
-	// SSLv2 & SSLv23 does not work with as many servers
-	// SSLv3 seems to downgrade to v2 where appropriate
+	SSL_CTX* ctx;
+
 	SSLeay_add_ssl_algorithms();
-	RETVAL = SSL_CTX_new(CRYPT_SSL_CLIENT_METHOD);
+	if(ssl_version == 23) {
+		ctx = SSL_CTX_new(SSLv23_client_method());
+	} else if(ssl_version == 3) {
+		ctx = SSL_CTX_new(SSLv3_client_method());
+	} else {
+		// v2 is the default
+		ctx = SSL_CTX_new(SSLv2_client_method());
+	}		
+	SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
+	RETVAL = ctx;
 #else
 	RETVAL = SSL_CTX_new();
 #endif

@@ -7,11 +7,20 @@ use Carp ();
 
 require Crypt::SSLeay::CTX;
 
-my $ctx = Crypt::SSLeay::CTX->new;
-$ctx->set_cipher_list($ENV{SSL_CIPHER}) if $ENV{SSL_CIPHER};
-#print STDERR "\n\nCTX $ctx\n\n";
+my %CTX;
+for(2,3,23) {
+    my $ctx = Crypt::SSLeay::CTX->new($_);
+    $ctx->set_cipher_list($ENV{SSL_CIPHER}) if $ENV{SSL_CIPHER};    
+    $CTX{$_} = $ctx;
+}
+my $ctx = $CTX{23}; # default ctx
 
-sub main_ctx { $ctx }
+sub main_ctx { 
+    my $ssl_version = shift || 23;
+    $ctx = $CTX{$ssl_version};
+#    print STDERR "\n\nCTX $ctx version $ssl_version\n\n";
+    $ctx;
+}
 
 my %sub_cache = ('main_ctx' => \&main_ctx );
 

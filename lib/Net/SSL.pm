@@ -8,32 +8,54 @@ $VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
+my %REAL;
 
 require Crypt::SSLeay;
 
 sub _default_context
 {
     require Crypt::SSLeay::MainContext;
-    Crypt::SSLeay::MainContext::main_ctx();
+    Crypt::SSLeay::MainContext::main_ctx(@_);
+}
+
+sub DESTROY {
+    my $self = shift;
+    delete $REAL{$self};
 }
 
 sub configure
 {
     my($self, $arg) = @_;
-    *$self->{'ssl_ctx'} = delete $arg->{SSL_Context} || _default_context();
+    my $ssl_version = delete $arg->{SSL_Version} || 23;
+    my $ctx = delete $arg->{SSL_Context} || _default_context($ssl_version);
+    *$self->{'ssl_ctx'} = $ctx;
+    *$self->{'ssl_version'} = $ssl_version;
+    *$self->{'ssl_arg'} = $arg;
     $self->SUPER::configure($arg);
 }
 
 sub connect
 {
     my $self = shift;
+
     return unless $self->SUPER::connect(@_);
     my $ssl = Crypt::SSLeay::Conn->new(*$self->{'ssl_ctx'}, $self);
     if ($ssl->connect <= 0) {
 	# XXX should obtain the real SSLeay error message
-	$self->_error("SSL negotiation failed");
-	return;
+#	$self->_error("SSL negotiation failed");
+#	return;
+	if(*$self->{ssl_version} == 23) {
+	    my $arg = *$self->{ssl_arg};
+	    $arg->{SSL_Version} = 2;
+	    my $new_ssl = Net::SSL->new(%$arg);
+	    $REAL{$self} = $new_ssl;
+	    return $new_ssl;
+	} else {
+	    $self->_error("SSL negotiation failed");
+	    return;
+	}
     }
+
     *$self->{'ssl_ssl'} = $ssl;
     $self;
 }
@@ -44,25 +66,44 @@ sub accept
 }
 
 # Delegate these calls to the Crypt::SSLeay::Conn object
-sub get_peer_certificate { *{shift()}->{'ssl_ssl'}->get_peer_certificate(@_) }
-sub get_shared_ciphers   { *{shift()}->{'ssl_ssl'}->get_shared_ciphers(@_) }
-sub get_cipher           { *{shift()}->{'ssl_ssl'}->get_cipher(@_) }
+sub get_peer_certificate { 
+    my $self = shift;
+    $self = $REAL{$self} || $self;
+    *$self->{'ssl_ssl'}->get_peer_certificate(@_);
+}
+sub get_shared_ciphers   { 
+    my $self = shift;
+    $self = $REAL{$self} || $self;
+    *$self->{'ssl_ssl'}->get_shared_ciphers(@_);
+}
+sub get_cipher           { 
+    my $self = shift;
+    $self = $REAL{$self} || $self;
+    *$self->{'ssl_ssl'}->get_cipher(@_);
+}
+
+#sub get_peer_certificate { *{shift()}->{'ssl_ssl'}->get_peer_certificate(@_) }
+#sub get_shared_ciphers   { *{shift()}->{'ssl_ssl'}->get_shared_ciphers(@_) }
+#sub get_cipher           { *{shift()}->{'ssl_ssl'}->get_cipher(@_) }
 
 sub ssl_context
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     *$self->{'ssl_ctx'};
 }
 
 sub read
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     *$self->{'ssl_ssl'}->read(@_);
 }
 
 sub write
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     *$self->{'ssl_ssl'}->write(@_);
 }
 
@@ -88,6 +129,7 @@ sub printf
 sub getchunk
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     my $buf = '';  # warnings
     my $n = $self->read($buf, 32*1024);
     return unless defined $n;
