@@ -1,8 +1,11 @@
-$MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-16";
-
-1999-08-16   Joshua Chamas <joshua@chamas.com>
+$MODULE=Crypt::SSLeay; $VERSION = .12; $DATE="TBA";
 
 + = improvement; - = bug fix
+
++ Converted // style comments to /* */ for build
+  support of Sun's native cc
+
+$MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-16";
 
 + New connection strategy suggested by OpenSSL list,
   first try connecting with SSLv23.  This negotiates
@@ -22,29 +25,7 @@ $MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-16";
   SSLv3:	https://www.accountonline.com/CB/MainMenu.idcl
   SSLv2:	https://www.nodeworks.com
 
-  To connect to sites that require only SSLv2, the 
-  Net::SSL first tries a connect to the site via
-  SSLv2, with buggy server options on.  
-
-  This connect will fail for sites that require SSLv3,
-  so Net::SSL will then try a connect with SSLv3.
-
-  The order tried is SSLv2 first, then SSLv3, with the 
-  assumption that most https servers accept SSLv2 connections,
-  and only a minority accept SSLv3 only.
-
-  This could easily be switched around to trying SSLv3 first,
-  but when testing this approach it seems that buggy SSLv2 
-  only servers hang on the SSLv3 negotiation, while SSLv3 only
-  servers reject SSLv2 negotiation immediately, so for now
-  it makes sense to try SSLv2 first, then SSLv3.
-
-  SSLv23 was tried to resolve this situation, but it doesn't
-  work on some SSLv2 only sites.
-
 $MODULE=Crypt::SSLeay; $VERSION = .11; $DATE="1999-08-10";
-
-1999-08-10   Joshua Chamas <joshua@chamas.com>
 
 + Worked through __umoddi3 undef symbol error 
   for building on Solaris x86.  See README build notes.

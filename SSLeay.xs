@@ -14,9 +14,10 @@ extern "C" {
 #include "XSUB.h"
 #include "perl.h"
 
-// ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
-// file which is written when building with perl Makefile.PL
-//#include "ssl.h"
+/* ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
+ * file which is written when building with perl Makefile.PL
+ * #include "ssl.h"
+ */
 #include "crypt_ssleay_version.h"
 
 #undef Free /* undo namespace pollution from crypto.h */
@@ -28,13 +29,14 @@ extern "C" {
 #define SSLEAY8
 #endif
 
-// moved this out to Makefile.PL so user can 
-// see value being used printed during build
-//#if SSLEAY_VERSION_NUMBER >= 0x0900
-//#define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
-//#else
-//#define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
-//#endif
+/* moved this out to Makefile.PL so user can 
+ * see value being used printed during build
+ * #if SSLEAY_VERSION_NUMBER >= 0x0900
+ * #define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
+ * #else
+ * #define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
+ * #endif
+ */
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay
 
@@ -56,7 +58,7 @@ SSL_CTX_new(packname, ssl_version)
 	} else if(ssl_version == 3) {
 		ctx = SSL_CTX_new(SSLv3_client_method());
 	} else {
-		// v2 is the default
+		/* v2 is the default */
 		ctx = SSL_CTX_new(SSLv2_client_method());
 	}		
 	SSL_CTX_set_options(ctx,SSL_OP_ALL|0);

@@ -113,15 +113,18 @@ using the make or nmake commands as shown below.
 
  PLATFORM	CPU 	SSL		PERL	 DATE		WHO
  --------	--- 	---		----	 ----		---
+ Solaris 2.6	?Sparc	OpensSL 0.9.4	5.00404	 1999-08-24	Patrick Killelea
+ FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 1999-08-19	Andy Lee
+ WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-08-19	Joshua Chamas
+ Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 1999-08-18	Marek Rouchal
  Solaris 2.6	x86	OpenSSL 0.9.4	5.00501	 1999-08-12	Joshua Chamas	
  Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 1999-08-12	Joshua Chamas	
- WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-08-12	Joshua Chamas
- Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503  1999-08-11	John Barrett
+ Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503	 1999-08-11	John Barrett
  WinNT SP4	x86	SSLeay 0.9.2	5.00404	 1999-08-10	Joshua Chamas
 
 =head1 BUILD NOTES
 
-=head2 Symbol Error: __umoddi3 : referenced symbol not found
+=head2 Solaris - Symbol Error: __umoddi3 : referenced symbol not found
 
  Problem:
 
@@ -139,6 +142,17 @@ when building Crypt::SSLeay, there is a linker error for __umoddi3
 The fix for this symlink your libgcc.a to some standard directory
 like /usr/local/lib, so that the system linker, ld, can find
 it when building Crypt::SSLeay.  
+
+=head2 FreeBSD 2.x.x / Solaris - ... des.h:96 #error _ is defined ...
+
+If you encounter this error: "...des.h:96: #error _ is
+defined, but some strange definition the DES library cannot handle
+that...," then you need to edit the des.h file and comment out the 
+"#error" line.
+
+Its looks like this error might be common to other operating
+systems, and that occurs with OpenSSL 0.9.3.  Upgrades to
+0.9.4 seem to fix this problem.
 
 =head1 NOTES
 
