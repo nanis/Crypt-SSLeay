@@ -1,4 +1,7 @@
-$MODULE=Crypt::SSLeay; $VERSION = .47; $DATE="TBD";
+$MODULE=Crypt::SSLeay; $VERSION = .49; $DATE="2003-01-30";
+
++ Documentation updates, including new support address
+  for LWP issues, and $ENV{HTTPS_DEBUG} flag.
 
 + Added c:/openssl in default search path on win32 machines
   which is the recommended installation area in the openssl dist

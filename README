@@ -17,6 +17,9 @@ SYNOPSIS
       $ENV{HTTPS_PROXY_USERNAME} = 'username';
       $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
+      # DEBUGGING SWITCH / LOW LEVEL SSL DIAGNOSTICS
+      $ENV{HTTPS_DEBUG} = 1;
+
       # DEFAULT SSL VERSION
       $ENV{HTTPS_VERSION} = '3';
 
@@ -51,7 +54,6 @@ DESCRIPTION
 
 INSTALL
   OpenSSL
-
     You must have OpenSSL or SSLeay installed before compiling this module.
     You can get the latest OpenSSL package from:
 
@@ -74,7 +76,6 @@ INSTALL
     /usr/local/openssl/include to /usr/local/include
 
   Crypt::SSLeay
-
     The latest Crypt::SSLeay can be found at your nearest CPAN, and also:
 
       http://www.perl.com/CPAN-local/modules/by-module/Crypt/
@@ -103,7 +104,6 @@ PROXY SUPPORT
     you.
 
   LWP::UserAgent Proxy Support
-
     LWP::UserAgent has its own methods of proxying which may work for you
     and is likely incompatible with Crypt::SSLeay proxy support. To use
     LWP::UserAgent proxy support, try something like:
@@ -122,7 +122,6 @@ PROXY SUPPORT
     support.
 
   Crypt::SSLeay Proxy Support
-
     For native Crypt::SSLeay proxy support of https requests, you need to
     set an environment variable HTTPS_PROXY to your proxy server & port, as
     in:
@@ -169,7 +168,6 @@ CLIENT CERTIFICATE SUPPORT
     configure ./net_ssl_test to use your CA cert with the -CAfile option.
 
   Creating a Test Certificate
-
     To create simple test certificates with openssl, you may:
 
          /usr/local/openssl/bin/openssl req -config /usr/local/openssl/openssl.cnf -new -days 365 -newkey rsa:1024 -x509 -keyout notacakey.pem -out notacacert.pem 
@@ -179,7 +177,6 @@ CLIENT CERTIFICATE SUPPORT
     notacakeynopass.pem
 
   PKCS12
-
     New as of version .45 is PKCS12 certificate support thanks to Daisuke
     Kuroda The directives for enabling use of these certificates is:
 
@@ -214,6 +211,8 @@ COMPATIBILITY
 
      PLATFORM       CPU     SSL             PERL     VER    DATE            WHO
      --------       ---     ---             ----     ---    ----            ---
+     Linux 2.4.7    x86     OpenSSL 0.9.6g  5.00800  .49    2003-01-29      Joshua Chamas
+     Win2000 SP2    x86     OpenSSL 0.9.7   5.00601  .49    2003-01-29      Joshua Chamas
      WinNT SP6      x86     OpenSSL 0.9.6a  5.00601  .45    2002-08-01      Joshua Chamas
      Linux 2.4.7    x86     OpenSSL 0.9.6d  5.00800  .45    2002-08-01      Joshua Chamas
      Linux 2.4.7    x86     OpenSSL 0.9.6   5.00601  .39    2002-06-23      Joshua Chamas
@@ -235,14 +234,12 @@ COMPATIBILITY
 
 BUILD NOTES
   Win32, WinNT, Win2000, can't build
-
     If you cannot get it to build on your windows box, try ActiveState perl,
     at least their builds 522 & 618 are known to have a ppm install of
     Crypt::SSLeay available. Please see http://www.activestate.com for more
     info.
 
   AIX 4.3.2 - Symbol Error: __umoddi3 : referenced symbol not found
-
     The __umoddi3 problem applies here as well when compiling with gcc.
 
     Alternative solution: In Makefile.PL, prepend "-L"/usr/local/<path to
@@ -251,7 +248,6 @@ BUILD NOTES
      $LIBS = '-L' . dirname(`gcc -print-libgcc-file-name`) . ' ' . $LIBS;
 
   Solaris x86 - Symbol Error: __umoddi3 : referenced symbol not found
-
      Problem:
 
     On Solaris x86, the default PERL configuration, and preferred, is to use
@@ -270,7 +266,6 @@ BUILD NOTES
     Crypt::SSLeay.
 
   FreeBSD 2.x.x / Solaris - ... des.h:96 #error _ is defined ...
-
     If you encounter this error: "...des.h:96: #error _ is defined, but some
     strange definition the DES library cannot handle that...," then you need
     to edit the des.h file and comment out the "#error" line.
@@ -280,7 +275,6 @@ BUILD NOTES
     problem.
 
   SunOS 4.1.4, Perl 5.004_04 - ld.so: Undefined symbol: _CRYPT_mem_ctrl
-
     Problems: (initial build was fine, but execution of Perl scripts had
     problems)
 
@@ -294,6 +288,9 @@ NOTES
 
     Ben Laurie deserves kudos for his excellent patches for better error
     handling, SSL information inspection, and random seeding.
+
+    Thanks to Pavel Hlavnicka for a patch for freeing memory when using a
+    pkcs12 file, and for inspiring more robust read() behavior.
 
     James Woodyatt is a champ for finding a ridiculous memory leak that has
     been the bane of many a Crypt::SSLeay user.
@@ -314,20 +311,29 @@ NOTES
     Thanks to Chip Turner for patch to build under perl 5.8.0
 
 SUPPORT
-    For OpenSSL and Crypt::SSLeay support, please email the openssl user
-    mailing list at openssl-users@openssl.org
+    For use of Crypt::SSLeay & Net::SSL with perl's LWP, please send email
+    to libwww@perl.org
 
-    Emails to the list sent with at least Crypt::SSLeay in the subject line
-    will be responded to more quickly by myself. Please make the subject
-    line informative like
+    For OpenSSL or general SSL support please email the openssl user mailing
+    list at openssl-users@openssl.org . This includes issues associated with
+    building and installing OpenSSL on one's system.
+
+    Emails to these lists sent with at least Crypt::SSLeay in the subject
+    line will be responded to more quickly by myself. Please make the
+    subject line informative like
 
       Subject: [Crypt::SSLeay] compile problems on Solaris
 
-    This module was originally written by Gisle Aas, and I am now
+    This module was originally written by Gisle Aas, and I am currently
     maintaining it.
 
+    Patches, bug reports, and feedback are welcome, and for feature
+    requests, you may get a contract with my company. Please see
+    http://www.chamas.com/consulting.htm for the best in Perl consulting and
+    contract work.
+
 COPYRIGHT
-     Copyright (c) 1999-2002 Joshua Chamas.
+     Copyright (c) 1999-2003 Joshua Chamas.
      Copyright (c) 1998 Gisle Aas.
 
     This program is free software; you can redistribute it and/or modify it

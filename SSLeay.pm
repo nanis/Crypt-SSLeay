@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.47';
+$VERSION = '0.49';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -57,6 +57,9 @@ __END__
   # PROXY_BASIC_AUTH
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+
+  # DEBUGGING SWITCH / LOW LEVEL SSL DIAGNOSTICS
+  $ENV{HTTPS_DEBUG} = 1;
 
   # DEFAULT SSL VERSION
   $ENV{HTTPS_VERSION} = '3';
@@ -269,8 +272,8 @@ connection attempt order remains unchanged by this setting.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
- Linux 2.4.7	x86	OpenSSL 0.9.6g	5.00800	 .47	2003-01-29	Joshua Chamas
- Win2000 SP2	x86	OpenSSL 0.9.7	5.00601	 .47	2003-01-29	Joshua Chamas
+ Linux 2.4.7	x86	OpenSSL 0.9.6g	5.00800	 .49	2003-01-29	Joshua Chamas
+ Win2000 SP2	x86	OpenSSL 0.9.7	5.00601	 .49	2003-01-29	Joshua Chamas
  WinNT SP6	x86	OpenSSL 0.9.6a	5.00601	 .45	2002-08-01	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6d	5.00800	 .45	2002-08-01	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6	5.00601	 .39	2002-06-23	Joshua Chamas
@@ -358,6 +361,9 @@ Ben Laurie deserves kudos for his excellent patches
 for better error handling, SSL information inspection,
 and random seeding.
 
+Thanks to Pavel Hlavnicka for a patch for freeing memory when
+using a pkcs12 file, and for inspiring more robust read() behavior.
+
 James Woodyatt is a champ for finding a ridiculous memory
 leak that has been the bane of many a Crypt::SSLeay user.
 
@@ -379,21 +385,31 @@ Thanks to Chip Turner for patch to build under perl 5.8.0
 
 =head1 SUPPORT
 
-For OpenSSL and Crypt::SSLeay support, please email the 
-openssl user mailing list at openssl-users@openssl.org  
+For use of Crypt::SSLeay & Net::SSL with perl's LWP, please
+send email to libwww@perl.org
 
-Emails to the list sent with at least Crypt::SSLeay in the 
+For OpenSSL or general SSL support please email the 
+openssl user mailing list at openssl-users@openssl.org .
+This includes issues associated with building and installing
+OpenSSL on one's system.
+
+Emails to these lists sent with at least Crypt::SSLeay in the 
 subject line will be responded to more quickly by myself.
 Please make the subject line informative like
 
   Subject: [Crypt::SSLeay] compile problems on Solaris
 
 This module was originally written by Gisle Aas, and I am
-now maintaining it.
+currently maintaining it.
+
+Patches, bug reports, and feedback are welcome, and 
+for feature requests, you may get a contract with my 
+company.  Please see http://www.chamas.com/consulting.htm
+for the best in Perl consulting and contract work.
 
 =head1 COPYRIGHT
 
- Copyright (c) 1999-2002 Joshua Chamas.
+ Copyright (c) 1999-2003 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
 This program is free software; you can redistribute 
