@@ -41,7 +41,7 @@ if($opt_default && (@CANDIDATE == 1) && $CANDIDATE[0][0]) {
     $SSL_DIR = $CANDIDATE[0][0];
     print "Using --default OpenSSL candidate found at $SSL_DIR\n";
 } else {
-    if($ARGV[0] =~ /^[a-z]\:|^\//) {
+    if($ARGV[0] =~ /^[a-z]\:|^\//i) {
 	$SSL_DIR = shift;
     } else {
 	unless($CANDIDATE[0][0]) {
@@ -155,6 +155,7 @@ sub Candidate {
 
     for (
 	 "$dir/crypto/opensslv.h", # cygwin32 builds
+	 "$dir/inc32/openssl/opensslv.h", # win32 builds
 	 "$dir/include/openssl/opensslv.h", 
 	 "$dir/include/opensslv.h", 
 	 "$dir/include/crypto.h"

@@ -1,6 +1,19 @@
-$MODULE=Crypt::SSLeay; $VERSION = .35; $DATE="2001-10-31";
+$MODULE=Crypt::SSLeay; $VERSION = .37; $DATE="2002-01-08";
 
  + = improvement; - = bug fix
+
+- use OPENSSL_free() instead of free() to fix crashes with win32 perl 5.6.1
+  Thanks to Doug MacEachern for patch.
+
++ added Makefile.PL Candidate() path for win32 builds of OpenSSL
+  Thanks to David Morse for patch.
+
+$MODULE=Crypt::SSLeay; $VERSION = .36; $DATE="2001-12-05";
+
+- perl Makefile.PL C:/some_path should be picked up now ...
+  was doing case insensitive drive letter check before
+
+$MODULE=Crypt::SSLeay; $VERSION = .35; $DATE="2001-10-31";
 
 + Set local $SIG{PIPE} = \&die before $ssl->connect()
   to capture the "broken pipe" error associated with connecting

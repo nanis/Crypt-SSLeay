@@ -371,7 +371,7 @@ subject_name(cert)
 	   str = X509_NAME_oneline(X509_get_subject_name(cert));
 #endif
 	   RETVAL = newSVpv(str, 0);
-	   free(str);
+	   OPENSSL_free(str);
 	OUTPUT:
 	   RETVAL
 
@@ -387,6 +387,6 @@ issuer_name(cert)
 	   str = X509_NAME_oneline(X509_get_issuer_name(cert));
 #endif
 	   RETVAL = newSVpv(str, 0);
-	   free(str);
+	   OPENSSL_free(str);
 	OUTPUT:
 	   RETVAL
