@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.71';
+$VERSION = '2.73';
 
 sub _default_context
 {
@@ -40,7 +40,8 @@ sub configure
     my($self, $arg) = @_;
     my $ssl_version = delete $arg->{SSL_Version} ||
       $ENV{HTTPS_VERSION} || $DEFAULT_VERSION;
-    my $ssl_debug = delete $arg->{SSL_Debug} || 0;
+    my $ssl_debug = delete $arg->{SSL_Debug} || $ENV{HTTPS_DEBUG} || 0;
+
     my $ctx = delete $arg->{SSL_Context} || _default_context($ssl_version);
 
     *$self->{'ssl_ctx'} = $ctx;

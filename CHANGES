@@ -1,6 +1,20 @@
-$MODULE=Crypt::SSLeay; $VERSION = .29; $DATE="2001-06-29";
+$MODULE=Crypt::SSLeay; $VERSION = .31; $DATE="2001-09-21";
 
  + = improvement; - = bug fix
+
++ $ENV{HTTPS_DEBUG} activates Crypt::SSLeay specific debugging,
+  so one can debug from LWP:: calls without using ./net_ssl_test script
+
++ $ENV{CRYPT_SSLEAY_DEFAULT} may now be set to trigger --default
+  functionality for Makefile.PL
+
++ Added --default switch to Makefile.PL which will pick
+  up the first OpenSSL distribution detected and use that
+  for building Crypt::SSLeay. Inspired by Doug MacEachern
+
+- removed exit from Makefile.PL, bug found by Doug MacEachern
+
+$MODULE=Crypt::SSLeay; $VERSION = .29; $DATE="2001-06-29";
 
 + Streamlined *CA* patches so only in $CTX->set_verify()
   which gets called every time now.

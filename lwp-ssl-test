@@ -16,13 +16,13 @@ if($opt_debug) {
     eval "use LWP::Debug qw(+);";
 }
 
-  # PROXY SUPPORT
-  $ENV{HTTPS_PROXY} = $opt_proxy;
-
-  my $url = shift || 'https://www.nodeworks.com';
-  my $ua = new LWP::UserAgent;
-  my $req = new HTTP::Request('HEAD', $url);
-  my $res = $ua->request($req);
-
+# PROXY SUPPORT
+$ENV{HTTPS_PROXY} = $opt_proxy;
+$ENV{HTTPS_DEBUG} = $opt_debug;
+	 
+my $url = shift || 'https://www.nodeworks.com';
+my $ua = new LWP::UserAgent;
+my $req = new HTTP::Request('HEAD', $url);
+my $res = $ua->request($req);
 
 print Dumper($res);

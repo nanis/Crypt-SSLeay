@@ -3,7 +3,12 @@
 use strict;
 use ExtUtils::MakeMaker;
 use File::Basename qw(dirname basename);
+use Getopt::Long;
+use vars qw($opt_default);
 
+&GetOptions("default", \$opt_default);
+
+$opt_default ||= $ENV{CRYPT_SSLEAY_DEFAULT};
 my $currdir = dirname($0) || '.';
 chdir($currdir) || die("can't change to $currdir: $!");
 
@@ -32,14 +37,20 @@ if (@CANDIDATE == 1) {
 }
 
 my $SSL_DIR;
-if($ARGV[0] =~ /^[a-z]\:|^\//) {
-    $SSL_DIR = shift;
+if($opt_default && (@CANDIDATE == 1) && $CANDIDATE[0][0]) {
+    $SSL_DIR = $CANDIDATE[0][0];
+    print "Using --default OpenSSL candidate found at $SSL_DIR\n";
 } else {
-    unless($CANDIDATE[0][0]) {
-	print "No OpenSSL installation found, usually in $POSSIBLE_SSL_DIRS[0]\n";
+    if($ARGV[0] =~ /^[a-z]\:|^\//) {
+	$SSL_DIR = shift;
+    } else {
+	unless($CANDIDATE[0][0]) {
+	    print "No OpenSSL installation found, usually in $POSSIBLE_SSL_DIRS[0]\n";
+	}
+	$SSL_DIR = prompt "Which OpenSSL build path do you want to link against?", $CANDIDATE[0][0];
     }
-    $SSL_DIR = prompt "Which OpenSSL build path do you want to link against?", $CANDIDATE[0][0];
 }
+
 my $candidate = &Candidate($SSL_DIR);
 unless($candidate) {
     warn "Apparently no SSLeay installation at '$SSL_DIR'\nAre you sure you got it correct????\n"
@@ -134,7 +145,6 @@ WriteMakefile(
     INC     => "-I".$SSL_INC,
     dist    => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
-exit;
 
 ## HELPERS
 
