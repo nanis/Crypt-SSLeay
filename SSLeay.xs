@@ -122,6 +122,7 @@ SSL_CTX_new(packname, ssl_version)
 		ctx = SSL_CTX_new(SSLv2_client_method());
 	}		
 	SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 	RETVAL = ctx;
 #else
 	RETVAL = SSL_CTX_new();
@@ -138,6 +139,23 @@ int
 SSL_CTX_set_cipher_list(ctx, ciphers)
      SSL_CTX* ctx
      char* ciphers
+
+int
+SSL_CTX_use_certificate_file(ctx, filename, mode)
+     SSL_CTX* ctx
+     char* filename
+     int mode
+
+int
+SSL_CTX_use_PrivateKey_file(ctx, filename ,mode)
+     SSL_CTX* ctx
+     char* filename
+     int mode
+
+int
+SSL_CTX_check_private_key(ctx)
+     SSL_CTX* ctx
+
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 
@@ -268,6 +286,14 @@ SSL_read(ssl, buf, len,...)
 X509*
 SSL_get_peer_certificate(ssl)
 	SSL* ssl
+
+SV*
+SSL_get_verify_result(ssl)
+	SSL* ssl
+	CODE:
+	   RETVAL = newSViv((SSL_get_verify_result(ssl) == X509_V_OK) ? 1 : 0);
+	OUTPUT:
+	   RETVAL
 
 char*
 SSL_get_shared_ciphers(ssl)

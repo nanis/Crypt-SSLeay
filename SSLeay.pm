@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.23';
+$VERSION = '0.25';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -58,6 +58,10 @@ __END__
 
   # DEFAULT SSL VERSION
   $ENV{HTTPS_VERSION} = '3';
+
+  # CLIENT CERT SUPPORT
+  $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
+  $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
 =head1 DESCRIPTION
 
@@ -154,6 +158,29 @@ this way:
   # PROXY_BASIC_AUTH
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+
+=head1 CLIENT CERTIFICATE SUPPORT
+
+Certificate support is new, provided by patches from Tobias Manthey.
+
+PEM encoded certificate and private key files may be used like this:
+
+  $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
+  $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
+
+You may test your files with the ./net_ssl_test program
+by issuing a command like:
+
+  ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+
+=head2 Creating a Test Certificate
+
+To create simple test certificates with openssl, you may:
+
+     /usr/local/openssl/bin/openssl req -config /usr/local/openssl/openssl.cnf -new -days 365 -newkey rsa:1024 -x509 -keyout notacakey.pem -out notacacert.pem 
+
+To remove the pass phrase from the key file, execute this:
+     /usr/local/openssl/bin/openssl rsa -in notacakey.pem -out notacakeynopass.pem
 
 =head1 SSL VERSIONS
 
@@ -262,6 +289,9 @@ Thanks to Bryan Hart for his patch adding proxy support,
 and thanks to Tobias Manthey for submitting another approach.
 
 Thanks to Alex Rhomberg for Alpha linux ccc patch.
+
+Thanks to Tobias Manthey for his patches for client 
+certificate support.
 
 =head1 SUPPORT
 

@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.30';
+$VERSION = '2.50';
 
 sub _default_context
 {
@@ -31,6 +31,7 @@ sub new {
 sub DESTROY {
     my $self = shift;
     delete $REAL{$self};
+    local $@;
     eval { $self->SUPER::DESTROY; };
 }
 
@@ -78,6 +79,14 @@ sub connect {
     my $arg = *$self->{ssl_arg};
     my $new_arg = *$self->{ssl_new_arg};
     $arg->{SSL_Debug} = $debug;
+
+    # configure certs on connect() time, so we can throw an undef
+    # and have LWP understand the error
+    eval { $self->configure_certs(); };
+    if($@) {
+	$@ = "configure certs failed: $@, $!";
+	return undef;
+    }
 
     eval {
 	local $SIG{ALRM};
@@ -322,6 +331,36 @@ sub proxy {
     $proxy_server =~ s|^https?://||i;
     
     $proxy_server;
+}
+
+sub configure_certs {
+    my $self = shift;
+    my $ctx = *$self->{ssl_ctx};
+
+    my $count = 0;
+    for ('HTTPS_CERT_FILE', 'HTTPS_KEY_FILE') {
+	my $file = $ENV{$_};
+	if($file) {
+	    (-e $file) or die("$file file does not exist: $!");
+	    $count++;
+	    if (/CERT/) {
+		$ctx->use_certificate_file($file ,1) || die("failed to load $file: $!");
+	    } elsif (/KEY/) {
+		$ctx->use_PrivateKey_file($file, 1) || die("failed to load $file: $!");
+	    } else {
+		die("setting $_ not supported");
+	    }
+	}
+    }
+
+    # if both configs are set, then verify them
+    if (($count == 2)) {
+	if (! $ctx->check_private_key) {
+	    die("Private key and certificate do not match");
+	}
+    }
+
+    $count; # number of successful cert loads/checks
 }
 
 1;

@@ -20,6 +20,10 @@ SYNOPSIS
       # DEFAULT SSL VERSION
       $ENV{HTTPS_VERSION} = '3';
 
+      # CLIENT CERT SUPPORT
+      $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
+      $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
+
 DESCRIPTION
     This perl module provides support for the https protocol under LWP, so
     that a LWP::UserAgent can make https GET & HEAD & POST requests. Please
@@ -107,6 +111,29 @@ PROXY SUPPORT
       $ENV{HTTPS_PROXY_USERNAME} = 'username';
       $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
+CLIENT CERTIFICATE SUPPORT
+    Certificate support is new, provided by patches from Tobias Manthey.
+
+    PEM encoded certificate and private key files may be used like this:
+
+      $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
+      $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
+
+    You may test your files with the ./net_ssl_test program by issuing a
+    command like:
+
+      ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+
+  Creating a Test Certificate
+
+    To create simple test certificates with openssl, you may:
+
+         /usr/local/openssl/bin/openssl req -config /usr/local/openssl/openssl.cnf -new -days 365 -newkey rsa:1024 -x509 -keyout notacakey.pem -out notacacert.pem 
+
+    To remove the pass phrase from the key file, execute this:
+    /usr/local/openssl/bin/openssl rsa -in notacakey.pem -out
+    notacakeynopass.pem
+
 SSL VERSIONS
     Crypt::SSLeay tries very hard to connect to ANY SSL web server trying to
     accomodate servers that are buggy, old or simply not standards
@@ -132,6 +159,7 @@ COMPATIBILITY
 
      PLATFORM       CPU     SSL             PERL     VER    DATE            WHO
      --------       ---     ---             ----     ---    ----            ---
+     Solaris 2.7    SPARC   OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
      Linux 2.2.14   x86     OpenSSL 0.9.6   5.00503  .21    2001-01-10      Joshua Chamas
      WinNT SP6      x86     OpenSSL 0.9.4   5.00404  .21    2001-01-10      Joshua Chamas
      AIX 4.3.2      RS/6000 OpenSSL 0.9.6   5.6.0    .19    2001-01-08      Peter Heimann
@@ -203,6 +231,10 @@ NOTES
 
     Thanks to Bryan Hart for his patch adding proxy support, and thanks to
     Tobias Manthey for submitting another approach.
+
+    Thanks to Alex Rhomberg for Alpha linux ccc patch.
+
+    Thanks to Tobias Manthey for his patches for client certificate support.
 
 SUPPORT
     For OpenSSL and Crypt::SSLeay support, please email the openssl user

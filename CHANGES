@@ -1,6 +1,38 @@
-$MODULE=Crypt::SSLeay; $VERSION = .23; $DATE="2001-03-09";
+$MODULE=Crypt::SSLeay; $VERSION = .25; $DATE="2001-04-10";
 
-+ = improvement; - = bug fix
+ + = improvement; - = bug fix
+
++ update ./net_ssl_test to do smart parsing of host, where
+  host can now be of the form http://www.nodeworks.com:443/
+
++ integrated client cert patches provided by Tobias Manthey,
+  creating new config options:
+
+    $ENV{HTTPS_CERT_FILE}  -- file of client certificate
+    $ENV{HTTPS_KEY_FILE}   -- file of private key file
+
+  Also support for these options in ./net_ssl_test with these
+  options:
+ 
+  -cert  client certificate file
+  -key   private key file
+
+  like so:
+
+    ./net_ssl_test -cert=notacacert.pem -key=notacakeynopass.pem -d
+
+  To create simple test cert with openssl:
+
+     /usr/local/openssl/bin/openssl req -config /usr/local/openssl/openssl.cnf -new -days 365 -newkey rsa:1024 -x509 -keyout notacakey.pem -out notacacert.pem 
+     /usr/local/openssl/bin/openssl rsa -in notacakey.pem -out notacakeynopass.pem
+
+$MODULE=Crypt::SSLeay; $VERSION = .24; $DATE="2001-03-09";
+
+ + = improvement; - = bug fix
+
+- local $@ in Net::SSL::DESTROY so we don't kill real errors
+
+$MODULE=Crypt::SSLeay; $VERSION = .23; $DATE="2001-03-09";
 
 + added lwp-ssl-test file for showing LWP code use
 

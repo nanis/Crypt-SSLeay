@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl
 
 use strict;
-use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version $opt_v $opt_help);
-#use lib qw(lib);
+use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version 
+	    $opt_v $opt_help
+	    $opt_cert $opt_key
+	    );
+use lib qw(lib);
 use Net::SSL;
 use File::Basename;
 use Benchmark;
@@ -16,6 +19,8 @@ use Getopt::Long;
 	     'v:i' => \$opt_version,
 	     'h' => \$opt_help,
 	     'help' => \$opt_help,
+	     'cert:s' => \$opt_cert,
+	     'key:s' => \$opt_key,
 	     );
 
 my $basename = &File::Basename::basename($0);
@@ -30,6 +35,9 @@ Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [GET|HEAD] [ssl_server_
   -b  Benchmark NNN times, good test for memory leaks
   -h  This help message
   -p  Proxy server, via CONNECT method, localhost:80 format
+
+  -cert  client certificate file
+  -key   private key file
   
  method          defaults to HEAD
  ssl_server_name defaults to www.nodeworks.com
@@ -61,20 +69,26 @@ if($opt_debug) {
 }
 
 my $method = (@ARGV && $ARGV[0] =~ /^[A-Z]+$/) ? shift : "HEAD";
-my $host;
+my($host, $port, $path);
 if($opt_bench) {
     $host = shift || die("need host, run like ./$basename HEAD yourhost.com.foo");
 } else {
     $host = shift || "www.nodeworks.com";
 }
-my $port   = shift || 443;
-
-if($opt_p) {
-    $ENV{HTTPS_PROXY} = $opt_p;
+if($host =~ m|^(https://)?([^/:]+)(:(\d+))?(/.*)?$|) {
+    ($host, $port, $path) = ($2, $4, $5);	
 }
+
+$port ||= shift || 443;
+$path ||= '/';
+
 if($opt_n) {
     $ENV{NO_PROXY} = $opt_n;
 }
+
+$ENV{HTTPS_PROXY} = $opt_p;
+$ENV{HTTPS_CERT_FILE} = $opt_cert;
+$ENV{HTTPS_KEY_FILE} = $opt_key;
 
 if($opt_version) {
     grep($opt_version eq $_, '2', '3', '23')
@@ -108,17 +122,20 @@ sub ssl_connect {
 			     PeerPort => $port,
 			     SSL_Debug => $opt_debug,
 			     Timeout => 30,
-			     ) || die "Can't connect to $host:$port, $!";
+			     );
+    my $error = $@;
+    $error && die("Can't connect to $host:$port; $error; $!");
   
     my $out .= "WEB SITE: $host:$port\n";
     $out .= "CIPHER: ".$sock->get_cipher."\n";
     my $cert = $sock->get_peer_certificate;
-    
+    # $out .= "VERIFIED:".$sock->get_verify_result()."\n";
+
     $out .= "THIS IS: ".$cert->subject_name."\n";
     $out .= "CERTIFIED BY: ".$cert->issuer_name."\n";
     $out .= "\n";
     
-    $sock->print("$method / HTTP/1.0\n\n");
+    $sock->print("$method $path HTTP/1.0\n\n");
     
     my $buf = '';
     while ($sock->read($buf, 1024)) {
