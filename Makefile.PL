@@ -81,8 +81,9 @@ if($^O =~ /Win32/) {
     $LIBS = "-lssl -lcrypto -lgcc -lRSAglue -lrsaref";
 
     # ccc on alpha support
-    if ($^O eq 'linux' && `uname -m` =~ /alpha/) {
-	$LIBS .= ' -lots';
+    if ($^O eq 'linux' && `uname -m` =~ /alpha/ &&
+	!(system("nm $SSL_DIR/lib/libssl.a|grep -q 'U _Ots'")>>8)) {
+	$LIBS .= ' -lots'; 
     }
 }
 

@@ -1,7 +1,7 @@
 package Net::SSL;
 
 use strict;
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA $VERSION $NEW_ARGS);
 
 use MIME::Base64;
 use Socket;
@@ -14,12 +14,18 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.20';
+$VERSION = '2.30';
 
 sub _default_context
 {
     require Crypt::SSLeay::MainContext;
     Crypt::SSLeay::MainContext::main_ctx(@_);
+}
+
+sub new {
+    my($class, %arg) = @_;
+    local $NEW_ARGS = \%arg;
+    $class->SUPER::new(%arg);
 }
 
 sub DESTROY {
@@ -35,12 +41,15 @@ sub configure
       $ENV{HTTPS_VERSION} || $DEFAULT_VERSION;
     my $ssl_debug = delete $arg->{SSL_Debug} || 0;
     my $ctx = delete $arg->{SSL_Context} || _default_context($ssl_version);
+
     *$self->{'ssl_ctx'} = $ctx;
     *$self->{'ssl_version'} = $ssl_version;
     *$self->{'ssl_debug'} = $ssl_debug;
     *$self->{'ssl_arg'} = $arg;
     *$self->{'ssl_peer_addr'} = $arg->{PeerAddr};
     *$self->{'ssl_peer_port'} = $arg->{PeerPort};
+    *$self->{ssl_new_arg} = $NEW_ARGS;
+
     $self->SUPER::configure($arg);
 }
 
@@ -48,15 +57,18 @@ sub connect {
     my $self = shift;
 
     if ($self->proxy) {
-	my $proxy_connect = $self->proxy_connect_helper(@_);
+	# don't die() in connect, just return undef and set $@
+	my $proxy_connect = eval { $self->proxy_connect_helper(@_); };
 	if(! $proxy_connect || $@) {
-	    die "proxy connect failed: $@ $!";
+	    $@ = "proxy connect failed: $@ $!";
+	    return;
 	}
     } else {
 	*$self->{io_socket_peername}=@_ == 1 ? $_[0] : IO::Socket::sockaddr_in(@_);    
 	if(!$self->SUPER::connect(@_)) {
 	    # better to die than return here
-	    die "Connect failed: $!";
+	    $@ = "Connect failed: $@ $!";
+	    return;
 	}
     }
 
@@ -64,25 +76,53 @@ sub connect {
     my $debug = *$self->{'ssl_debug'} || 0;
     my $ssl = Crypt::SSLeay::Conn->new(*$self->{'ssl_ctx'}, $debug, $self);
     my $arg = *$self->{ssl_arg};
+    my $new_arg = *$self->{ssl_new_arg};
     $arg->{SSL_Debug} = $debug;
-    if ($ssl->connect <= 0) {
-	$ssl = undef;
-	if(*$self->{ssl_version} == 23) {
-	    $arg->{SSL_Version} = 3;
-	    # the new connect might itself be overridden with a REAL SSL
-	    my $new_ssl = Net::SSL->new(%$arg);
-	    $REAL{$self} = $REAL{$new_ssl} || $new_ssl;
-	    return $REAL{$self};
-	} elsif(*$self->{ssl_version} == 3) {
-	    # $self->die_with_error("SSL negotiation failed");
-	    $arg->{SSL_Version} = 2;
-	    my $new_ssl = Net::SSL->new(%$arg);
-	    $REAL{$self} = $new_ssl;
-	    return $new_ssl;
-	} else {
-            $self->die_with_error("SSL negotiation failed: $!");
-	    return;
+
+    eval {
+	local $SIG{ALRM};
+	if ($^O ne 'MSWin32') {
+	    $SIG{ALRM} = sub { $self->die_with_error("SSL connect timeout") };
+	    # timeout / 2 because we have 3 possible connects here
+	    my $alarm_timeout = ($self->timeout / 2) || 60;
+	    alarm($alarm_timeout);
 	}
+
+	my $rv = eval { $ssl->connect } || 0;
+	if ($rv <= 0) {
+	    if ($^O ne 'MSWin32') {
+		alarm(0);
+	    }
+	    $ssl = undef;
+	    my %args = (%$new_arg, %$arg);
+	    if(*$self->{ssl_version} == 23) {
+		$args{SSL_Version} = 3;
+		# the new connect might itself be overridden with a REAL SSL
+		my $new_ssl = Net::SSL->new(%args);
+		$REAL{$self} = $REAL{$new_ssl} || $new_ssl;
+		return $REAL{$self};
+	    } elsif(*$self->{ssl_version} == 3) {
+		# $self->die_with_error("SSL negotiation failed");
+		$args{SSL_Version} = 2;
+		my $new_ssl = Net::SSL->new(%args);
+		$REAL{$self} = $new_ssl;
+		return $new_ssl;
+	    } else {
+		# don't die, but do set $@, and return undef
+		eval { $self->die_with_error("SSL negotiation failed: $!") };
+		$! = "$@; $!";
+		return;
+	    }
+	}
+	if ($^O ne 'MSWin32') {
+	    alarm(0);
+	}
+    };
+
+    # odd error in eval {} block, maybe alarm outside the evals
+    if($@) {
+	$! = "$@; $!";
+	return;
     }
 
     # successful SSL connection gets stored

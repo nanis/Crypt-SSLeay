@@ -1,6 +1,23 @@
-$MODULE=Crypt::SSLeay; $VERSION = .22; $DATE="2001-01-29";
+$MODULE=Crypt::SSLeay; $VERSION = .23; $DATE="2001-03-09";
 
 + = improvement; - = bug fix
+
++ added lwp-ssl-test file for showing LWP code use
+
++ added -h/-help options & docs to ./net_ssl_test script
+
++ updated alpha linux patch from Alex Rhomberg to what 
+  he originally provided, as it covered -lots case better.
+
+- return undef in Net::SSL::connect() instead of die()
+  for better LWP support & error handling.  Still set
+  $@ though, consistent with IO::Socket::INET
+
++ alarm() on Unix platforms around ssl ctx connect, which
+  can hang for process for way too long when trying to 
+  connect to dead https SSL servers.
+
+$MODULE=Crypt::SSLeay; $VERSION = .22; $DATE="2001-01-29";
 
 - remove // style comments
 

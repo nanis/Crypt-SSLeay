@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
 use strict;
-use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version $opt_v);
+use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version $opt_v $opt_help);
 #use lib qw(lib);
 use Net::SSL;
 use File::Basename;
@@ -14,12 +14,52 @@ use Getopt::Long;
 	     'd' => \$opt_debug,
 	     'version:i' => \$opt_version,
 	     'v:i' => \$opt_version,
+	     'h' => \$opt_help,
+	     'help' => \$opt_help,
 	     );
+
+my $basename = &File::Basename::basename($0);
+
+# define sub first, in case you are reading the source :)
+sub help {
+    
+    print <<HELP;
+Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [GET|HEAD] [ssl_server_name] [port]
+
+  -d  Debug mode
+  -b  Benchmark NNN times, good test for memory leaks
+  -h  This help message
+  -p  Proxy server, via CONNECT method, localhost:80 format
+  
+ method          defaults to HEAD
+ ssl_server_name defaults to www.nodeworks.com
+ port            defaults to 443
+
+These are equivalent:
+ 
+  ./net_ssl_test
+  ./net_ssl_test HEAD www.nodeworks.com 443
+
+This might be how you debug your proxy:
+
+  ./net_ssl_test -d -p http://proxy_name:80 www.nodeworks.com
+
+Note http:// on proxy hostname is stripped off, and is 
+meaningless to Crypt::SSLeay.
+
+HELP
+;
+    exit;
+}
+
+if($opt_help) {
+    &help;
+};
+
 if($opt_debug) {
     eval "use LWP::Debug qw(+)";
 }
 
-my $basename = &File::Basename::basename($0);
 my $method = (@ARGV && $ARGV[0] =~ /^[A-Z]+$/) ? shift : "HEAD";
 my $host;
 if($opt_bench) {
@@ -67,6 +107,7 @@ sub ssl_connect {
 			     PeerAddr => $host,
 			     PeerPort => $port,
 			     SSL_Debug => $opt_debug,
+			     Timeout => 30,
 			     ) || die "Can't connect to $host:$port, $!";
   
     my $out .= "WEB SITE: $host:$port\n";

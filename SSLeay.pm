@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.22';
+$VERSION = '0.23';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -182,7 +182,8 @@ connection attempt order remains unchanged by this setting.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
- Linux 2.2.14 	x86	OpenSSL 0.9.6	5.00503	 .21	2001-01-10	Joshua Chamas
+ Solaris 2.7    SPARC   OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
+ Linux 2.2.14   x86	OpenSSL 0.9.6	5.00503	 .21	2001-01-10	Joshua Chamas
  WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .21	2001-01-10	Joshua Chamas
  AIX 4.3.2	RS/6000	OpenSSL 0.9.6	5.6.0	 .19	2001-01-08	Peter Heimann
  Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas
@@ -259,6 +260,8 @@ leak that has been the bane of many a Crypt::SSLeay user.
 
 Thanks to Bryan Hart for his patch adding proxy support,
 and thanks to Tobias Manthey for submitting another approach.
+
+Thanks to Alex Rhomberg for Alpha linux ccc patch.
 
 =head1 SUPPORT
 
