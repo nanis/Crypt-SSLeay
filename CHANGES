@@ -1,3 +1,7 @@
+$MODULE=Crypt::SSLeay; $VERSION = .41; $DATE="2002-07-07";
+
+- fixed t/net_ssl.t to work on Windows NT
+
 $MODULE=Crypt::SSLeay; $VERSION = .40; $DATE="2002-07-03";
 
  + = improvement; - = bug fix

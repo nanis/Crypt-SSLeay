@@ -14,7 +14,8 @@ eval {
 };
 
 print "1..1\n";
-if($@ && ($@ !~ /Connection refused/)) {
+print $@;
+if($@ && ($@ !~ /Connect failed/i)) {
     print "not ok\n";
 } else {
     print "ok\n";
