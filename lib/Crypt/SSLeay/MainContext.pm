@@ -1,4 +1,4 @@
-package Crypt::SSLeay::Context;
+package Crypt::SSLeay::MainContext;
 
 # maintains a single instance of the Crypt::SSLeay::CTX class
 
@@ -10,9 +10,9 @@ require Crypt::SSLeay::CTX;
 my $ctx = Crypt::SSLeay::CTX->new;
 $ctx->set_cipher_list($ENV{SSL_CIPHER}) if $ENV{SSL_CIPHER};
 
-sub ssl_ctx { $ctx }
+sub main_ctx { $ctx }
 
-my %sub_cache = ('ssl_ctx' => \&ssl_ctx );
+my %sub_cache = ('main_ctx' => \&main_ctx );
 
 sub import
 {
@@ -25,7 +25,7 @@ sub import
         my $sub = $sub_cache{$_};
         unless ($sub) {
             my $method = $_;
-            $method =~ s/^ssl_ctx_//;  # optional prefix
+            $method =~ s/^main_ctx_//;  # optional prefix
             $sub = $sub_cache{$_} = sub { $ctx->$method(@_) };
         }
         no strict 'refs';

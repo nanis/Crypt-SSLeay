@@ -1,10 +1,10 @@
 package Net::SSL;
 
-# $Id: SSL.pm,v 1.3 1998/01/10 13:50:41 aas Exp $
+# $Id: SSL.pm,v 1.4 1998/01/10 23:29:07 aas Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -13,8 +13,8 @@ require Crypt::SSLeay;
 
 sub _default_context
 {
-    require Crypt::SSLeay::Context;
-    Crypt::SSLeay::Context::ssl_ctx();
+    require Crypt::SSLeay::MainContext;
+    Crypt::SSLeay::MainContext::main_ctx();
 }
 
 sub configure
