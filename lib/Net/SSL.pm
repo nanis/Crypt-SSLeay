@@ -384,12 +384,16 @@ sub configure_certs {
     my $ctx = *$self->{ssl_ctx};
 
     my $count = 0;
-    for ('HTTPS_CERT_FILE', 'HTTPS_KEY_FILE') {
+    for ('HTTPS_PKCS12_FILE', 'HTTPS_CERT_FILE', 'HTTPS_KEY_FILE') {
 	my $file = $ENV{$_};
 	if($file) {
 	    (-e $file) or die("$file file does not exist: $!");
 	    $count++;
-	    if (/CERT/) {
+	    if (/PKCS12/) {
+		$count++;
+		$ctx->use_pkcs12_file($file ,$ENV{'HTTPS_PKCS12_PASSWORD'}) || die("failed to load $file: $!");
+		last;
+	    } elsif (/CERT/) {
 		$ctx->use_certificate_file($file ,1) || die("failed to load $file: $!");
 	    } elsif (/KEY/) {
 		$ctx->use_PrivateKey_file($file, 1) || die("failed to load $file: $!");

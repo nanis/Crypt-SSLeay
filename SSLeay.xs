@@ -156,6 +156,35 @@ SSL_CTX_use_PrivateKey_file(ctx, filename ,mode)
      int mode
 
 int
+SSL_CTX_use_pkcs12_file(ctx, filename, password)
+     SSL_CTX* ctx
+     char* filename
+     char* password
+     PREINIT:
+	FILE *fp;
+	EVP_PKEY *pkey;
+	X509 *cert;
+	STACK_OF(X509) *ca = NULL;
+	PKCS12 *p12;
+     CODE:
+	if (fp = fopen(filename, "rb")) {
+	    p12 = d2i_PKCS12_fp(fp, NULL);
+	    fclose (fp);
+	    if (p12 && PKCS12_parse(p12, password, &pkey, &cert, &ca)) {
+		PKCS12_free(p12);
+		if (pkey) {
+		    RETVAL = SSL_CTX_use_PrivateKey(ctx, pkey);
+		}
+		if (cert) {
+		    RETVAL = SSL_CTX_use_certificate(ctx, cert);
+		}
+	    }
+	}
+     OUTPUT:
+	RETVAL
+
+
+int
 SSL_CTX_check_private_key(ctx)
      SSL_CTX* ctx
 
@@ -395,7 +424,7 @@ char*
 get_notBeforeString(cert)
          X509* cert
          CODE:
-            RETVAL = X509_get_notBefore(cert)->data;
+            RETVAL = (char*) X509_get_notBefore(cert)->data;
          OUTPUT:
             RETVAL
 
@@ -403,7 +432,7 @@ char*
 get_notAfterString(cert)
          X509* cert
          CODE:
-            RETVAL = X509_get_notAfter(cert)->data;
+            RETVAL = (char*) X509_get_notAfter(cert)->data;
          OUTPUT:
             RETVAL
 

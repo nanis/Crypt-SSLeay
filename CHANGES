@@ -1,3 +1,12 @@
+$MODULE=Crypt::SSLeay; $VERSION = .45; $DATE="2002-08-01";
+
++ PKCS12 certificate support, patch submitted by Beni Takahashi,
+  author of patch Daisuke Kuroda
+
++ Fixing compile warnings on Solaris 8/Sparc with Forte 7.0 about 
+  implicit conversions and implicit declarations.  Thanks to 
+  Marek Rouchal for bug report.
+
 $MODULE=Crypt::SSLeay; $VERSION = .43; $DATE="2002-07-29";
 
 - Removed unused dependency on URI::URL, thanks to Ric Steinberger

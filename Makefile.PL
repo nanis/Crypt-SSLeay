@@ -110,6 +110,9 @@ if($candidate->[1] =~ /openssl/i) {
 open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
 print INCLUDE "#include \"".$ssl_header_prefix."ssl.h\"\n";
 print INCLUDE "#include \"".$ssl_header_prefix."crypto.h\"\n";
+print INCLUDE "#include \"".$ssl_header_prefix."err.h\"\n";
+print INCLUDE "#include \"".$ssl_header_prefix."rand.h\"\n";
+print INCLUDE "#include \"".$ssl_header_prefix."pkcs12.h\"\n";
 if($] < 5.005) {
     warn "writing PL_sv_undef symbol";
     print INCLUDE "#ifndef PL_sv_undef\n";

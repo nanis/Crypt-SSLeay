@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.43';
+$VERSION = '0.45';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -68,6 +68,10 @@ __END__
   # CA CERT PEER VERIFICATION
   $ENV{HTTPS_CA_FILE}   = 'certs/ca-bundle.crt';
   $ENV{HTTPS_CA_DIR}    = 'certs/';
+
+  # CLIENT PKCS12 CERT SUPPORT
+  $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
+  $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
 =head1 DESCRIPTION
 
@@ -227,6 +231,17 @@ To create simple test certificates with openssl, you may:
 To remove the pass phrase from the key file, execute this:
      /usr/local/openssl/bin/openssl rsa -in notacakey.pem -out notacakeynopass.pem
 
+=head2 PKCS12
+
+New as of version .45 is PKCS12 certificate support thanks to Daisuke Kuroda
+The directives for enabling use of these certificates is:
+
+  $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
+  $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
+
+Use of this type of certificate will take precedence over previous
+certificate settings described.
+
 =head1 SSL VERSIONS
 
 Crypt::SSLeay tries very hard to connect to ANY SSL web server
@@ -254,6 +269,8 @@ connection attempt order remains unchanged by this setting.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
+ WinNT SP6	x86	OpenSSL 0.9.6a	5.00601	 .45	2002-08-01	Joshua Chamas
+ Linux 2.4.7	x86	OpenSSL 0.9.6d	5.00800	 .45	2002-08-01	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6	5.00601	 .39	2002-06-23	Joshua Chamas
  Solaris 2.8    Sparc	?		5.00503	 .37	2002-05-31	Christopher Biow
  OpenBSD 2.8	Sparc	?		5.00600	 .25	2001-04-11	Tim Ayers
