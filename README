@@ -1,0 +1,61 @@
+!!! This is work in progress.  Class names and interfaces will change. !!!
+
+
+Crypt::SSLeay
+-------------
+
+This is an Perl interface to the SSLeay library by Eric Young.  SSLeay
+is a free implementation of Netscape's SSL protocol.  You can get more
+information about SSLeay and SSL from these places:
+
+  http://www.psy.uq.oz.au/~ftp/Crypt
+  ftp://ftp.psy.uq.oz.au/pub/Crypto/SSL/
+  http://www.netscape.com/newsref/std/SSL.html
+
+The modules in this package are meant to replace the Net::SSLeay
+module by Sampo Kellomaki which as far as I can see is not maintained
+any more.  I have not been able to reach Sampo on his mail addresses.
+I changed the module name because I did not want to stay completely
+compatible with Sampo's interfaces.
+
+The main motivation for doing this is to improve the SSL support in
+libwww-perl.  Using the old Net::SSLeay module LWP was able to talk to
+HTTPS servers, but you could not examine the ciphers used, the
+server certificates or use client certificates.
+
+The following modules are available:
+
+   Crypt::SSLeay
+
+   Crypt::SSLeay::CTX
+   Crypt::SSLeay::Conn
+   Crypt::SSLeay::X509
+
+   Crypt::SSLeay::Context
+
+   Net::SSL
+
+The Net::SSL module is a IO::Socket::INET subclass that makes use of
+the SSL protocol mostly transparent.
+
+
+
+INSTALLATION
+
+You must first install SSLeay-0.6.6.  The 0.8.X versions of SSLeay
+does not really work yet.  Once this is accomplished you just perform
+the usual steps:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+
+
+COPYRIGHT
+
+  © 1998 Gisle Aas. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
