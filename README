@@ -24,6 +24,10 @@ SYNOPSIS
       $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
       $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
+      # CA CERT PEER VERIFICATION
+      $ENV{HTTPS_CA_FILE}   = 'certs/ca.crt';
+      $ENV{HTTPS_CA_DIR}    = 'certs/';
+
 DESCRIPTION
     This perl module provides support for the https protocol under LWP, so
     that a LWP::UserAgent can make https GET & HEAD & POST requests. Please
@@ -112,7 +116,8 @@ PROXY SUPPORT
       $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
 CLIENT CERTIFICATE SUPPORT
-    Certificate support is new, provided by patches from Tobias Manthey.
+    Certificate support is new provided by patches from Tobias Manthey. Is
+    ALPHA as of .25, but looking pretty stable as of .29.
 
     PEM encoded certificate and private key files may be used like this:
 
@@ -123,6 +128,15 @@ CLIENT CERTIFICATE SUPPORT
     command like:
 
       ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+
+    Additionally, if you would like to tell the client where the CA file is,
+    you may set these. These *CA* configs are ALPHA as of version .29.
+
+      $ENV{HTTPS_CA_FILE} = "some_file";
+      $ENV{HTTPS_CA_DIR}  = "some_dir";
+
+    There is no sample CA cert file at this time for testing, but you may
+    configure ./net_ssl_test to use your CA cert with the -CAfile option.
 
   Creating a Test Certificate
 
@@ -159,9 +173,10 @@ COMPATIBILITY
 
      PLATFORM       CPU     SSL             PERL     VER    DATE            WHO
      --------       ---     ---             ----     ---    ----            ---
-     Solaris 2.7    SPARC   OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
-     Linux 2.2.14   x86     OpenSSL 0.9.6   5.00503  .21    2001-01-10      Joshua Chamas
-     WinNT SP6      x86     OpenSSL 0.9.4   5.00404  .21    2001-01-10      Joshua Chamas
+     OpenBSD 2.8    Sparc   ?               5.00600  .25    2001-04-11      Tim Ayers 
+     Linux 2.2.14   x86     OpenSSL 0.9.6   5.00503  .25    2001-04-10      Joshua Chamas
+     WinNT SP6      x86     OpenSSL 0.9.4   5.00404  .25    2001-04-10      Joshua Chamas
+     Solaris 2.7    Sparc   OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
      AIX 4.3.2      RS/6000 OpenSSL 0.9.6   5.6.0    .19    2001-01-08      Peter Heimann
      Solaris 2.6    x86     OpenSSL 0.9.5a  5.00501  .17    2000-09-04      Joshua Chamas
      Linux 2.2.12   x86     OpenSSL 0.9.5a  5.00503  .16    2000-07-13      David Harris
@@ -235,6 +250,12 @@ NOTES
     Thanks to Alex Rhomberg for Alpha linux ccc patch.
 
     Thanks to Tobias Manthey for his patches for client certificate support.
+
+    Thanks to Gamid Isayev for CA cert support and insight into error
+    messaging.
+
+    Thanks to Jeff Long for working through a tricky CA cert SSLClientVerify
+    issue.
 
 SUPPORT
     For OpenSSL and Crypt::SSLeay support, please email the openssl user

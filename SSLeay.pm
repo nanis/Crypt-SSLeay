@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.27';
+$VERSION = '0.29';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -62,6 +62,10 @@ __END__
   # CLIENT CERT SUPPORT
   $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
   $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
+
+  # CA CERT PEER VERIFICATION
+  $ENV{HTTPS_CA_FILE}   = 'certs/ca.crt';
+  $ENV{HTTPS_CA_DIR}    = 'certs/';
 
 =head1 DESCRIPTION
 
@@ -161,7 +165,8 @@ this way:
 
 =head1 CLIENT CERTIFICATE SUPPORT
 
-Certificate support is new, provided by patches from Tobias Manthey.
+Certificate support is new provided by patches from Tobias Manthey.
+Is ALPHA as of .25, but looking pretty stable as of .29.
 
 PEM encoded certificate and private key files may be used like this:
 
@@ -172,6 +177,17 @@ You may test your files with the ./net_ssl_test program
 by issuing a command like:
 
   ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+
+Additionally, if you would like to tell the client where
+the CA file is, you may set these.  These *CA* configs
+are ALPHA as of version .29.
+
+  $ENV{HTTPS_CA_FILE} = "some_file";
+  $ENV{HTTPS_CA_DIR}  = "some_dir";
+
+There is no sample CA cert file at this time for testing,
+but you may configure ./net_ssl_test to use your CA cert
+with the -CAfile option.
 
 =head2 Creating a Test Certificate
 
@@ -293,6 +309,12 @@ Thanks to Alex Rhomberg for Alpha linux ccc patch.
 
 Thanks to Tobias Manthey for his patches for client 
 certificate support.
+
+Thanks to Gamid Isayev for CA cert support and 
+insight into error messaging.
+
+Thanks to Jeff Long for working through a tricky CA
+cert SSLClientVerify issue.
 
 =head1 SUPPORT
 

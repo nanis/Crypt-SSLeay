@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.70';
+$VERSION = '2.71';
 
 sub _default_context
 {
@@ -62,22 +62,25 @@ sub connect {
     eval { $self->configure_certs(); };
     if($@) {
 	$@ = "configure certs failed: $@, $!";
-	return undef;
+	die $@;
     }
+
+    # finished, update set_verify status
+    *$self->{'ssl_ctx'}->set_verify();
 
     if ($self->proxy) {
 	# don't die() in connect, just return undef and set $@
 	my $proxy_connect = eval { $self->proxy_connect_helper(@_); };
 	if(! $proxy_connect || $@) {
 	    $@ = "proxy connect failed: $@ $!";
-	    return;
+	    die $@;
 	}
     } else {
 	*$self->{io_socket_peername}=@_ == 1 ? $_[0] : IO::Socket::sockaddr_in(@_);    
 	if(!$self->SUPER::connect(@_)) {
 	    # better to die than return here
 	    $@ = "Connect failed: $@ $!";
-	    return;
+	    die $@;
 	}
     }
 
@@ -130,9 +133,9 @@ sub connect {
 		return $new_ssl;
 	    } else {
 		# don't die, but do set $@, and return undef
-		eval { $self->die_with_error("SSL negotiation failed: $!") };
-		$! = "$@; $!";
-		return;
+		eval { $self->die_with_error("SSL negotiation failed") };
+		$@ = "$@; $!";
+		die $@;
 	    }
 	}
 	if ($^O ne 'MSWin32') {
@@ -143,7 +146,7 @@ sub connect {
     # odd error in eval {} block, maybe alarm outside the evals
     if($@) {
 	$! = "$@; $!";
-	return;
+	die $@;
     }
 
     # successful SSL connection gets stored
@@ -199,6 +202,8 @@ sub die_with_error
 
 sub read
 {
+    use Carp;
+    local $SIG{__DIE__} = \&Carp::confess;
     my $self = shift;
     $self = $REAL{$self} || $self;
     my $n=*$self->{'ssl_ssl'}->read(@_);
@@ -369,12 +374,9 @@ sub configure_certs {
     if (($count == 2)) {
 	if (! $ctx->check_private_key) {
 	    die("Private key and certificate do not match");
-	} else {
-	    # finished, update set_verify status to not check server cert
-	    $ctx->set_verify(); 
 	}
     }
-
+    
     $count; # number of successful cert loads/checks
 }
 

@@ -1,6 +1,45 @@
-$MODULE=Crypt::SSLeay; $VERSION = .27; $DATE="TBA";
+$MODULE=Crypt::SSLeay; $VERSION = .29; $DATE="2001-06-29";
 
  + = improvement; - = bug fix
+
++ Streamlined *CA* patches so only in $CTX->set_verify()
+  which gets called every time now.
+
++ Throw error instead of return undef in Net::SSL->connect()
+  because we loose the errors otherwise.  Applications
+  working with Net::SSL will have to trap calls around
+  Net::SSL->connect with eval {}.  There are so many 
+  kinds of errors now, especially with certificate
+  support that we really need to throw specific error
+  messages, and not let them get lost in $!.
+
+- Turn SSL_MODE_AUTO_RETRY on so clients can survive
+  changes in SSLVerifyClient changes in the modssl connection
+
+  Comment from source:
+	   /* The set mode is necessary so the SSL connection can
+  	    * survive a renegotiated cipher that results from 
+	    * modssl VerifyClient config changing between 
+	    * VirtualHost & some other config block.  At modssl
+	    * this would be a [trace] ssl message:
+	    *  "Changed client verification type will force renegotiation"
+  #ifdef SSL_MODE_AUTO_RETRY
+	   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+  #endif
+
+  Seems like openssl 0.9.4 didn't need this but 0.9.6 does,
+  not sure though.
+
++ Integrated patches from Gamid Isayev for CA peer
+  verification.  New settings include:
+
+  $ENV{HTTPS_CA_FILE} = "some_file";
+  $ENV{HTTPS_CA_DIR}  = "some_dir";
+
+  Also create config switches for these in ./net_ssl_test,
+  -CAfile and -CAdir
+
+$MODULE=Crypt::SSLeay; $VERSION = .27; $DATE="TBA";
 
 - Client certs weren't working correctly, setup certs
   earlier in connection now, also create new CTX per

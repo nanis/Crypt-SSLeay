@@ -122,7 +122,10 @@ SSL_CTX_new(packname, ssl_version)
 		ctx = SSL_CTX_new(SSLv2_client_method());
 	}		
 	SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
+
+	SSL_CTX_set_default_verify_paths(ctx);
 	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+
 	RETVAL = ctx;
 #else
 	RETVAL = SSL_CTX_new();
@@ -159,9 +162,19 @@ SSL_CTX_check_private_key(ctx)
 void
 SSL_CTX_set_verify(ctx)
      SSL_CTX* ctx
+     PREINIT:
+        char* CAfile;
+        char* CAdir;
      CODE:
-       SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+        CAfile=getenv("HTTPS_CA_FILE");
+        CAdir =getenv("HTTPS_CA_DIR");
 
+        if(!CAfile && !CAdir) {
+                SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+        } else {
+                SSL_CTX_load_verify_locations(ctx,CAfile,CAdir);
+                SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+        }
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 
@@ -170,8 +183,23 @@ SSL_new(packname, ctx, debug, ...)
 	SV* packname
 	SSL_CTX* ctx
 	SV* debug
+	PREINIT:
+	SSL* ssl;
 	CODE:
-	   RETVAL = SSL_new(ctx);
+	   ssl = SSL_new(ctx);
+	   SSL_set_connect_state(ssl);
+	   /* The set mode is necessary so the SSL connection can
+  	    * survive a renegotiated cipher that results from 
+	    * modssl VerifyClient config changing between 
+	    * VirtualHost & some other config block.  At modssl
+	    * this would be a [trace] ssl message:
+	    *  "Changed client verification type will force renegotiation"
+	    * -- jc 6/28/2001
+	    */	      	
+#ifdef SSL_MODE_AUTO_RETRY
+	   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+#endif
+	   RETVAL = ssl;
 	   if(SvTRUE(debug)) {
              SSL_set_info_callback(RETVAL,InfoCallback);
 	   }

@@ -3,7 +3,7 @@
 use strict;
 use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version 
 	    $opt_v $opt_help
-	    $opt_cert $opt_key
+	    $opt_cert $opt_key $opt_cafile $opt_cadir
 	    );
 use lib qw(lib);
 use Net::SSL;
@@ -21,6 +21,8 @@ use Getopt::Long;
 	     'help' => \$opt_help,
 	     'cert:s' => \$opt_cert,
 	     'key:s' => \$opt_key,
+	     'CAfile:s' => \$opt_cafile,
+	     'CAdir:s' => \$opt_cadir,
 	     );
 
 my $basename = &File::Basename::basename($0);
@@ -90,6 +92,9 @@ $ENV{HTTPS_PROXY} = $opt_p;
 $ENV{HTTPS_CERT_FILE} = $opt_cert;
 $ENV{HTTPS_KEY_FILE} = $opt_key;
 
+$opt_cafile && ( $ENV{HTTPS_CA_FILE} = $opt_cafile );
+$opt_cadir  && ( $ENV{HTTPS_CA_DIR} = $opt_cadir   );
+
 if($opt_version) {
     grep($opt_version eq $_, '2', '3', '23')
 	|| die("$opt_version must be one of 2, 3, or 23");
@@ -130,12 +135,13 @@ sub ssl_connect {
     my $out .= "WEB SITE: $host:$port\n";
     $out .= "CIPHER: ".$sock->get_cipher."\n";
     my $cert = $sock->get_peer_certificate;
-#    $out .= "VERIFIED:".$sock->get_verify_result()."\n";
 
     $out .= "THIS IS: ".$cert->subject_name."\n";
     $out .= "CERTIFIED BY: ".$cert->issuer_name."\n";
     $out .= "\n";
     $sock->print("$method $path HTTP/1.0\n\n");
+    print $out;
+    $out = '';
     
     my $buf = '';
     while ($sock->read($buf, 1024)) {
