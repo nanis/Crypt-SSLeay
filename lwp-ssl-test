@@ -33,6 +33,7 @@ $opt_cadir  && ( $ENV{HTTPS_CA_DIR} = $opt_cadir   );
 	 
 my $url = shift || 'https://www.nodeworks.com';
 my $ua = new LWP::UserAgent;
+$ua->timeout(15);
 my $req = new HTTP::Request('HEAD', $url);
 my $res = $ua->request($req);
 

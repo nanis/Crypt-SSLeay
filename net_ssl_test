@@ -128,7 +128,7 @@ sub ssl_connect {
 			     PeerAddr => $host,
 			     PeerPort => $port,
 			     SSL_Debug => $opt_debug,
-			     Timeout => 30,
+			     Timeout => 15,
 			     );
     $sock || ($@ ||= "no Net::SSL connection established");
     my $error = $@;

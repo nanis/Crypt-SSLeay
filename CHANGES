@@ -1,3 +1,26 @@
+$MODULE=Crypt::SSLeay; $VERSION = .47; $DATE="TBD";
+
++ Added c:/openssl in default search path on win32 machines
+  which is the recommended installation area in the openssl dist
+
++ Added patch from Pavel Hlavnicka for freeing memory leaks
+  from SSL_CTX_use_pkcs12_file() whose functionality is triggered
+  by the $ENV{HTTPS_PKCS12_*} settings
+
++ Set timeout to 15 seconds for ./net_ssl_test and lwp-ssl-test
+  sample scripts for better testing of timeout behavior
+
++ Added alarm() during Net::SSL->read() to honor socket timeout setting
+  for more robust applications.  read() will die_with_error() which
+  in consistent with previous semantics used during SSL read() failure 
+  Thanks to Pavel Hlavnicka for prompting this change.
+
++ Removed code that supported versions of SSLeay before version 0.8
+  I believe SSLeay v.8 was released back in 1998
+
++ Added patch from Devin Heitmueller so that initial random seed
+  would be taken from /dev/urandom if available via RAND_load_file API
+
 $MODULE=Crypt::SSLeay; $VERSION = .45; $DATE="2002-08-01";
 
 + PKCS12 certificate support, patch submitted by Beni Takahashi,

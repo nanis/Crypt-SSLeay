@@ -14,6 +14,10 @@ chdir($currdir) || die("can't change to $currdir: $!");
 
 # FIND POSSIBLE SSL INSTALLATIONS
 my @POSSIBLE_SSL_DIRS = qw(/usr/local/openssl /usr/local/ssl /local/ssl /opt/ssl /usr/local /local /usr);
+if($^O eq 'MSWin32') {
+    unshift(@POSSIBLE_SSL_DIRS, 'c:/openssl');
+}
+
 my @CANDIDATE;
 my $open_ssl = 0;
 my $dir;

@@ -5,6 +5,7 @@ use vars qw(@ISA $VERSION $NEW_ARGS);
 
 use MIME::Base64;
 use Socket;
+use Carp;
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -55,6 +56,11 @@ sub configure
     $self->SUPER::configure($arg);
 }
 
+# override to make sure there is really a timeout
+sub timeout {
+    shift->SUPER::timeout || 60;
+}
+
 sub connect {
     my $self = shift;
 
@@ -63,7 +69,7 @@ sub connect {
     eval { $self->configure_certs(); };
     if($@) {
 	$@ = "configure certs failed: $@, $!";
-	die $@;
+	$self->die_with_error($@);
     }
 
     # finished, update set_verify status
@@ -75,14 +81,14 @@ sub connect {
 	# don't die() in connect, just return undef and set $@
 	my $proxy_connect = eval { $self->proxy_connect_helper(@_); };
 	if(! $proxy_connect || $@) {
-	    $@ = "proxy connect failed: $@ $!";
+	    $@ = "proxy connect failed: $@; $!";
 	    die $@;
 	}
     } else {
 	*$self->{io_socket_peername}=@_ == 1 ? $_[0] : IO::Socket::sockaddr_in(@_);    
 	if(!$self->SUPER::connect(@_)) {
 	    # better to die than return here
-	    $@ = "Connect failed: $@ $!";
+	    $@ = "Connect failed: $@; $!";
 	    die $@;
 	}
     }
@@ -95,13 +101,9 @@ sub connect {
     $arg->{SSL_Debug} = $debug;
 
     eval {
-	local $SIG{ALRM};
-	if ($^O ne 'MSWin32') {
-	    $SIG{ALRM} = sub { $self->die_with_error("SSL connect timeout") };
-	    # timeout / 2 because we have 3 possible connects here
-	    my $alarm_timeout = ($self->timeout / 2) || 60;
-	    alarm($alarm_timeout);
-	}
+	local $SIG{ALRM} = sub { $self->die_with_error("SSL connect timeout") };
+	# timeout / 2 because we have 3 possible connects here
+	alarm_ok() && alarm($self->timeout / 2);
 
 	my $rv;
 	{
@@ -109,9 +111,7 @@ sub connect {
 	    $rv = eval { $ssl->connect; };
 	}
 	if ($rv <= 0) {
-	    if ($^O ne 'MSWin32') {
-		alarm(0);
-	    }
+	    alarm_ok() && alarm(0);
 	    $ssl = undef;
 	    my %args = (%$new_arg, %$arg);
 	    if(*$self->{ssl_version} == 23) {
@@ -133,9 +133,7 @@ sub connect {
 		die $@;
 	    }
 	}
-	if ($^O ne 'MSWin32') {
-	    alarm(0);
-	}
+	alarm_ok() && alarm(0);
     };
 
     # odd error in eval {} block, maybe alarm outside the evals
@@ -202,14 +200,23 @@ sub die_with_error
     die "$reason: $errs";
 }
 
+sub alarm_ok() {
+    $^O ne 'MSWin32';
+}
+
 sub read
 {
-    use Carp;
-    local $SIG{__DIE__} = \&Carp::confess;
     my $self = shift;
     $self = $REAL{$self} || $self;
+
+    local $SIG{__DIE__} = \&Carp::confess;
+    local $SIG{ALRM} = sub { $self->die_with_error("SSL read timeout") };
+
+    alarm_ok() && alarm($self->timeout);
     my $n=*$self->{'ssl_ssl'}->read(@_);
     $self->die_with_error("read failed") if !defined $n;
+    alarm_ok() && alarm(0);
+
     $n;
 }
 

@@ -25,10 +25,6 @@ extern "C" {
 #endif
 
 
-#if SSLEAY_VERSION_NUMBER >= 0x0800
-#define SSLEAY8
-#endif
-
 /* moved this out to Makefile.PL so user can 
  * see value being used printed during build
  * #if SSLEAY_VERSION_NUMBER >= 0x0900
@@ -100,10 +96,10 @@ SSL_CTX_new(packname, ssl_version)
      SV* packname
      int ssl_version
      CODE:
-#ifdef SSLEAY8
 	SSL_CTX* ctx;
 	static int bNotFirstTime;
 	char buf[1024];
+        int rand_bytes_read;
 
 	if(!bNotFirstTime) {
                SSLeay_add_all_algorithms();
@@ -111,7 +107,15 @@ SSL_CTX_new(packname, ssl_version)
                ERR_load_crypto_strings();
 	       bNotFirstTime = 1;
         }
-        RAND_seed(buf,sizeof buf);
+
+        /**** Code from Devin Heitmueller, 10/3/2002 ****/
+        /**** Use /dev/urandom to seed if available  ****/
+        rand_bytes_read = RAND_load_file("/dev/urandom", 1024);
+        if (rand_bytes_read <= 0) {
+		/* Couldn't read /dev/urandom, just seed off
+		   of the stack variable (the old way) */
+	        RAND_seed(buf,sizeof buf);
+	}
 
 	if(ssl_version == 23) {
 		ctx = SSL_CTX_new(SSLv23_client_method());
@@ -127,9 +131,6 @@ SSL_CTX_new(packname, ssl_version)
 	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 
 	RETVAL = ctx;
-#else
-	RETVAL = SSL_CTX_new();
-#endif
 
      OUTPUT:
 	RETVAL
@@ -155,6 +156,7 @@ SSL_CTX_use_PrivateKey_file(ctx, filename ,mode)
      char* filename
      int mode
 
+
 int
 SSL_CTX_use_pkcs12_file(ctx, filename, password)
      SSL_CTX* ctx
@@ -162,24 +164,32 @@ SSL_CTX_use_pkcs12_file(ctx, filename, password)
      char* password
      PREINIT:
 	FILE *fp;
-	EVP_PKEY *pkey;
-	X509 *cert;
+        EVP_PKEY *pkey;
+        X509 *cert;
 	STACK_OF(X509) *ca = NULL;
 	PKCS12 *p12;
      CODE:
 	if (fp = fopen(filename, "rb")) {
-	    p12 = d2i_PKCS12_fp(fp, NULL);
-	    fclose (fp);
-	    if (p12 && PKCS12_parse(p12, password, &pkey, &cert, &ca)) {
-		PKCS12_free(p12);
-		if (pkey) {
-		    RETVAL = SSL_CTX_use_PrivateKey(ctx, pkey);
-		}
-		if (cert) {
-		    RETVAL = SSL_CTX_use_certificate(ctx, cert);
-		}
+	  p12 = d2i_PKCS12_fp(fp, NULL);
+	  fclose (fp);
+
+	  if (p12) { 
+	    if(PKCS12_parse(p12, password, &pkey, &cert, &ca)) {
+	      if (pkey) {
+		RETVAL = SSL_CTX_use_PrivateKey(ctx, pkey);
+		EVP_PKEY_free(pkey);
+	      }
+	      if (cert) {
+		RETVAL = SSL_CTX_use_certificate(ctx, cert);
+		X509_free(cert);
+	      }
 	    }
+	    PKCS12_free(p12);
+	  }
+
 	}
+        
+
      OUTPUT:
 	RETVAL
 
@@ -394,11 +404,7 @@ subject_name(cert)
 	PREINIT:
 	   char* str;
 	CODE:
-#ifdef SSLEAY8
 	   str = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
-#else
-	   str = X509_NAME_oneline(X509_get_subject_name(cert));
-#endif
 	   RETVAL = newSVpv(str, 0);
 	   CRYPT_SSLEAY_free(str);
 	OUTPUT:
@@ -410,11 +416,7 @@ issuer_name(cert)
 	PREINIT:
 	   char* str;
 	CODE:
-#ifdef SSLEAY8
 	   str = X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0);
-#else
-	   str = X509_NAME_oneline(X509_get_issuer_name(cert));
-#endif
 	   RETVAL = newSVpv(str, 0);
 	   CRYPT_SSLEAY_free(str);
 	OUTPUT:

@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.45';
+$VERSION = '0.47';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -269,6 +269,8 @@ connection attempt order remains unchanged by this setting.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
+ Linux 2.4.7	x86	OpenSSL 0.9.6g	5.00800	 .47	2003-01-29	Joshua Chamas
+ Win2000 SP2	x86	OpenSSL 0.9.7	5.00601	 .47	2003-01-29	Joshua Chamas
  WinNT SP6	x86	OpenSSL 0.9.6a	5.00601	 .45	2002-08-01	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6d	5.00800	 .45	2002-08-01	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6	5.00601	 .39	2002-06-23	Joshua Chamas
