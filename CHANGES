@@ -1,3 +1,29 @@
+$MODULE=Crypt::SSLeay; $VERSION = .10; $DATE="08/10/99";
+
+1999-08-10   Joshua Chamas <joshua@chamas.com>
+
++ = improvement; - = bug fix
+
++ Worked through __umoddi3 undef symbol error 
+  for building on Solaris x86.  See REAME build notes.
+
++ I try to provide backwards compatible building
+  with SSLeay (< v.0.9.2), but last build with OpenSSL, 
+  so might have broken something.
+
++ Will pick up ssl distributions installed at
+  /usr/local/openssl, and /usr/local/ssl ... openssl
+  headers should be at $SSL_DIR/include/openssl
+  for compilation to work.
+
+- Added SSL 3.0 support with SSLv23_client_method()
+  This method will autonegotiate SSL2 or SSL3,
+  and works for web sites that require SSL3
+
++ Added build support in Makefile.PL for WinNT, MS Visual C++
+
++ Added support for OpenSSL v.0.9.4 
+
 1998-10-13   Gisle Aas <aas@sn.no>
 
    Release 0.07

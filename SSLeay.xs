@@ -11,13 +11,15 @@
 extern "C" {
 #endif
 #include "EXTERN.h"
-#include "perl.h"
 #include "XSUB.h"
+#include "perl.h"
 
-#include "ssl.h"
-#include "crypto.h"
+// ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
+// file which is written when building with perl Makefile.PL
+//#include "ssl.h"
+#include "crypt_ssleay_version.h"
+
 #undef Free /* undo namespace pollution from crypto.h */
-
 #ifdef __cplusplus
 }
 #endif
@@ -26,6 +28,13 @@ extern "C" {
 #define SSLEAY8
 #endif
 
+// moved this out to Makefile.PL so user can 
+// see value being used printed during build
+//#if SSLEAY_VERSION_NUMBER >= 0x0900
+//#define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
+//#else
+//#define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
+//#endif
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay
 
@@ -38,11 +47,14 @@ SSL_CTX_new(packname)
      SV* packname
      CODE:
 #ifdef SSLEAY8
-	RETVAL = SSL_CTX_new(SSLv2_client_method());
-	printf("CTX=%ld\n", RETVAL);
+	// SSLv2 & SSLv23 does not work with as many servers
+	// SSLv3 seems to downgrade to v2 where appropriate
+	SSLeay_add_ssl_algorithms();
+	RETVAL = SSL_CTX_new(CRYPT_SSL_CLIENT_METHOD);
 #else
 	RETVAL = SSL_CTX_new();
 #endif
+
      OUTPUT:
 	RETVAL
 
@@ -54,7 +66,6 @@ int
 SSL_CTX_set_cipher_list(ctx, ciphers)
      SSL_CTX* ctx
      char* ciphers
-
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 

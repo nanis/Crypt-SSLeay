@@ -9,6 +9,7 @@ require Crypt::SSLeay::CTX;
 
 my $ctx = Crypt::SSLeay::CTX->new;
 $ctx->set_cipher_list($ENV{SSL_CIPHER}) if $ENV{SSL_CIPHER};
+#print STDERR "\n\nCTX $ctx\n\n";
 
 sub main_ctx { $ctx }
 
@@ -34,3 +35,6 @@ sub import
 }
 
 1;
+
+
+
