@@ -371,7 +371,7 @@ subject_name(cert)
 	   str = X509_NAME_oneline(X509_get_subject_name(cert));
 #endif
 	   RETVAL = newSVpv(str, 0);
-	   OPENSSL_free(str);
+	   CRYPT_SSLEAY_free(str);
 	OUTPUT:
 	   RETVAL
 
@@ -387,6 +387,24 @@ issuer_name(cert)
 	   str = X509_NAME_oneline(X509_get_issuer_name(cert));
 #endif
 	   RETVAL = newSVpv(str, 0);
-	   OPENSSL_free(str);
+	   CRYPT_SSLEAY_free(str);
 	OUTPUT:
 	   RETVAL
+
+char*
+get_notBeforeString(cert)
+         X509* cert
+         CODE:
+            RETVAL = X509_get_notBefore(cert)->data;
+         OUTPUT:
+            RETVAL
+
+char*
+get_notAfterString(cert)
+         X509* cert
+         CODE:
+            RETVAL = X509_get_notAfter(cert)->data;
+         OUTPUT:
+            RETVAL
+
+

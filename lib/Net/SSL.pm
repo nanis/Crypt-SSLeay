@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.75';
+$VERSION = '2.77';
 
 sub _default_context
 {
@@ -94,18 +94,6 @@ sub connect {
     my $arg = *$self->{ssl_arg};
     my $new_arg = *$self->{ssl_new_arg};
     $arg->{SSL_Debug} = $debug;
-
-=pod
-
-    # configure certs on connect() time, so we can throw an undef
-    # and have LWP understand the error
-    eval { $self->configure_certs(); };
-    if($@) {
-	$@ = "configure certs failed: $@, $!";
-	return undef;
-    }
-
-=cut
 
     eval {
 	local $SIG{ALRM};
@@ -299,6 +287,26 @@ sub _unimpl
     die "$meth not implemented for Net::SSL sockets";
 }
 
+sub get_lwp_object {
+    my $self = shift;
+
+    my $lwp_object;
+    my $i = 0;
+    while(1) {
+	package DB;
+	my @stack = caller($i++);
+	last unless @stack;
+	my @stack_args = @DB::args;
+	my $stack_object = $stack_args[0] || next;
+	ref($stack_object) || next;
+	if($stack_object->isa('LWP::UserAgent')) {
+	    $lwp_object = $stack_object;
+	    last;
+	}
+    }
+
+    $lwp_object;
+}
 
 sub proxy_connect_helper {
     my $self = shift;
@@ -311,7 +319,8 @@ sub proxy_connect_helper {
     my $realm = "";
     my $length = 0;
     my $line = "<noline>";
-    
+    my $lwp_object = $self->get_lwp_object;
+
     my $iaddr = gethostbyname($host);
     $iaddr || die("can't resolve proxy server name: $host, $!");
     $port || die("no port given for proxy server $proxy");
@@ -336,7 +345,11 @@ sub proxy_connect_helper {
     }else{
 	$connect_string = "CONNECT $peer_addr:$peer_port HTTP/1.0";
     }
-    $connect_string .= $CRLF.$CRLF;
+    $connect_string .= $CRLF;
+    if($lwp_object && $lwp_object->agent) {
+	$connect_string .= "User-Agent: ".$lwp_object->agent.$CRLF;
+    }
+    $connect_string .= $CRLF;
 
     $self->SUPER::send($connect_string);
     my $header;
@@ -360,6 +373,8 @@ sub proxy {
 	$proxy_server = $ENV{$_};
 	last if $proxy_server;
     }
+    return unless $proxy_server;
+
     $proxy_server =~ s|^https?://||i;
     
     $proxy_server;

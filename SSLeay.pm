@@ -1,12 +1,14 @@
 package Crypt::SSLeay;
 
+use Crypt::SSLeay::X509;
+
 use strict;
 use vars qw(@ISA $VERSION %CIPHERS);
 
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.37';
+$VERSION = '0.39';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -64,7 +66,7 @@ __END__
   $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
   # CA CERT PEER VERIFICATION
-  $ENV{HTTPS_CA_FILE}   = 'certs/ca.crt';
+  $ENV{HTTPS_CA_FILE}   = 'certs/ca-bundle.crt';
   $ENV{HTTPS_CA_DIR}    = 'certs/';
 
 =head1 DESCRIPTION
@@ -252,7 +254,9 @@ connection attempt order remains unchanged by this setting.
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
- OpenBSD 2.8	Sparc	?		5.00600	 .25	2001-04-11	Tim Ayers 
+ Linux 2.4.7	x86	OpenSSL 0.9.6	5.00601	 .39	2002-06-23	Joshua Chamas
+ Solaris 2.8    Sparc	?		5.00503	 .37	2002-05-31	Christopher Biow
+ OpenBSD 2.8	Sparc	?		5.00600	 .25	2001-04-11	Tim Ayers
  Linux 2.2.14   x86	OpenSSL 0.9.6	5.00503	 .25	2001-04-10	Joshua Chamas
  WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .25	2001-04-10	Joshua Chamas
  Solaris 2.7    Sparc	OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
@@ -316,6 +320,15 @@ Its looks like this error might be common to other operating
 systems, and that occurs with OpenSSL 0.9.3.  Upgrades to
 0.9.4 seem to fix this problem.
 
+=head2 SunOS 4.1.4, Perl 5.004_04 - ld.so: Undefined symbol: _CRYPT_mem_ctrl
+
+Problems: (initial build was fine, but execution of Perl scripts had problems)
+
+Got a message "ld.so: Undefined symbol: _CRYPT_mem_ctrl"
+solution:  In the Makefile, comment out the line with
+"-fpic"  (also try changing to "-fPIC", and this works
+also, not sure if one is preferred).
+
 =head1 NOTES
 
 Many thanks to Gisle Aas for the original writing of 
@@ -359,7 +372,7 @@ now maintaining it.
 
 =head1 COPYRIGHT
 
- Copyright (c) 1999-2001 Joshua Chamas.
+ Copyright (c) 1999-2002 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
 This program is free software; you can redistribute 

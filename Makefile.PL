@@ -116,6 +116,15 @@ if($] < 5.005) {
     print INCLUDE "#define PL_sv_undef sv_undef\n";
     print INCLUDE "#endif\n";
 }
+
+# OPENSSL_free defined in OpenSSL 0.9.6 and higher
+my $openssl_version = $candidate->[2];
+if(($openssl_version =~ /^OpenSSL/) and ($openssl_version !~ /0\.9\.[2-5]/)) {
+    print INCLUDE "#define CRYPT_SSLEAY_free OPENSSL_free\n";
+} else {
+    print INCLUDE "#define CRYPT_SSLEAY_free free\n";
+}
+
 close INCLUDE;
 
 print <<INFO;

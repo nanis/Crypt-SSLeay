@@ -1,3 +1,54 @@
+$MODULE=Crypt::SSLeay; $VERSION = .39; $DATE="2002-06-23";
+
+ + = improvement; - = bug fix
+
+- Fixed a runtime error with Net::SSL->proxy for running under
+  perl warnings with no proxy defined, which t/net_ssl.t test case
+  revealed.
+
++ Added t/net_ssl.t test for initializing a Net::SSL object
+
++ Added build platform success note for ( thanks Christopher! )
+
+  Solaris 2.8    Sparc	?		5.00503	 .37	2002-05-31	Christopher Biow
+
++ Added build auto-detect for 0.9.6+ and only then use OPENSSL_free 
+  instead of free() since older OpenSSL like 0.9.4 did not have it.
+
++ Added ./net_ssl_test -CAfile documentation, and root CA file from mod_ssl
+  distribution at certs/ca-bundle.crt that can be used for general root CA
+  peer certificate verification.
+
++ Added build notes for 
+
+   SunOS 4.1.4, Perl 5.004_04 - ld.so: Undefined symbol: _CRYPT_mem_ctrl
+
+  from Jeff Haferman.
+
++ When Net::SSL->connect() being called from LWP::UserAgent in proxy mode,
+  will connect to the proxy passing the $ua->agent string as
+    
+   CONNECT $peer_addr:$peer_port HTTP/1.0
+   User-Agent: $ua->agent
+
++ Integrated Richard Chen's patches for exposing the Net::SSL
+  certificate dates via an API:
+
+   Crypt::SSLeay::X509::not_before
+   Crypt::SSLeay::X509::not_after
+
+  which can be gotten to by a call like...
+
+   Net::SSL->new(...)->get_peer_certificate->not_after;
+
+  These methods return a normal timestamp like: 2002-05-22 11:15:17 GMT
+  There is an example of its use in the ./net_ssl_test script.
+
+  The Crypt::SSLeay::* modules will continue to remain undocumented
+  because such functionality lies outside the scope of what this
+  module is geared for.  Net::SSLeay provides a more general API for 
+  OpenSSL functionality.
+
 $MODULE=Crypt::SSLeay; $VERSION = .37; $DATE="2002-01-08";
 
  + = improvement; - = bug fix

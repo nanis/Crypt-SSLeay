@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 use strict;
 use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version 
@@ -31,7 +31,7 @@ my $basename = &File::Basename::basename($0);
 sub help {
     
     print <<HELP;
-Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [GET|HEAD] [ssl_server_name] [port]
+Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [-CAfile=FILE] [GET|HEAD] [ssl_server_name] [port]
 
   -d  Debug mode
   -b  Benchmark NNN times, good test for memory leaks
@@ -40,6 +40,8 @@ Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [GET|HEAD] [ssl_server_
 
   -cert  client certificate file
   -key   private key file
+
+  -CAfile CA certificates file, use certs/ca-bundle.crt for primary root certs 
   
  method          defaults to HEAD
  ssl_server_name defaults to www.nodeworks.com
@@ -132,17 +134,21 @@ sub ssl_connect {
     my $error = $@;
     $error && die("Can't connect to $host:$port; $error; $!");
   
-    my $out .= "WEB SITE: $host:$port\n";
-    $out .= "CIPHER: ".$sock->get_cipher."\n";
+    my $out;
+    $out .= "WEB SITE       : $host:$port\n";
+    $out .= "CIPHER         : ".$sock->get_cipher."\n";
     my $cert = $sock->get_peer_certificate;
 
-    $out .= "THIS IS: ".$cert->subject_name."\n";
-    $out .= "CERTIFIED BY: ".$cert->issuer_name."\n";
+    $out .= "CERT SUBJECT   : ".$cert->subject_name."\n";
+    $out .= "CERTIFIED BY   : ".$cert->issuer_name."\n";
+    $out .= "CERT NOT BEFORE: ".$cert->not_before."\n";
+    $out .= "CERT NOT AFTER : ".$cert->not_after."\n";
+
     $out .= "\n";
     $sock->print("$method $path HTTP/1.0\n\n");
     print $out;
     $out = '';
-    
+
     my $buf = '';
     while ($sock->read($buf, 1024)) {
 	$out .= $buf;

@@ -4,6 +4,9 @@ Makefile.PL
 README
 SSLeay.pm
 SSLeay.xs
+certs/notacacert.pem
+certs/notacakeynopass.pem
+certs/ca-bundle.crt
 lib/Crypt/SSLeay/CTX.pm
 lib/Crypt/SSLeay/Conn.pm
 lib/Crypt/SSLeay/Err.pm
