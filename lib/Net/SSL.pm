@@ -1,10 +1,10 @@
 package Net::SSL;
 
-# $Id: SSL.pm,v 1.4 1998/01/10 23:29:07 aas Exp $
+# $Id: SSL.pm,v 1.5 1998/01/13 22:09:09 aas Exp $
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -29,7 +29,7 @@ sub connect
     my $self = shift;
     return unless $self->SUPER::connect(@_);
     my $ssl = Crypt::SSLeay::Conn->new(*$self->{'ssl_ctx'}, $self);
-    if ($ssl->connect < 0) {
+    if ($ssl->connect <= 0) {
 	# XXX should obtain the real SSLeay error message
 	$self->_error("SSL negotiation failed");
 	return;

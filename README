@@ -1,4 +1,14 @@
-!!! This is work in progress.  Class names and interfaces will change. !!!
+**********************************************************************
+***
+***  NOTE!! This SSLeay interface is already depreciated!!!!
+***
+***  Eric Young is currently implementing his own version of the
+***  SSLeay modules for Perl.  You should not really use this code,
+***  but instead wait for Eric's version.  When it appears
+***  Crypt-SSLeay will go away.
+***
+**********************************************************************
+
 
 
 Crypt::SSLeay
@@ -8,7 +18,7 @@ This is an Perl interface to the SSLeay library by Eric Young.  SSLeay
 is a free implementation of Netscape's SSL protocol.  You can get more
 information about SSLeay and SSL from these places:
 
-  http://www.psy.uq.oz.au/~ftp/Crypt
+  http://www.psy.uq.oz.au/~ftp/Crypto/
   ftp://ftp.psy.uq.oz.au/pub/Crypto/SSL/
   http://www.netscape.com/newsref/std/SSL.html
 

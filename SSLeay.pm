@@ -1,6 +1,6 @@
 package Crypt::SSLeay;
 
-# $Id: SSLeay.pm,v 1.4 1998/01/11 00:09:31 aas Exp $
+# $Id: SSLeay.pm,v 1.7 1998/01/13 22:11:55 aas Exp $
 
 use strict;
 use vars qw(@ISA $VERSION %CIPHERS);
@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.03';
+$VERSION = '0.06';
 
 bootstrap Crypt::SSLeay $VERSION;
 

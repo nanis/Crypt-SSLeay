@@ -1,3 +1,22 @@
+1998-01-13   Gisle Aas <aas@sn.no>
+
+   Release 0.06 and 0.05
+   
+   Fixed test script t/ssl_context.t
+   
+   SSL->connect can return 0.  Fixed bug in Net::SSL
+   
+
+
+1998-01-12   Gisle Aas <aas@sn.no>
+
+   Release 0.04
+
+   Mention depreciation in the README.  Eric's version of the SSLeay
+   glue will replace this module (as well as Sampo Kellomaki's Net::SSLeay).
+
+
+
 1998-01-11   Gisle Aas <aas@sn.no>
 
    Release 0.03
