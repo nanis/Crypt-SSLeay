@@ -1,6 +1,11 @@
-$MODULE=Crypt::SSLeay; $VERSION = .39; $DATE="2002-06-23";
+$MODULE=Crypt::SSLeay; $VERSION = .40; $DATE="2002-07-03";
 
  + = improvement; - = bug fix
+
+- fixed Makefile.PL use of dirname() which could error for perl 5.8.x
+  Thanks to Chip Turner of RedHat for patch.
+
+$MODULE=Crypt::SSLeay; $VERSION = .39; $DATE="2002-06-23";
 
 - Fixed a runtime error with Net::SSL->proxy for running under
   perl warnings with no proxy defined, which t/net_ssl.t test case

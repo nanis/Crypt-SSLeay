@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.39';
+$VERSION = '0.40';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -355,6 +355,8 @@ insight into error messaging.
 
 Thanks to Jeff Long for working through a tricky CA
 cert SSLClientVerify issue.
+
+Thanks to Chip Turner for patch to build under perl 5.8.0
 
 =head1 SUPPORT
 

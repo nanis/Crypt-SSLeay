@@ -44,7 +44,7 @@ static void InfoCallback(SSL *s,int where,int ret)
     char *str;
     int w;
 
-    w=where&~SSL_ST_MASK;
+    w = where & ~SSL_ST_MASK;
 
     if(w & SSL_ST_CONNECT)
        str="SSL_connect";

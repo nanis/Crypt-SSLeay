@@ -294,6 +294,8 @@ NOTES
     Thanks to Jeff Long for working through a tricky CA cert SSLClientVerify
     issue.
 
+    Thanks to Chip Turner for patch to build under perl 5.8.0
+
 SUPPORT
     For OpenSSL and Crypt::SSLeay support, please email the openssl user
     mailing list at openssl-users@openssl.org

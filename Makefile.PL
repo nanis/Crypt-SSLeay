@@ -172,8 +172,10 @@ sub Candidate {
       {
 	  if(-e $_) {
 	      $version_file = $_;
-	  }
+	  } 
       }
+    return unless defined $version_file;
+
     $open_ssl = ($version_file =~ /openssl/) ? 1 : 0;
     my $dirname = $inc_dir = dirname($version_file);
     return unless (-e "$dirname/ssl.h");
