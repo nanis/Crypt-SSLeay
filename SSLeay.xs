@@ -156,6 +156,12 @@ int
 SSL_CTX_check_private_key(ctx)
      SSL_CTX* ctx
 
+void
+SSL_CTX_set_verify(ctx)
+     SSL_CTX* ctx
+     CODE:
+       SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 
@@ -287,6 +293,7 @@ X509*
 SSL_get_peer_certificate(ssl)
 	SSL* ssl
 
+
 SV*
 SSL_get_verify_result(ssl)
 	SSL* ssl
@@ -294,6 +301,7 @@ SSL_get_verify_result(ssl)
 	   RETVAL = newSViv((SSL_get_verify_result(ssl) == X509_V_OK) ? 1 : 0);
 	OUTPUT:
 	   RETVAL
+
 
 char*
 SSL_get_shared_ciphers(ssl)

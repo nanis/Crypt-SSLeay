@@ -1,6 +1,13 @@
-$MODULE=Crypt::SSLeay; $VERSION = .25; $DATE="2001-04-10";
+$MODULE=Crypt::SSLeay; $VERSION = .27; $DATE="TBA";
 
  + = improvement; - = bug fix
+
+- Client certs weren't working correctly, setup certs
+  earlier in connection now, also create new CTX per
+  request, so cert settings don't remain sticky from
+  one request to the next.
+
+$MODULE=Crypt::SSLeay; $VERSION = .25; $DATE="2001-04-10";
 
 + update ./net_ssl_test to do smart parsing of host, where
   host can now be of the form http://www.nodeworks.com:443/

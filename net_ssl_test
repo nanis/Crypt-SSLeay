@@ -99,7 +99,7 @@ if($opt_version) {
 unless(eval { &ssl_connect() }) {
     print <<OUT;
 == FAILED TO CONNECT ==
-Error: $@
+Error: $@ 
 
 If you need to use a proxy, please pass it in as an argument like  
 
@@ -123,18 +123,18 @@ sub ssl_connect {
 			     SSL_Debug => $opt_debug,
 			     Timeout => 30,
 			     );
+    $sock || ($@ ||= "no Net::SSL connection established");
     my $error = $@;
     $error && die("Can't connect to $host:$port; $error; $!");
   
     my $out .= "WEB SITE: $host:$port\n";
     $out .= "CIPHER: ".$sock->get_cipher."\n";
     my $cert = $sock->get_peer_certificate;
-    # $out .= "VERIFIED:".$sock->get_verify_result()."\n";
+#    $out .= "VERIFIED:".$sock->get_verify_result()."\n";
 
     $out .= "THIS IS: ".$cert->subject_name."\n";
     $out .= "CERTIFIED BY: ".$cert->issuer_name."\n";
     $out .= "\n";
-    
     $sock->print("$method $path HTTP/1.0\n\n");
     
     my $buf = '';

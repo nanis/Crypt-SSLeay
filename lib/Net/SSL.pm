@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.50';
+$VERSION = '2.70';
 
 sub _default_context
 {
@@ -57,6 +57,14 @@ sub configure
 sub connect {
     my $self = shift;
 
+    # configure certs on connect() time, so we can throw an undef
+    # and have LWP understand the error
+    eval { $self->configure_certs(); };
+    if($@) {
+	$@ = "configure certs failed: $@, $!";
+	return undef;
+    }
+
     if ($self->proxy) {
 	# don't die() in connect, just return undef and set $@
 	my $proxy_connect = eval { $self->proxy_connect_helper(@_); };
@@ -80,6 +88,8 @@ sub connect {
     my $new_arg = *$self->{ssl_new_arg};
     $arg->{SSL_Debug} = $debug;
 
+=pod
+
     # configure certs on connect() time, so we can throw an undef
     # and have LWP understand the error
     eval { $self->configure_certs(); };
@@ -87,6 +97,8 @@ sub connect {
 	$@ = "configure certs failed: $@, $!";
 	return undef;
     }
+
+=cut
 
     eval {
 	local $SIG{ALRM};
@@ -357,6 +369,9 @@ sub configure_certs {
     if (($count == 2)) {
 	if (! $ctx->check_private_key) {
 	    die("Private key and certificate do not match");
+	} else {
+	    # finished, update set_verify status to not check server cert
+	    $ctx->set_verify(); 
 	}
     }
 
