@@ -1,6 +1,15 @@
-$MODULE=Crypt::SSLeay; $VERSION = .33; $DATE="2001-10-31";
+$MODULE=Crypt::SSLeay; $VERSION = .35; $DATE="2001-10-31";
 
  + = improvement; - = bug fix
+
++ Set local $SIG{PIPE} = \&die before $ssl->connect()
+  to capture the "broken pipe" error associated with connecting
+  to a computer that is not running a SSL web server,
+  when Crypt::SSLeay is built with OpenSSL 0.9.6a.  This error did 
+  not occur with OpenSSL 0.9.4 or OpenSSL 0.9.5a, but this fix should
+  be compatible with those versions too.
+
+$MODULE=Crypt::SSLeay; $VERSION = .33; $DATE="2001-10-31";
 
 + Documented differences / conflicts between LWP proxy support
   and Crypt::SSLeay which seems to be a source of confusion for users.

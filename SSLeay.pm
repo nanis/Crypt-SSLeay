@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.33';
+$VERSION = '0.35';
 
 bootstrap Crypt::SSLeay $VERSION;
 

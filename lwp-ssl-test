@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
 
+use lib qw(lib);
 use LWP::UserAgent;
 use Getopt::Long;
 use strict;

@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.73';
+$VERSION = '2.75';
 
 sub _default_context
 {
@@ -116,7 +116,11 @@ sub connect {
 	    alarm($alarm_timeout);
 	}
 
-	my $rv = eval { $ssl->connect } || 0;
+	my $rv;
+	{
+	    local $SIG{PIPE} = \&die;
+	    $rv = eval { $ssl->connect; };
+	}
 	if ($rv <= 0) {
 	    if ($^O ne 'MSWin32') {
 		alarm(0);
