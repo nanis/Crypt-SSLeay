@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.18';
+$VERSION = '0.19';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -47,6 +47,14 @@ __END__
   my $ua = new LWP::UserAgent;
   my $req = new HTTP::Request('GET', 'https://www.nodeworks.com');
   my $res = $ua->request($req);
+  print $res->code."\n";
+
+  # PROXY SUPPORT
+  $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
+
+  # PROXY_BASIC_AUTH
+  $ENV{HTTPS_PROXY_USERNAME} = 'username';
+  $ENV{HTTPS_PROXU_PASSWORD} = 'password';  
 
 =head1 DESCRIPTION
 
@@ -112,6 +120,38 @@ using the make or nmake commands as shown below.
 
   * use nmake for win32
 
+  !!! NOTE for Win32 users, few people seem to be able to build
+  W  Crypt::SSLeay successfully on that platform.  You don't need
+  I  to because ActiveState has already compiled it for you,
+  N  and is available for their perl builds 618 & 522 as a ppm
+  3  install.  It may also be available for their latest build.
+  2  Keywords: WinNT, Win95, Win98, 95, 98, NT, 2000
+  !!!          Please see http://www.activestate.com/
+
+=head1 PROXY SUPPORT
+
+For proxying web requests, like with LWP::UserAgent->proxy(), or
+lwp-request C<-p> ..., you need to set an environment variable
+HTTPS_PROXY to your proxy server & port, as in:
+
+  # PROXY SUPPORT
+  $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
+  $ENV{HTTPS_PROXY} = '127.0.0.1:8080';
+
+Use of the HTTPS_PROXY environment variable in this way 
+is compatible with LWP::UserAgent->env_proxy() usage.
+
+If we could find the current LWP object executing while
+in Net::SSL context, then we could support proxy() method
+too, but it does not seem feasible to do so at this time.
+
+Basic auth credentials to the proxy server can be provided 
+this way:
+
+  # PROXY_BASIC_AUTH
+  $ENV{HTTPS_PROXY_USERNAME} = 'username';
+  $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+
 =head1 COMPATIBILITY
 
  This module has been compiled on the following platforms:
@@ -132,12 +172,19 @@ using the make or nmake commands as shown below.
 
 =head1 BUILD NOTES
 
+=head2 Win32, WinNT, Win2000, can't build
+
+If you cannot get it to build on your windows box, try 
+ActiveState perl, at least their builds 522 & 618 are
+known to have a ppm install of Crypt::SSLeay available.
+Please see http://www.activestate.com for more info.
+
 =head2 AIX 4.3.2 - Symbol Error: __umoddi3 : referenced symbol not found
 
 The __umoddi3 problem applies here as well when compiling with gcc.
 
 Alternative solution:
-In Makefile.PL, prepend "-L/usr/local/<path to your gcc lib>/<version> " 
+In Makefile.PL, prepend C<-L>/usr/local/<path to your gcc lib>/<version>
 to the $LIBS value. Add after line 82:
 
  $LIBS = '-L' . dirname `gcc -print-libgcc-file-name` . ' ' . $LIBS;
@@ -185,6 +232,9 @@ and random seeding.
 James Woodyatt is a champ for finding a ridiculous memory
 leak that has been the bane of many a Crypt::SSLeay user.
 
+Thanks to Bryan Hart for his patch adding proxy support,
+and thanks to Tobias Manthey for submitting another approach.
+
 =head1 SUPPORT
 
 For OpenSSL and Crypt::SSLeay support, please email the 
@@ -192,13 +242,16 @@ openssl user mailing list at openssl-users@openssl.org
 
 Emails to the list sent with at least Crypt::SSLeay in the 
 subject line will be responded to more quickly by myself.
+Please make the subject line informative like
+
+  Subject: [Crypt::SSLeay] compile problems on Solaris
 
 This module was originally written by Gisle Aas, and I am
 now maintaining it.
 
 =head1 COPYRIGHT
 
- Copyright (c) 1999-2000 Joshua Chamas.
+ Copyright (c) 1999-2001 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
 This program is free software; you can redistribute 

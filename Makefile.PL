@@ -80,6 +80,11 @@ if($^O =~ /Win32/) {
     $SSL_LIB = "-L".$SSL_DIR."/lib";
     $SEP = "/";
     $LIBS = "-lssl -lcrypto -lgcc -lRSAglue -lrsaref";
+
+    # ccc on alpha support
+    if ($^O eq 'linux' && `uname -m` =~ /alpha/) {
+	$LIBS .= ' -lots';
+    }
 }
 
 # write include file that determing ssl support

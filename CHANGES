@@ -1,3 +1,14 @@
+$MODULE=Crypt::SSLeay; $VERSION = .19; $DATE="2001-01-07";
+
++ = improvement; - = bug fix
+
++ Added support for proxy via $ENV{HTTPS_PROXY} = 
+  proxy_host:proxy_port.  Thanks to Bryan Hart for the patch.
+  Also basic auth support added & documented.
+
++ alpha linux ccc support with -lots library added for compile.
+  Patch from Alex Rhomberg.
+
 $MODULE=Crypt::SSLeay; $VERSION = .18; $DATE="2000-11-25";
 
 - created perl/c destructors for the X509 cert for after its
@@ -35,8 +46,6 @@ $MODULE=Crypt::SSLeay; $VERSION = .17; $DATE="2000-09-04";
   it, alias to sv_undef
 
 $MODULE=Crypt::SSLeay; $VERSION = .16; $DATE="2000-02-25";
-
-+ = improvement; - = bug fix
 
 - changes sv_undef calls to PL_sv_undef, since sv_undef is no 
   longer supported under the latest dev releases of perl 5.0056

@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 
-#define DEBUG_SSL_STATE                0
+//#define DEBUG_SSL_STATE                0
 
 #if SSLEAY_VERSION_NUMBER >= 0x0800
 #define SSLEAY8
@@ -41,7 +41,7 @@ extern "C" {
  */
 
 
-#if DEBUG_SSL_STATE
+//#if DEBUG_SSL_STATE
 
 static void InfoCallback(SSL *s,int where,int ret)
     {
@@ -74,7 +74,7 @@ static void InfoCallback(SSL *s,int where,int ret)
          fprintf(stderr,"%s:error in %s\n",str,SSL_state_string_long(s));
        }
     }
-#endif /* DEBUG_SSL_STATE */
+//#endif /* DEBUG_SSL_STATE */
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay
 
@@ -147,16 +147,17 @@ SSL_CTX_set_cipher_list(ctx, ciphers)
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 
 SSL*
-SSL_new(packname, ctx, ...)
+SSL_new(packname, ctx, debug, ...)
 	SV* packname
 	SSL_CTX* ctx
+	SV* debug
 	CODE:
 	   RETVAL = SSL_new(ctx);
-#if DEBUG_SSL_STATE
-           SSL_set_info_callback(RETVAL,InfoCallback);
-#endif	   
+	   if(SvTRUE(debug)) {
+             SSL_set_info_callback(RETVAL,InfoCallback);
+	   }
 	   if (items > 2) {
-	       PerlIO* io = IoIFP(sv_2io(ST(2)));
+	       PerlIO* io = IoIFP(sv_2io(ST(3)));
 #ifdef _WIN32
 	       SSL_set_fd(RETVAL, _get_osfhandle(PerlIO_fileno(io)));
 #else
