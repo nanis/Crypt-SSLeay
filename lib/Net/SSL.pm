@@ -53,6 +53,18 @@ sub configure
     *$self->{'ssl_new_arg'} = $NEW_ARGS;
     *$self->{'ssl_peer_verify'} = 0;
 
+    ## Crypt::SSLeay must also aware the SSL Proxy before calling
+    ## $socket->configure($args). Because the $sock->configure() will
+    ## die when failed to resolve the destination server IP address,
+    ## whatever the SSL proxy is used or not!
+    ## - dqbai, 2003-05-10
+    if (my $proxy = $self->proxy) {
+	my ($host, $port) = split(':',$proxy);
+	$port || die("no port given for proxy server $proxy");
+	$arg->{PeerAddr} = $host;
+	$arg->{PeerPort} = $port;
+    }
+
     $self->SUPER::configure($arg);
 }
 

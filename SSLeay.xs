@@ -13,6 +13,11 @@ extern "C" {
 #include "perl.h"
 #include "XSUB.h"
 
+/* build problem under openssl 0.9.6 and some builds of perl 5.8.x */
+#ifndef PERL5
+#define PERL5 1
+#endif
+
 /* ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
  * file which is written when building with perl Makefile.PL
  * #include "ssl.h"

@@ -100,6 +100,11 @@ if($^O =~ /Win32/) {
 	!(system("nm $SSL_DIR/lib/libssl.a|grep -q 'U _Ots'")>>8)) {
 	$LIBS .= ' -lots'; 
     }
+
+    # this fix was suggested for building on RedHat 9
+    if(-d '/usr/kerberos/include') {
+	$SSL_INC .= " -I/usr/kerberos/include";
+    }
 }
 
 # write include file that determing ssl support

@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.49';
+$VERSION = '0.51';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -112,6 +112,15 @@ When installing openssl make sure your config looks like:
  or
   > ./config --openssldir=/usr/local/ssl
 
+If you are planning on upgrading the default OpenSSL libraries on 
+a system like RedHat, not that I would recommend this, then 
+you might try something like:
+
+  > ./config --openssldir=/usr --shared
+
+The --shared option to config will set up building the .so 
+shared libraries which is important for such systems.
+
  then
   > make
   > make test
@@ -145,7 +154,7 @@ using the make or nmake commands as shown below.
   I  to because ActiveState has already compiled it for you,
   N  and is available for their perl builds 618 & 522 as a ppm
   3  install.  It may also be available for their latest build.
-  2  Keywords: WinNT, Win95, Win98, 95, 98, NT, 2000
+  2  For problems with this, please contact ActiveState.
   !!!          Please see http://www.activestate.com/
 
 =head1 PROXY SUPPORT
@@ -268,10 +277,11 @@ connection attempt order remains unchanged by this setting.
 
 =head1 COMPATIBILITY
 
- This module has been compiled on the following platforms:
+This module has been compiled on the following platforms:
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
+ Linux 2.4.7	x86	OpenSSL 0.9.7	5.00800	 .51	2003-06-10	Joshua Chamas
  Linux 2.4.7	x86	OpenSSL 0.9.6g	5.00800	 .49	2003-01-29	Joshua Chamas
  Win2000 SP2	x86	OpenSSL 0.9.7	5.00601	 .49	2003-01-29	Joshua Chamas
  WinNT SP6	x86	OpenSSL 0.9.6a	5.00601	 .45	2002-08-01	Joshua Chamas
@@ -360,6 +370,12 @@ The web will never be the same :)
 Ben Laurie deserves kudos for his excellent patches
 for better error handling, SSL information inspection,
 and random seeding.
+
+Thanks to Dongqiang Bai for host name resolution fix when
+using a proxy.
+
+Thanks to Stuart Horner of Core Communications, Inc. who found
+the need for building --shared OpenSSL libraries.
 
 Thanks to Pavel Hlavnicka for a patch for freeing memory when
 using a pkcs12 file, and for inspiring more robust read() behavior.

@@ -1,3 +1,19 @@
+$MODULE=Crypt::SSLeay; $VERSION = .51; $DATE="2003-06-10";
+
+- fixed build problem for OpenSSL 0.9.6 and some builds
+  of perl 5.8.x which resulted in make error:
+
+   /usr/include/openssl/des.h:193: parse error before '&' token"
+
+  Thanks to Rob Brown for submitting a similar patch to cover this problem
+
+- bug fix from Dongqiang Bai when server using proxy cannot
+  resolve host name being connected to
+
++ Added documentation for updating system OpenSSL libraries 
+  for systems such has RedHat that have shared libraries built
+  Work sponsored by Stuart Horner of Core Communications, Inc.
+
 $MODULE=Crypt::SSLeay; $VERSION = .49; $DATE="2003-01-30";
 
 + Documentation updates, including new support address
