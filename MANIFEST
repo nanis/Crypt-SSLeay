@@ -6,6 +6,7 @@ SSLeay.pm
 SSLeay.xs
 lib/Crypt/SSLeay/CTX.pm
 lib/Crypt/SSLeay/Conn.pm
+lib/Crypt/SSLeay/Err.pm
 lib/Crypt/SSLeay/MainContext.pm
 lib/Crypt/SSLeay/X509.pm
 lib/Net/SSL.pm

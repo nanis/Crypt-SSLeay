@@ -1,6 +1,5 @@
 /*
- * $Id: SSLeay.xs,v 1.3 1998/10/13 11:18:12 aas Exp $
- *
+ * $Id: SSLeay.xs,v 1.2 2000/05/10 16:37:25 ben Exp $
  * Copyright 1998 Gisle Aas.
  *
  * This library is free software; you can redistribute it and/or
@@ -25,6 +24,9 @@ extern "C" {
 }
 #endif
 
+
+#define DEBUG_SSL_STATE                0
+
 #if SSLEAY_VERSION_NUMBER >= 0x0800
 #define SSLEAY8
 #endif
@@ -38,9 +40,63 @@ extern "C" {
  * #endif
  */
 
+
+#if DEBUG_SSL_STATE
+
+static void InfoCallback(SSL *s,int where,int ret)
+    {
+    char *str;
+    int w;
+
+    w=where&~SSL_ST_MASK;
+
+    if(w & SSL_ST_CONNECT)
+       str="SSL_connect";
+    else if(w & SSL_ST_ACCEPT)
+       str="SSL_accept";
+    else
+       str="undefined";
+
+    if(where & SSL_CB_LOOP)
+       fprintf(stderr,"%s:%s\n",str,SSL_state_string_long(s));
+    else if(where & SSL_CB_ALERT)
+       {
+       str=(where & SSL_CB_READ)?"read":"write";
+       fprintf(stderr,"SSL3 alert %s:%s:%s\n",str,
+               SSL_alert_type_string_long(ret),
+               SSL_alert_desc_string_long(ret));
+       }
+    else if(where & SSL_CB_EXIT)
+       {
+       if(ret == 0)
+         fprintf(stderr,"%s:failed in %s\n",str,SSL_state_string_long(s));
+       else if (ret < 0)
+         fprintf(stderr,"%s:error in %s\n",str,SSL_state_string_long(s));
+       }
+    }
+#endif /* DEBUG_SSL_STATE */
+
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay
 
 PROTOTYPES: DISABLE
+
+MODULE = Crypt::SSLeay         PACKAGE = Crypt::SSLeay::Err PREFIX = ERR_
+
+char*
+ERR_get_error_string()
+  CODE:
+    unsigned long l;
+    char buf[1024];
+
+    if(!(l=ERR_get_error()))
+       RETVAL=NULL;
+    else
+       {
+       ERR_error_string(l,buf);
+       RETVAL=buf;
+       }
+  OUTPUT:
+    RETVAL
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::CTX	PREFIX = SSL_CTX_
 
@@ -51,8 +107,17 @@ SSL_CTX_new(packname, ssl_version)
      CODE:
 #ifdef SSLEAY8
 	SSL_CTX* ctx;
+	static int bNotFirstTime;
+	char buf[1024];
 
-	SSLeay_add_all_algorithms();
+	if(!bNotFirstTime) {
+               SSLeay_add_all_algorithms();
+               SSL_load_error_strings();
+               ERR_load_crypto_strings();
+	       bNotFirstTime = 1;
+        }
+        RAND_seed(buf,sizeof buf);
+
 	if(ssl_version == 23) {
 		ctx = SSL_CTX_new(SSLv23_client_method());
 	} else if(ssl_version == 3) {
@@ -87,6 +152,9 @@ SSL_new(packname, ctx, ...)
 	SSL_CTX* ctx
 	CODE:
 	   RETVAL = SSL_new(ctx);
+#if DEBUG_SSL_STATE
+           SSL_set_info_callback(RETVAL,InfoCallback);
+#endif	   
 	   if (items > 2) {
 	       PerlIO* io = IoIFP(sv_2io(ST(2)));
 #ifdef _WIN32
@@ -218,7 +286,10 @@ SSL_get_shared_ciphers(ssl)
 char*
 SSL_get_cipher(ssl)
 	SSL* ssl
-
+	CODE:
+	   RETVAL = (char*) SSL_get_cipher(ssl);
+	OUTPUT:
+	   RETVAL	
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::X509	PREFIX = X509_
 

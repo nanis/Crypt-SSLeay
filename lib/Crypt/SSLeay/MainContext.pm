@@ -10,7 +10,8 @@ require Crypt::SSLeay::CTX;
 my %CTX;
 for(2,3,23) {
     my $ctx = Crypt::SSLeay::CTX->new($_);
-    $ctx->set_cipher_list($ENV{SSL_CIPHER}) if $ENV{SSL_CIPHER};    
+    $ctx->set_cipher_list($ENV{CRYPT_SSLEAY_CIPHER})
+      if $ENV{CRYPT_SSLEAY_CIPHER};    
     $CTX{$_} = $ctx;
 }
 my $ctx = $CTX{23}; # default ctx

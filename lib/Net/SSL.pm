@@ -4,7 +4,7 @@ package Net::SSL;
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -38,13 +38,15 @@ sub connect
 {
     my $self = shift;
 
-    return unless $self->SUPER::connect(@_);
+    *$self->{io_socket_peername}=@_ == 1 ? $_[0] : IO::Socket::sockaddr_in(@_);    
+    if(!$self->SUPER::connect(@_)) {
+	# better to die than return here
+	die "Connect failed: $!";
+    }
+
     my $ssl = Crypt::SSLeay::Conn->new(*$self->{'ssl_ctx'}, $self);
 #    print "ssl_version ".*$self->{ssl_version}."\n";
     if ($ssl->connect <= 0) {
-	# XXX should obtain the real SSLeay error message
-#	$self->_error("SSL negotiation failed");
-#	return;
 	if(*$self->{ssl_version} == 23) {
 	    my $arg = *$self->{ssl_arg};
 	    $arg->{SSL_Version} = 3;
@@ -53,13 +55,14 @@ sub connect
 	    $REAL{$self} = $REAL{$new_ssl} || $new_ssl;
 	    return $REAL{$self};
 	} elsif(*$self->{ssl_version} == 3) {
+# +           $self->die_with_error("SSL negotiation failed");
 	    my $arg = *$self->{ssl_arg};
 	    $arg->{SSL_Version} = 2;
 	    my $new_ssl = Net::SSL->new(%$arg);
 	    $REAL{$self} = $new_ssl;
 	    return $new_ssl;
 	} else {
-	    $self->_error("SSL negotiation failed");
+            $self->die_with_error("SSL negotiation failed");
 	    return;
 	}
     }
@@ -101,18 +104,35 @@ sub ssl_context
     *$self->{'ssl_ctx'};
 }
 
+sub die_with_error
+{
+    my $self=shift;
+    my $reason=shift;
+
+    my $errs='';
+    while(my $err=Crypt::SSLeay::Err::get_error_string()) {
+       $errs.=" | " if $errs ne '';
+       $errs.=$err;
+    }
+    die "$reason: $errs";
+}
+
 sub read
 {
     my $self = shift;
     $self = $REAL{$self} || $self;
-    *$self->{'ssl_ssl'}->read(@_);
+    my $n=*$self->{'ssl_ssl'}->read(@_);
+    $self->die_with_error("read failed") if !defined $n;
+    $n;
 }
 
 sub write
 {
     my $self = shift;
     $self = $REAL{$self} || $self;
-    *$self->{'ssl_ssl'}->write(@_);
+    my $n=*$self->{'ssl_ssl'}->write(@_);
+    $self->die_with_error("write failed") if !defined $n;
+    $n;
 }
 
 *sysread  = \&read;

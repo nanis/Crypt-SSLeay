@@ -1,3 +1,31 @@
+$MODULE=Crypt::SSLeay; $VERSION = .17; $DATE="2000-09-04";
+
+- got rid of an implicit char* conversion compile warnings 
+  for SSL_get_cipher
+
++ random seeding now occurs with RAND_seed() on random data
+  from the C call stack, works more consistently than RAND_load_file
+  from Ben's patch.
+
++ integrated patches from Ben Laurie for better error messaging
+  and random seed initialization
+
++ set_cipher_list initialized from $ENV{CRYPT_SSLEAY_CIPHER}
+  where before it was initialized from $ENV{SSL_CIPHER}, patch
+  from Ben Laurie, so ENV setting not conflict with Apache-SSL
+
++ tested POST LWP requests and updated documentation indicating
+  that such use is supported  
+
++ net_ssl_test now checks https://www.nodeworks.com by default
+  which has high uptime so should be fine.
+
++ first argument to perl Makefile.pl must be an absolute path
+  for it to be used as default OpenSSL build path
+
++ define PL_sv_undef symbols for older perls that don't support
+  it, alias to sv_undef
+
 $MODULE=Crypt::SSLeay; $VERSION = .16; $DATE="2000-02-25";
 
 + = improvement; - = bug fix

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 my $method = (@ARGV && $ARGV[0] =~ /^[A-Z]+$/) ? shift : "HEAD";
-my $host   = shift || "shop.sol.no";
+my $host   = shift || "www.nodeworks.com";
 my $port   = shift || 443;
 
 use Net::SSL;
@@ -10,6 +10,7 @@ $sock = Net::SSL->new(PeerAddr => $host,
 	              PeerPort => $port,
 	             ) || die "Can't connect to $host:$port";
 
+print "WEB SITE: $host:$port\n";
 print "CIPHER: ", $sock->get_cipher, "\n";
 $cert = $sock->get_peer_certificate;
 

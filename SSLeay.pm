@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -27,8 +27,8 @@ use vars qw(%CIPHERS);
 
 
 # A xsupp bug made this nessesary
-sub Crypt::SSL::CTX::DESTROY  { shift->free; }
-sub Crypt::SSL::Conn::DESTROY { shift->free; }
+sub Crypt::SSLeay::CTX::DESTROY  { shift->free; }
+sub Crypt::SSLeay::Conn::DESTROY { shift->free; }
 
 1;
 
@@ -36,17 +36,23 @@ __END__
 
 =head1 NAME
 
-  Crypt::SSLeay - OpenSSL & SSLeay glue that provides LWP https support
+  Crypt::SSLeay - OpenSSL glue that provides LWP https support
 
 =head1 SYNOPSIS
 
   lwp-request https://www.nodeworks.com
 
+  use LWP::UserAgent;
+  my $ua = new LWP::UserAgent;
+  my $req = new HTTP::Request('GET', 'https://www.nodeworks.com');
+  my $res = $ua->request($req);
+
 =head1 DESCRIPTION
 
 This perl module provides support for the https
 protocol under LWP, so that a LWP::UserAgent can 
-make https GET & HEAD requests. 
+make https GET & HEAD & POST requests. Please see
+perldoc LWP for more information on POST requests.
 
 The Crypt::SSLeay package contains Net::SSL,
 which is automatically loaded by LWP::Protocol::https
@@ -85,7 +91,7 @@ When installing openssl make sure your config looks like:
 This way Crypt::SSLeay will pick up the includes and 
 libraries automatically.  If your includes end up
 going into a separate directory like /usr/local/include,
-then you will need to symlink /usr/local/openssl/include
+then you may need to symlink /usr/local/openssl/include
 to /usr/local/include
 
 =head2 Crypt::SSLeay
@@ -109,17 +115,18 @@ using the make or nmake commands as shown below.
 
  This module has been compiled on the following platforms:
 
- PLATFORM	CPU 	SSL		PERL	 DATE		WHO
- --------	--- 	---		----	 ----		---
- WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-10-03	Joshua Chamas
- FreeBSD 3.2	?x86	OpenSSL 0.9.2b	5.00503	 1999-09-29	Rip Toren
- Solaris 2.6	?Sparc	OpenSSL 0.9.4	5.00404	 1999-08-24	Patrick Killelea
- FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 1999-08-19	Andy Lee
- Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 1999-08-18	Marek Rouchal
- Solaris 2.6	x86	OpenSSL 0.9.4	5.00501	 1999-08-12	Joshua Chamas	
- Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 1999-08-12	Joshua Chamas	
- Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503	 1999-08-11	John Barrett
- WinNT SP4	x86	SSLeay 0.9.2	5.00404	 1999-08-10	Joshua Chamas
+ PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
+ --------	--- 	---		----	 ---	----		---
+ Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas	
+ WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .17	2000-09-04	Joshua Chamas
+ Linux 2.2.12   x86     OpenSSL 0.9.5a  5.00503	 .16	2000-07-13      David Harris
+ FreeBSD 3.2	?x86	OpenSSL 0.9.2b	5.00503	 ?      1999-09-29	Rip Toren
+ Solaris 2.6	?Sparc	OpenSSL 0.9.4	5.00404	 ?      1999-08-24	Patrick Killelea
+ FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 ?      1999-08-19	Andy Lee
+ Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 ?      1999-08-18	Marek Rouchal
+ Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 ?      1999-08-12	Joshua Chamas	
+ Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503	 ?      1999-08-11	John Barrett
+ WinNT SP4	x86	SSLeay 0.9.2	5.00404	 ?      1999-08-10	Joshua Chamas
 
 =head1 BUILD NOTES
 
@@ -159,20 +166,27 @@ Many thanks to Gisle Aas for the original writing of
 this module and many others including libwww for perl.  
 The web will never be the same :)
 
+Ben Laurie deserves kudos for his excellent patches
+for better error handling, SSL information inspection,
+and random seeding.
+
+James Woodyatt is a champ for finding a ridiculous memory
+leak that has been the bane of many a Crypt::SSLeay user.
+
 =head1 SUPPORT
 
-For OpenSSL support, please email the openssl user
-mailing list at openssl-users@openssl.org  
+For OpenSSL and Crypt::SSLeay support, please email the 
+openssl user mailing list at openssl-users@openssl.org  
 
-Please send any Crypt::SSLeay questions or comments to 
-me at joshua@chamas.com
+Emails to the list sent with at least Crypt::SSLeay in the 
+subject line will be responded to more quickly by myself.
 
 This module was originally written by Gisle Aas, and I am
 now maintaining it.
 
 =head1 COPYRIGHT
 
- Copyright (c) 1999 Joshua Chamas.
+ Copyright (c) 1999-2000 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
 This program is free software; you can redistribute 
