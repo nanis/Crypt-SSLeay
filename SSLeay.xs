@@ -25,8 +25,6 @@ extern "C" {
 #endif
 
 
-//#define DEBUG_SSL_STATE                0
-
 #if SSLEAY_VERSION_NUMBER >= 0x0800
 #define SSLEAY8
 #endif
@@ -40,8 +38,6 @@ extern "C" {
  * #endif
  */
 
-
-//#if DEBUG_SSL_STATE
 
 static void InfoCallback(SSL *s,int where,int ret)
     {
@@ -74,7 +70,6 @@ static void InfoCallback(SSL *s,int where,int ret)
          fprintf(stderr,"%s:error in %s\n",str,SSL_state_string_long(s));
        }
     }
-//#endif /* DEBUG_SSL_STATE */
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay
 

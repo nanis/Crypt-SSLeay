@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.10';
+$VERSION = '2.20';
 
 sub _default_context
 {

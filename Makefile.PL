@@ -50,7 +50,6 @@ $candidate ||= ["$SSL_DIR", "$SSL_DIR/include"];
 my($SEP, $SSL_LIB, $SSL_INC, $LIBS);
 $SSL_INC = "$SSL_DIR/include";
 
-"-lssl -lcrypto -lssleay32 -llibeay32";
 if($^O =~ /Win32/) {
     unless($SSL_DIR =~ /^[a-zA-Z]\:/) {
 	# default drive c
@@ -89,15 +88,10 @@ if($^O =~ /Win32/) {
 
 # write include file that determing ssl support
 my $ssl_header_prefix = '';
-my $client_method;
-if($candidate->[2] =~ /openssl/i) {
+my $candidate_info = join('; ', @$candidate);
+if($candidate->[1] =~ /openssl/i) {
     $ssl_header_prefix = "openssl/";
-#    $client_method = "SSLv23_client_method()";
-#    $client_method = "SSLv3_client_method()";
-    $client_method = "SSLv2_client_method()";
-} else {
-    $client_method = "SSLv2_client_method()";
-}    
+}
 
 ## we need to include crypto.h for SSLeay so the version gets
 ## picked up in SSLeay.xs
@@ -112,21 +106,19 @@ if($] < 5.005) {
 }
 close INCLUDE;
 
-# print  INCLUDE "#define CRYPT_SSL_CLIENT_METHOD $client_method\n";
-# client method:	$client_method
-
 print <<INFO;
 
-========================================
+================================================
 BUILD INFORMATION
-========================================
+================================================
 
 ssl dir:	$SSL_DIR
 libraries:      $LIBS
 include dir:	$SSL_INC
 ssl header:     @{[$ssl_header_prefix]}ssl.h
+ssl candidate:  $candidate_info
 
-========================================
+================================================
 
 INFO
   ;

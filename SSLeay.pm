@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.21';
+$VERSION = '0.22';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -54,7 +54,7 @@ __END__
 
   # PROXY_BASIC_AUTH
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
-  $ENV{HTTPS_PROXU_PASSWORD} = 'password';  
+  $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
   # DEFAULT SSL VERSION
   $ENV{HTTPS_VERSION} = '3';

@@ -1,6 +1,10 @@
-$MODULE=Crypt::SSLeay; $VERSION = .21; $DATE="TBA";
+$MODULE=Crypt::SSLeay; $VERSION = .22; $DATE="2001-01-29";
 
 + = improvement; - = bug fix
+
+- remove // style comments
+
+$MODULE=Crypt::SSLeay; $VERSION = .21; $DATE="2001-01-10";
 
 - AIX build notes correction
 
