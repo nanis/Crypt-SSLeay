@@ -1,3 +1,26 @@
+$MODULE=Crypt::SSLeay; $VERSION = .15; $DATE="1999-11-23";
+
++ = improvement; - = bug fix
+
++ reordered header includes for ActiveState people, likely
+  for easier compiling with perl object.
+
++ Added support for cranky SSLv3 sites.  These are sites
+  that don't acknowledge SSLv23 requests, such as:
+
+	https://www.evergreen-funds.com
+	https://ecomm.sella.it
+
+  So now, the module will try connects to SSL servers in 
+  this order: SSLv23, SSLv3, SSLv2
+
+  None of the sites that I tested required only SSLv2 connects, 
+  but it is there just in case.
+
++ using the call SSLeay_add_all_algorithms(); instead of
+  SSLeay_add_ssl_algorithms(), because the latter symbol
+  was not defined on one person's installation.
+
 $MODULE=Crypt::SSLeay; $VERSION = .14; $DATE="1999-10-03";
 
 + = improvement; - = bug fix

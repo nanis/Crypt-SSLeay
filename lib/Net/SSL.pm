@@ -40,11 +40,19 @@ sub connect
 
     return unless $self->SUPER::connect(@_);
     my $ssl = Crypt::SSLeay::Conn->new(*$self->{'ssl_ctx'}, $self);
+#    print "ssl_version ".*$self->{ssl_version}."\n";
     if ($ssl->connect <= 0) {
 	# XXX should obtain the real SSLeay error message
 #	$self->_error("SSL negotiation failed");
 #	return;
 	if(*$self->{ssl_version} == 23) {
+	    my $arg = *$self->{ssl_arg};
+	    $arg->{SSL_Version} = 3;
+	    # the new connect might itself be overridden with a REAL SSL
+	    my $new_ssl = Net::SSL->new(%$arg);
+	    $REAL{$self} = $REAL{$new_ssl} || $new_ssl;
+	    return $REAL{$self};
+	} elsif(*$self->{ssl_version} == 3) {
 	    my $arg = *$self->{ssl_arg};
 	    $arg->{SSL_Version} = 2;
 	    my $new_ssl = Net::SSL->new(%$arg);

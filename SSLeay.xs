@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 #include "EXTERN.h"
-#include "XSUB.h"
 #include "perl.h"
+#include "XSUB.h"
 
 /* ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
  * file which is written when building with perl Makefile.PL
@@ -52,7 +52,7 @@ SSL_CTX_new(packname, ssl_version)
 #ifdef SSLEAY8
 	SSL_CTX* ctx;
 
-	SSLeay_add_ssl_algorithms();
+	SSLeay_add_all_algorithms();
 	if(ssl_version == 23) {
 		ctx = SSL_CTX_new(SSLv23_client_method());
 	} else if(ssl_version == 3) {
