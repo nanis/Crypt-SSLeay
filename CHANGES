@@ -1,6 +1,25 @@
-$MODULE=Crypt::SSLeay; $VERSION = .19; $DATE="2001-01-07";
+$MODULE=Crypt::SSLeay; $VERSION = .21; $DATE="TBA";
 
 + = improvement; - = bug fix
+
+- AIX build notes correction
+
++ No reverse lookup for host done for proxying, more 
+  efficient.  Reuse of cached PeerAddr name from Net::SSL->new
+
++ $ENV{HTTPS_VERSION} setting, so a SSL v3 connection can
+  be used first, instead of SSLv23.  Documented in README,pod.
+  Added support for this to the test program as:
+    
+     ./net_ssl_test -v[ersion] 3 
+
+$MODULE=Crypt::SSLeay; $VERSION = .19; $DATE="2001-01-07";
+
++ Added runtime SSL debugging support, was compile time before.
+  Trigger with Net::SSL->new(..., SSL_Debug => 1) as in 
+  the ./net_ssl_test script run with -d argument.  No
+  API for debugging from LWP requests, just for https
+  debugging with ./net_ssl_test really.
 
 + Added support for proxy via $ENV{HTTPS_PROXY} = 
   proxy_host:proxy_port.  Thanks to Bryan Hart for the patch.

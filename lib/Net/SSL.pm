@@ -10,9 +10,11 @@ use URI::URL;
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
 my %REAL; # private to this package only
+my $DEFAULT_VERSION = '23';
+my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '1.90';
+$VERSION = '2.10';
 
 sub _default_context
 {
@@ -29,13 +31,16 @@ sub DESTROY {
 sub configure
 {
     my($self, $arg) = @_;
-    my $ssl_version = delete $arg->{SSL_Version} || 23;
+    my $ssl_version = delete $arg->{SSL_Version} ||
+      $ENV{HTTPS_VERSION} || $DEFAULT_VERSION;
     my $ssl_debug = delete $arg->{SSL_Debug} || 0;
     my $ctx = delete $arg->{SSL_Context} || _default_context($ssl_version);
     *$self->{'ssl_ctx'} = $ctx;
     *$self->{'ssl_version'} = $ssl_version;
     *$self->{'ssl_debug'} = $ssl_debug;
     *$self->{'ssl_arg'} = $arg;
+    *$self->{'ssl_peer_addr'} = $arg->{PeerAddr};
+    *$self->{'ssl_peer_port'} = $arg->{PeerPort};
     $self->SUPER::configure($arg);
 }
 
@@ -61,6 +66,7 @@ sub connect {
     my $arg = *$self->{ssl_arg};
     $arg->{SSL_Debug} = $debug;
     if ($ssl->connect <= 0) {
+	$ssl = undef;
 	if(*$self->{ssl_version} == 23) {
 	    $arg->{SSL_Version} = 3;
 	    # the new connect might itself be overridden with a REAL SSL
@@ -79,6 +85,7 @@ sub connect {
 	}
     }
 
+    # successful SSL connection gets stored
     *$self->{'ssl_ssl'} = $ssl;
     $self;
 }
@@ -153,6 +160,7 @@ sub write
 sub print
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     # should we care about $, and $\??
     # I think it is too expensive...
     $self->write(join("", @_));
@@ -161,6 +169,7 @@ sub print
 sub printf
 {
     my $self = shift;
+    $self = $REAL{$self} || $self;
     my $fmt  = shift;
     $self->write(sprintf($fmt, @_));
 }
@@ -229,38 +238,34 @@ sub proxy_connect_helper {
     $self->SUPER::connect($port, $iaddr)
       || die("proxy connect to $host:$port failed: $!");
     
-    ($port, $iaddr) = @_;
-    $host = gethostbyaddr($iaddr, AF_INET);
-    
+    my($peer_port, $peer_addr) = (*$self->{ssl_peer_port}, *$self->{ssl_peer_addr});
+    $peer_port || die("no peer port given");
+    $peer_addr || die("no peer addr given");
+
     my $connect_string;
     if ($ENV{"HTTPS_PROXY_USERNAME"} || $ENV{"HTTPS_PROXY_PASSWORD"}) {
 	my $user = $ENV{"HTTPS_PROXY_USERNAME"};
 	my $pass = $ENV{"HTTPS_PROXY_PASSWORD"};
 
 	my $credentials = encode_base64("$user:$pass", "");
-	$connect_string = "CONNECT $host:$port HTTP/1.0\r\n\Proxy-authorization: Basic $credentials\r\n\r\n";
+	$connect_string = join($CRLF, 
+			       "CONNECT $peer_addr:$peer_port HTTP/1.0",
+			       "Proxy-authorization: Basic $credentials"
+			      );
     }else{
-	$connect_string = "CONNECT $host:$port HTTP/1.0\r\n\r\n";
+	$connect_string = "CONNECT $peer_addr:$peer_port HTTP/1.0";
     }
+    $connect_string .= $CRLF.$CRLF;
 
     $self->SUPER::send($connect_string);
     my $header;
-    do {
-	# not sure why getline doesn't work...
-	$line = $self->getline();
-	chomp $line;
+    my $n = $self->SUPER::sysread($header, 8192);
+    if($header =~ /HTTP\/\d+\.\d+\s+200\s+/is) {
+	$conn_ok = 1;
+    }
 
-	# search for HTTP/n.n 200 - this means we're good to go
-	if ($line =~ /HTTP\/\d+\.\d+\s+200\s+/i) {
-	    $conn_ok = 1;
-	}
-	print $line;
-
-	$header .= $line."\n";
-    } until ($line =~ /^\s*$/);
-
-    unless (($conn_ok)) {
-	die("PROXY ERROR HEADER, could be non-SSL URL:\n$header");
+    unless ($conn_ok) {
+        die("PROXY ERROR HEADER, could be non-SSL URL:\n$header");
     }
 
     $conn_ok;
@@ -274,7 +279,7 @@ sub proxy {
 	$proxy_server = $ENV{$_};
 	last if $proxy_server;
     }
-    $proxy_server =~ s|^http://||;
+    $proxy_server =~ s|^https?://||i;
     
     $proxy_server;
 }

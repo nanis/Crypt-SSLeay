@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.19';
+$VERSION = '0.21';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -55,6 +55,9 @@ __END__
   # PROXY_BASIC_AUTH
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXU_PASSWORD} = 'password';  
+
+  # DEFAULT SSL VERSION
+  $ENV{HTTPS_VERSION} = '3';
 
 =head1 DESCRIPTION
 
@@ -152,21 +155,43 @@ this way:
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
+=head1 SSL VERSIONS
+
+Crypt::SSLeay tries very hard to connect to ANY SSL web server
+trying to accomodate servers that are buggy, old or simply
+not standards compliant.  To this effect, this module will
+try SSL connections in this order:
+
+  SSL v23  - should allow v2 & v3 servers to pick their best type
+  SSL v3   - best connection type
+  SSL v2   - old connection type
+
+Unfortunately, some servers seem not to handle a reconnect
+to SSL v3 after a failed connect of SSL v23 is tried,
+so you may set before using LWP or Net::SSL:
+
+  $ENV{HTTPS_VERSION} = 3;
+
+so that a SSL v3 connection is tried first.  At this time
+only a SSL v2 connection will be tried after this, as the 
+connection attempt order remains unchanged by this setting.
+
 =head1 COMPATIBILITY
 
  This module has been compiled on the following platforms:
 
  PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
  --------	--- 	---		----	 ---	----		---
- AIX 4.3.2	RS/6000	OpenSSL 0.9.5a	5.6.0	 .17	2000-09-15	Peter Heimann
- Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas	
- WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .17	2000-09-04	Joshua Chamas
+ Linux 2.2.14 	x86	OpenSSL 0.9.6	5.00503	 .21	2001-01-10	Joshua Chamas
+ WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .21	2001-01-10	Joshua Chamas
+ AIX 4.3.2	RS/6000	OpenSSL 0.9.6	5.6.0	 .19	2001-01-08	Peter Heimann
+ Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas
  Linux 2.2.12   x86     OpenSSL 0.9.5a  5.00503	 .16	2000-07-13      David Harris
  FreeBSD 3.2	?x86	OpenSSL 0.9.2b	5.00503	 ?      1999-09-29	Rip Toren
  Solaris 2.6	?Sparc	OpenSSL 0.9.4	5.00404	 ?      1999-08-24	Patrick Killelea
  FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 ?      1999-08-19	Andy Lee
  Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 ?      1999-08-18	Marek Rouchal
- Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 ?      1999-08-12	Joshua Chamas	
+ Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 ?      1999-08-12	Joshua Chamas
  Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503	 ?      1999-08-11	John Barrett
  WinNT SP4	x86	SSLeay 0.9.2	5.00404	 ?      1999-08-10	Joshua Chamas
 
@@ -187,7 +212,7 @@ Alternative solution:
 In Makefile.PL, prepend C<-L>/usr/local/<path to your gcc lib>/<version>
 to the $LIBS value. Add after line 82:
 
- $LIBS = '-L' . dirname `gcc -print-libgcc-file-name` . ' ' . $LIBS;
+ $LIBS = '-L' . dirname(`gcc -print-libgcc-file-name`) . ' ' . $LIBS;
 
 =head2 Solaris x86 - Symbol Error: __umoddi3 : referenced symbol not found
 

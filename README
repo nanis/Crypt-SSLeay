@@ -17,6 +17,9 @@ SYNOPSIS
       $ENV{HTTPS_PROXY_USERNAME} = 'username';
       $ENV{HTTPS_PROXU_PASSWORD} = 'password';  
 
+      # DEFAULT SSL VERSION
+      $ENV{HTTPS_VERSION} = '3';
+
 DESCRIPTION
     This perl module provides support for the https protocol under LWP, so
     that a LWP::UserAgent can make https GET & HEAD & POST requests. Please
@@ -103,6 +106,26 @@ PROXY SUPPORT
       # PROXY_BASIC_AUTH
       $ENV{HTTPS_PROXY_USERNAME} = 'username';
       $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+
+SSL VERSIONS
+    Crypt::SSLeay tries very hard to connect to ANY SSL web server trying to
+    accomodate servers that are buggy, old or simply not standards
+    compliant. To this effect, this module will try SSL connections in this
+    order:
+
+      SSL v23  - should allow v2 & v3 servers to pick their best type
+      SSL v3   - best connection type
+      SSL v2   - old connection type
+
+    Unfortunately, some servers seem not to handle a reconnect to SSL v3
+    after a failed connect of SSL v23 is tried, so you may set before using
+    LWP or Net::SSL:
+
+      $ENV{HTTPS_VERSION} = 3;
+
+    so that a SSL v3 connection is tried first. At this time only a SSL v2
+    connection will be tried after this, as the connection attempt order
+    remains unchanged by this setting.
 
 COMPATIBILITY
      This module has been compiled on the following platforms:

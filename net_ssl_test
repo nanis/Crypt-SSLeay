@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 
 use strict;
-use vars qw($opt_p $opt_n $opt_bench $opt_debug);
-use lib qw(lib);
+use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version $opt_v);
+#use lib qw(lib);
 use Net::SSL;
 use File::Basename;
 use Benchmark;
@@ -12,6 +12,8 @@ use Getopt::Long;
 	     'proxy:s' => \$opt_p, 
 	     'bench:n' => $opt_bench,
 	     'd' => \$opt_debug,
+	     'version:i' => \$opt_version,
+	     'v:i' => \$opt_version,
 	     );
 if($opt_debug) {
     eval "use LWP::Debug qw(+)";
@@ -32,6 +34,12 @@ if($opt_p) {
 }
 if($opt_n) {
     $ENV{NO_PROXY} = $opt_n;
+}
+
+if($opt_version) {
+    grep($opt_version eq $_, '2', '3', '23')
+	|| die("$opt_version must be one of 2, 3, or 23");
+    $ENV{HTTPS_VERSION} = $opt_version;
 }
 
 unless(eval { &ssl_connect() }) {
