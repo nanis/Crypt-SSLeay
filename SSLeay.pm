@@ -1,14 +1,12 @@
 package Crypt::SSLeay;
 
-# $Id: SSLeay.pm,v 1.8 1998/10/13 11:11:47 aas Exp $
-
 use strict;
 use vars qw(@ISA $VERSION %CIPHERS);
 
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.11';
+$VERSION = '0.14';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -113,9 +111,10 @@ using the make or nmake commands as shown below.
 
  PLATFORM	CPU 	SSL		PERL	 DATE		WHO
  --------	--- 	---		----	 ----		---
- Solaris 2.6	?Sparc	OpensSL 0.9.4	5.00404	 1999-08-24	Patrick Killelea
+ WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-10-03	Joshua Chamas
+ FreeBSD 3.2	?x86	OpenSSL 0.9.2b	5.00503	 1999-09-29	Rip Toren
+ Solaris 2.6	?Sparc	OpenSSL 0.9.4	5.00404	 1999-08-24	Patrick Killelea
  FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 1999-08-19	Andy Lee
- WinNT SP4 	x86	OpenSSL 0.9.4	5.00404	 1999-08-19	Joshua Chamas
  Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 1999-08-18	Marek Rouchal
  Solaris 2.6	x86	OpenSSL 0.9.4	5.00501	 1999-08-12	Joshua Chamas	
  Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 1999-08-12	Joshua Chamas	

@@ -1,6 +1,10 @@
-$MODULE=Crypt::SSLeay; $VERSION = .12; $DATE="TBA";
+$MODULE=Crypt::SSLeay; $VERSION = .14; $DATE="1999-10-03";
 
 + = improvement; - = bug fix
+
++ added support for RSAref tweaked OpenSSL
+
+$MODULE=Crypt::SSLeay; $VERSION = .12; $DATE="1999-09-13";
 
 + Converted // style comments to /* */ for build
   support of Sun's native cc

@@ -54,11 +54,11 @@ if($^O =~ /Win32/) {
     $SSL_INC =~ s|/|\\|g;
     $SSL_LIB = "-L".$SSL_DIR."\\lib";
     $SEP = "\\";
-    $LIBS = "-lssleay32 -llibeay32";
+    $LIBS = "-lssleay32 -llibeay32 -lRSAglue -lrsaref";
 } else {
     $SSL_LIB = "-L".$SSL_DIR."/lib";
     $SEP = "/";
-    $LIBS = "-lssl -lcrypto -lgcc";
+    $LIBS = "-lssl -lcrypto -lgcc -lRSAglue -lrsaref";
 }
 
 # write include file that determing ssl support
