@@ -1,6 +1,11 @@
-$MODULE=Crypt::SSLeay; $VERSION = .15; $DATE="1999-11-23";
+$MODULE=Crypt::SSLeay; $VERSION = .16; $DATE="2000-02-25";
 
 + = improvement; - = bug fix
+
+- changes sv_undef calls to PL_sv_undef, since sv_undef is no 
+  longer supported under the latest dev releases of perl 5.0056
+
+$MODULE=Crypt::SSLeay; $VERSION = .15; $DATE="1999-11-23";
 
 + reordered header includes for ActiveState people, likely
   for easier compiling with perl object.

@@ -147,7 +147,7 @@ SSL_write(ssl, buf, ...)
 	   if (n >= 0) {
 	       RETVAL = newSViv(n);
 	   } else {
-	       RETVAL = &sv_undef;
+	       RETVAL = &PL_sv_undef;
            }
 	OUTPUT:
 	   RETVAL
@@ -195,7 +195,7 @@ SSL_read(ssl, buf, len,...)
                buf[offset + n] = '\0';
 	       RETVAL = newSViv(n);
 	   } else {
-	       RETVAL = &sv_undef;
+	       RETVAL = &PL_sv_undef;
            }
 
 	OUTPUT:
