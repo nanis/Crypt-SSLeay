@@ -1,5 +1,5 @@
 /*
- * $Id: SSLeay.xs,v 1.2 1998/01/10 13:48:39 aas Exp $
+ * $Id: SSLeay.xs,v 1.3 1998/10/13 11:18:12 aas Exp $
  *
  * Copyright 1998 Gisle Aas.
  *
@@ -16,6 +16,7 @@ extern "C" {
 
 #include "ssl.h"
 #include "crypto.h"
+#undef Free /* undo namespace pollution from crypto.h */
 
 #ifdef __cplusplus
 }
@@ -33,8 +34,8 @@ PROTOTYPES: DISABLE
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::CTX	PREFIX = SSL_CTX_
 
 SSL_CTX*
-SSL_CTX_new(class)
-     SV* class
+SSL_CTX_new(packname)
+     SV* packname
      CODE:
 #ifdef SSLEAY8
 	RETVAL = SSL_CTX_new(SSLv2_client_method());
@@ -58,14 +59,18 @@ SSL_CTX_set_cipher_list(ctx, ciphers)
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 
 SSL*
-SSL_new(class, ctx, ...)
-	SV* class
+SSL_new(packname, ctx, ...)
+	SV* packname
 	SSL_CTX* ctx
 	CODE:
 	   RETVAL = SSL_new(ctx);
 	   if (items > 2) {
 	       PerlIO* io = IoIFP(sv_2io(ST(2)));
+#ifdef _WIN32
+	       SSL_set_fd(RETVAL, _get_osfhandle(PerlIO_fileno(io)));
+#else
 	       SSL_set_fd(RETVAL, PerlIO_fileno(io));
+#endif
            }
 	OUTPUT:
 	   RETVAL

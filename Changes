@@ -1,3 +1,19 @@
+1998-10-13   Gisle Aas <aas@sn.no>
+
+   Release 0.07
+
+   Applied patch from Andreas Gustafsson <gson@araneus.fi> which
+   make this module compile on WinNT with ActivePerl and MS Visual C++.
+   For others that try to build on this platform, Andreas also said:
+
+      "In addition to making these source changes, I also had to
+      resort to editing the MakeMaker-generated makefile by hand to
+      fix various library paths.  Unfortunately, I am not familiar
+      enough with either MakeMaker or NT to provide a clean fix for
+      this problem."
+
+
+
 1998-01-13   Gisle Aas <aas@sn.no>
 
    Release 0.06 and 0.05
