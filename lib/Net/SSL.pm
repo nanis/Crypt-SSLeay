@@ -50,7 +50,8 @@ sub configure
     *$self->{'ssl_arg'} = $arg;
     *$self->{'ssl_peer_addr'} = $arg->{PeerAddr};
     *$self->{'ssl_peer_port'} = $arg->{PeerPort};
-    *$self->{ssl_new_arg} = $NEW_ARGS;
+    *$self->{'ssl_new_arg'} = $NEW_ARGS;
+    *$self->{'ssl_peer_verify'} = 0;
 
     $self->SUPER::configure($arg);
 }
@@ -67,7 +68,9 @@ sub connect {
     }
 
     # finished, update set_verify status
-    *$self->{'ssl_ctx'}->set_verify();
+    if(my $rv = *$self->{'ssl_ctx'}->set_verify()) {
+	*$self->{'ssl_peer_verify'} = $rv;
+    }
 
     if ($self->proxy) {
 	# don't die() in connect, just return undef and set $@
@@ -166,6 +169,13 @@ sub get_peer_certificate {
     $self = $REAL{$self} || $self;
     *$self->{'ssl_ssl'}->get_peer_certificate(@_);
 }
+
+sub get_peer_verify {
+    my $self = shift;
+    $self = $REAL{$self} || $self;
+    *$self->{'ssl_peer_verify'};
+}
+
 sub get_shared_ciphers   { 
     my $self = shift;
     $self = $REAL{$self} || $self;

@@ -11,5 +11,6 @@ lib/Crypt/SSLeay/MainContext.pm
 lib/Crypt/SSLeay/X509.pm
 lib/Net/SSL.pm
 net_ssl_test
+lwp-ssl-test
 t/ssl_context.t
 typemap

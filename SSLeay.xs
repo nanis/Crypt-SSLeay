@@ -159,7 +159,7 @@ int
 SSL_CTX_check_private_key(ctx)
      SSL_CTX* ctx
 
-void
+SV*
 SSL_CTX_set_verify(ctx)
      SSL_CTX* ctx
      PREINIT:
@@ -171,10 +171,14 @@ SSL_CTX_set_verify(ctx)
 
         if(!CAfile && !CAdir) {
                 SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+	        RETVAL = newSViv(0);
         } else {
                 SSL_CTX_load_verify_locations(ctx,CAfile,CAdir);
                 SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+	        RETVAL = newSViv(1);
         }
+     OUTPUT:
+       RETVAL
 
 MODULE = Crypt::SSLeay		PACKAGE = Crypt::SSLeay::Conn	PREFIX = SSL_
 

@@ -1,6 +1,24 @@
-$MODULE=Crypt::SSLeay; $VERSION = .31; $DATE="2001-09-21";
+$MODULE=Crypt::SSLeay; $VERSION = .33; $DATE="2001-10-31";
 
  + = improvement; - = bug fix
+
++ Documented differences / conflicts between LWP proxy support
+  and Crypt::SSLeay which seems to be a source of confusion for users.
+
++ Added Net::SSL::get_peer_verify call so the warning header
+  from LWP that says:
+
+    Client-SSL-Warning: Peer certificate not verified
+
+  can be suppressed when HTTPS_CA_FILE & HTTPS_CA_DIR environment
+  variables are set to invoke peer certificate verification.
+  I will submit patch for perl-libwww 5.6 for this support
+  of get_peer_verify shortly.
+
+  Modified return values of $ctx->set_verify() to return 1 when
+  peer verification is enabled to support get_peer_verify()
+
+$MODULE=Crypt::SSLeay; $VERSION = .31; $DATE="2001-09-21";
 
 + $ENV{HTTPS_DEBUG} activates Crypt::SSLeay specific debugging,
   so one can debug from LWP:: calls without using ./net_ssl_test script

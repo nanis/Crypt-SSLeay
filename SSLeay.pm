@@ -6,7 +6,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.31';
+$VERSION = '0.33';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -141,20 +141,43 @@ using the make or nmake commands as shown below.
 
 =head1 PROXY SUPPORT
 
-For proxying web requests, like with LWP::UserAgent->proxy(), or
-lwp-request C<-p> ..., you need to set an environment variable
-HTTPS_PROXY to your proxy server & port, as in:
+LWP::UserAgent and Crypt::SSLeay have their own versions of 
+proxy support.  Please read these sections to see which one
+may be right for you.
+
+=head2 LWP::UserAgent Proxy Support
+
+LWP::UserAgent has its own methods of proxying which may work for
+you and is likely incompatible with Crypt::SSLeay proxy support.
+To use LWP::UserAgent proxy support, try something like:
+
+  my $ua = new LWP::UserAgent;
+  $ua->proxy([qw( https http )], "$proxy_ip:$proxy_port");
+
+At the time of this writing, libwww v5.6 seems to proxy https 
+requests fine with an Apache mod_proxy server.  It sends a line like:
+
+  GET https://www.nodeworks.com HTTP/1.1
+
+to the proxy server, which is not the CONNECT request that
+some proxies would expect, so this may not work with other
+proxy servers than mod_proxy.  The CONNECT method is used
+by Crypt::SSLeay's internal proxy support.
+
+=head2 Crypt::SSLeay Proxy Support
+
+For native Crypt::SSLeay proxy support of https requests,
+you need to set an environment variable HTTPS_PROXY to your 
+proxy server & port, as in:
 
   # PROXY SUPPORT
   $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
   $ENV{HTTPS_PROXY} = '127.0.0.1:8080';
 
 Use of the HTTPS_PROXY environment variable in this way 
-is compatible with LWP::UserAgent->env_proxy() usage.
-
-If we could find the current LWP object executing while
-in Net::SSL context, then we could support proxy() method
-too, but it does not seem feasible to do so at this time.
+is similar to LWP::UserAgent->env_proxy() usage, but calling
+that method will likely override or break the Crypt::SSLeay
+support, so do not mix the two.
 
 Basic auth credentials to the proxy server can be provided 
 this way:
@@ -162,6 +185,10 @@ this way:
   # PROXY_BASIC_AUTH
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+
+For an example of LWP scripting with Crypt::SSLeay native proxy
+support, please see the source of the ./lwp-ssl-test script in the 
+Crypt::SSLeay distribution.
 
 =head1 CLIENT CERTIFICATE SUPPORT
 
