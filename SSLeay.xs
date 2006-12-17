@@ -110,6 +110,7 @@ SSL_CTX_new(packname, ssl_version)
                SSLeay_add_all_algorithms();
                SSL_load_error_strings();
                ERR_load_crypto_strings();
+			   SSL_library_init();
 	       bNotFirstTime = 1;
         }
 

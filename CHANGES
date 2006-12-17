@@ -1,3 +1,8 @@
+0.52_01
+
+- add call to SSL_library_init() in new()
+- maintenance taken over by brian d foy and David Landgren.
+
 $MODULE=Crypt::SSLeay; $VERSION = .51; $DATE="2003-06-10";
 
 - fixed build problem for OpenSSL 0.9.6 and some builds

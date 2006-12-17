@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.51';
+$VERSION = '0.52_01';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -104,7 +104,7 @@ API via perl, check out Sampo's Net::SSLeay.
 You must have OpenSSL or SSLeay installed before compiling 
 this module.  You can get the latest OpenSSL package from:
 
-  http://www.openssl.org
+  http://www.openssl.org/
 
 When installing openssl make sure your config looks like:
 
@@ -137,7 +137,7 @@ to /usr/local/include
 The latest Crypt::SSLeay can be found at your nearest CPAN,
 and also:
 
-  http://www.perl.com/CPAN-local/modules/by-module/Crypt/
+  http://search.cpan.org/dist/Crypt-SSLeay/
 
 Once you have downloaded it, Crypt::SSLeay installs easily 
 using the make or nmake commands as shown below.  
@@ -397,34 +397,33 @@ insight into error messaging.
 Thanks to Jeff Long for working through a tricky CA
 cert SSLClientVerify issue.
 
-Thanks to Chip Turner for patch to build under perl 5.8.0
+Thanks to Chip Turner for patch to build under perl 5.8.0.
+
+Thanks to Joshua Chamas for the time he spent maintaining the
+module.
 
 =head1 SUPPORT
 
 For use of Crypt::SSLeay & Net::SSL with perl's LWP, please
-send email to libwww@perl.org
+send email to C<libwww@perl.org>.
 
 For OpenSSL or general SSL support please email the 
-openssl user mailing list at openssl-users@openssl.org .
+openssl user mailing list at C<openssl-users@openssl.org>.
 This includes issues associated with building and installing
 OpenSSL on one's system.
 
-Emails to these lists sent with at least Crypt::SSLeay in the 
-subject line will be responded to more quickly by myself.
-Please make the subject line informative like
+Please report all bugs at
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 
-  Subject: [Crypt::SSLeay] compile problems on Solaris
+This module was originally written by Gisle Aas, and was subsequently
+maintained by Joshua Chamas.
 
-This module was originally written by Gisle Aas, and I am
-currently maintaining it.
-
-Patches, bug reports, and feedback are welcome, and 
-for feature requests, you may get a contract with my 
-company.  Please see http://www.chamas.com/consulting.htm
-for the best in Perl consulting and contract work.
+This module is currently maintained by brian d foy and David
+Landgren.
 
 =head1 COPYRIGHT
 
+ Copyright (c) 2006 brian d foy and David Landgren.
  Copyright (c) 1999-2003 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 

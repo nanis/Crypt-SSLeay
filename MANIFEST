@@ -19,3 +19,4 @@ net_ssl_test
 t/net_ssl.t
 t/ssl_context.t
 typemap
+META.yml                                 Module meta-data (added by MakeMaker)
