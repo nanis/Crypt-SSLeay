@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.52_01';
+$VERSION = '0.52_02';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -39,63 +39,69 @@ __END__
 
 =head1 NAME
 
-  Crypt::SSLeay - OpenSSL glue that provides LWP https support
+Crypt::SSLeay - OpenSSL glue that provides LWP https support
 
 =head1 SYNOPSIS
 
-  lwp-request https://www.nodeworks.com
+  lwp-request https://www.example.com
 
   use LWP::UserAgent;
   my $ua = new LWP::UserAgent;
-  my $req = new HTTP::Request('GET', 'https://www.nodeworks.com');
+  my $req = new HTTP::Request('GET', 'https://www.example.com');
   my $res = $ua->request($req);
   print $res->code."\n";
 
-  # PROXY SUPPORT
+  # proxy support
   $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
 
-  # PROXY_BASIC_AUTH
+  # proxy_basic_auth
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
-  # DEBUGGING SWITCH / LOW LEVEL SSL DIAGNOSTICS
+  # debugging (SSL diagnostics)
   $ENV{HTTPS_DEBUG} = 1;
 
-  # DEFAULT SSL VERSION
+  # default ssl version
   $ENV{HTTPS_VERSION} = '3';
 
-  # CLIENT CERT SUPPORT
+  # client certificate support
   $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
   $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
-  # CA CERT PEER VERIFICATION
+  # CA cert peer verification
   $ENV{HTTPS_CA_FILE}   = 'certs/ca-bundle.crt';
   $ENV{HTTPS_CA_DIR}    = 'certs/';
 
-  # CLIENT PKCS12 CERT SUPPORT
+  # Client PKCS12 cert support
   $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
   $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
 =head1 DESCRIPTION
 
-This perl module provides support for the https
-protocol under LWP, so that a LWP::UserAgent can 
-make https GET & HEAD & POST requests. Please see
-perldoc LWP for more information on POST requests.
+This document describes C<Crypt::SSLeay> version 0.52_02, released
+2006-12-20.
 
-The Crypt::SSLeay package contains Net::SSL,
-which is automatically loaded by LWP::Protocol::https
-on https requests, and provides the necessary SSL glue
-for that module to work via these deprecated modules:
+This perl module provides support for the https protocol under LWP,
+to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
+requests. Please see LWP for more information on POST requests.
 
-   Crypt::SSLeay::CTX
-   Crypt::SSLeay::Conn
-   Crypt::SSLeay::X509
+The C<Crypt::SSLeay> package provides C<Net::SSL>, which is loaded
+by C<LWP::Protocol::https> for https requests and provides the
+necessary SSL glue.
+
+This distribution also makes following deprecated modules available:
+
+  Crypt::SSLeay::CTX
+  Crypt::SSLeay::Conn
+  Crypt::SSLeay::X509
 
 Work on Crypt::SSLeay has been continued only to
-provide https support for the LWP - libwww perl
-libraries.  If you want access to the OpenSSL 
-API via perl, check out Sampo's Net::SSLeay.
+provide https support for the LWP (libwww-perl)
+libraries. People wishing to access the OpenSSL API
+directly from Perl are advised to look at the
+C<Net::SSLeay> module.
+
+  http://search.cpan.org/dist/Net_SSLeay.pm/
 
 =head1 INSTALL
 
@@ -160,13 +166,13 @@ using the make or nmake commands as shown below.
 =head1 PROXY SUPPORT
 
 LWP::UserAgent and Crypt::SSLeay have their own versions of 
-proxy support.  Please read these sections to see which one
+proxy support. Please read these sections to see which one
 may be right for you.
 
 =head2 LWP::UserAgent Proxy Support
 
 LWP::UserAgent has its own methods of proxying which may work for
-you and is likely incompatible with Crypt::SSLeay proxy support.
+you and is likely to be incompatible with Crypt::SSLeay proxy support.
 To use LWP::UserAgent proxy support, try something like:
 
   my $ua = new LWP::UserAgent;
@@ -175,7 +181,7 @@ To use LWP::UserAgent proxy support, try something like:
 At the time of this writing, libwww v5.6 seems to proxy https 
 requests fine with an Apache mod_proxy server.  It sends a line like:
 
-  GET https://www.nodeworks.com HTTP/1.1
+  GET https://www.example.com HTTP/1.1
 
 to the proxy server, which is not the CONNECT request that
 some proxies would expect, so this may not work with other
@@ -186,13 +192,13 @@ by Crypt::SSLeay's internal proxy support.
 
 For native Crypt::SSLeay proxy support of https requests,
 you need to set an environment variable HTTPS_PROXY to your 
-proxy server & port, as in:
+proxy server and port, as in:
 
-  # PROXY SUPPORT
+  # proxy support
   $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
   $ENV{HTTPS_PROXY} = '127.0.0.1:8080';
 
-Use of the HTTPS_PROXY environment variable in this way 
+Use of the C<HTTPS_PROXY> environment variable in this way 
 is similar to LWP::UserAgent->env_proxy() usage, but calling
 that method will likely override or break the Crypt::SSLeay
 support, so do not mix the two.
@@ -200,70 +206,73 @@ support, so do not mix the two.
 Basic auth credentials to the proxy server can be provided 
 this way:
 
-  # PROXY_BASIC_AUTH
+  # proxy_basic_auth
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
 For an example of LWP scripting with Crypt::SSLeay native proxy
-support, please see the source of the ./lwp-ssl-test script in the 
+support, please look at the F<lwp-ssl-test> script in the 
 Crypt::SSLeay distribution.
 
 =head1 CLIENT CERTIFICATE SUPPORT
 
-Certificate support is new provided by patches from Tobias Manthey.
-Is ALPHA as of .25, but looking pretty stable as of .29.
-
-PEM encoded certificate and private key files may be used like this:
+Client certificates are supported. PEM0encoded certificate and
+private key files may be used like this:
 
   $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
   $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
-You may test your files with the ./net_ssl_test program
-by issuing a command like:
+You may test your files with the F<net_ssl_test> program,
+bundled with the distribution, by issuing a command like:
 
-  ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+  ./net_ssl_test -cert=certs/notacacert.pem \
+	-key=certs/notacakeynopass.pem -d GET $HOST_NAME
 
 Additionally, if you would like to tell the client where
-the CA file is, you may set these.  These *CA* configs
-are ALPHA as of version .29.
+the CA file is, you may set these.
 
   $ENV{HTTPS_CA_FILE} = "some_file";
   $ENV{HTTPS_CA_DIR}  = "some_dir";
 
 There is no sample CA cert file at this time for testing,
 but you may configure ./net_ssl_test to use your CA cert
-with the -CAfile option.
+with the -CAfile option. (TODO: then what is teh ./certs
+directory in the distribution??)
 
-=head2 Creating a Test Certificate
+=head2 Creating a test certificate
 
-To create simple test certificates with openssl, you may:
+To create simple test certificates with OpenSSL, you may
+run the following command:
 
-     /usr/local/openssl/bin/openssl req -config /usr/local/openssl/openssl.cnf -new -days 365 -newkey rsa:1024 -x509 -keyout notacakey.pem -out notacacert.pem 
+  openssl req -config /usr/local/openssl/openssl.cnf \
+    -new -days 365 -newkey rsa:1024 -x509 \
+    -keyout notacakey.pem -out notacacert.pem 
 
-To remove the pass phrase from the key file, execute this:
-     /usr/local/openssl/bin/openssl rsa -in notacakey.pem -out notacakeynopass.pem
+To remove the pass phrase from the key file, run:
 
-=head2 PKCS12
+  openssl rsa -in notacakey.pem -out notacakeynopass.pem
 
-New as of version .45 is PKCS12 certificate support thanks to Daisuke Kuroda
-The directives for enabling use of these certificates is:
+=head2 PKCS12 support
+
+The directives for enabling use of PKCS12 certificates is:
 
   $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
   $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
-Use of this type of certificate will take precedence over previous
-certificate settings described.
+Use of this type of certificate takes precedence over previous
+certificate settings described. (TODO: unclear? Meaning "the
+presence of this type of certificate??)
 
-=head1 SSL VERSIONS
+=head1 SSL versions
 
-Crypt::SSLeay tries very hard to connect to ANY SSL web server
-trying to accomodate servers that are buggy, old or simply
-not standards compliant.  To this effect, this module will
+Crypt::SSLeay tries very hard to connect to I<any> SSL web server
+accomodating servers that are buggy, old or simply
+not standards-compliant. To this effect, this module will
 try SSL connections in this order:
 
-  SSL v23  - should allow v2 & v3 servers to pick their best type
-  SSL v3   - best connection type
-  SSL v2   - old connection type
+  SSL v23 - should allow v2 and v3 servers to pick their best type
+  SSL v3  - best connection type
+  SSL v2  - old connection type
 
 Unfortunately, some servers seem not to handle a reconnect
 to SSL v3 after a failed connect of SSL v23 is tried,
@@ -271,37 +280,9 @@ so you may set before using LWP or Net::SSL:
 
   $ENV{HTTPS_VERSION} = 3;
 
-so that a SSL v3 connection is tried first.  At this time
+so that a SSL v3 connection is tried first. At this time
 only a SSL v2 connection will be tried after this, as the 
 connection attempt order remains unchanged by this setting.
-
-=head1 COMPATIBILITY
-
-This module has been compiled on the following platforms:
-
- PLATFORM	CPU 	SSL		PERL	 VER	DATE		WHO
- --------	--- 	---		----	 ---	----		---
- Linux 2.4.7	x86	OpenSSL 0.9.7	5.00800	 .51	2003-06-10	Joshua Chamas
- Linux 2.4.7	x86	OpenSSL 0.9.6g	5.00800	 .49	2003-01-29	Joshua Chamas
- Win2000 SP2	x86	OpenSSL 0.9.7	5.00601	 .49	2003-01-29	Joshua Chamas
- WinNT SP6	x86	OpenSSL 0.9.6a	5.00601	 .45	2002-08-01	Joshua Chamas
- Linux 2.4.7	x86	OpenSSL 0.9.6d	5.00800	 .45	2002-08-01	Joshua Chamas
- Linux 2.4.7	x86	OpenSSL 0.9.6	5.00601	 .39	2002-06-23	Joshua Chamas
- Solaris 2.8    Sparc	?		5.00503	 .37	2002-05-31	Christopher Biow
- OpenBSD 2.8	Sparc	?		5.00600	 .25	2001-04-11	Tim Ayers
- Linux 2.2.14   x86	OpenSSL 0.9.6	5.00503	 .25	2001-04-10	Joshua Chamas
- WinNT SP6 	x86	OpenSSL 0.9.4	5.00404	 .25	2001-04-10	Joshua Chamas
- Solaris 2.7    Sparc	OpenSSL 0.9.6   5.00503  .22    2001-03-01      Dave Paris
- AIX 4.3.2	RS/6000	OpenSSL 0.9.6	5.6.0	 .19	2001-01-08	Peter Heimann
- Solaris 2.6	x86	OpenSSL 0.9.5a	5.00501	 .17    2000-09-04	Joshua Chamas
- Linux 2.2.12   x86     OpenSSL 0.9.5a  5.00503	 .16	2000-07-13      David Harris
- FreeBSD 3.2	?x86	OpenSSL 0.9.2b	5.00503	 ?      1999-09-29	Rip Toren
- Solaris 2.6	?Sparc	OpenSSL 0.9.4	5.00404	 ?      1999-08-24	Patrick Killelea
- FreeBSD 2.2.5	x86	OpenSSL 0.9.3	5.00404	 ?      1999-08-19	Andy Lee
- Solaris 2.5.1	USparc	OpenSSL 0.9.4	5.00503	 ?      1999-08-18	Marek Rouchal
- Solaris 2.6	x86	SSLeay 0.8.0	5.00501	 ?      1999-08-12	Joshua Chamas
- Linux 2.2.10	x86 	OpenSSL 0.9.4	5.00503	 ?      1999-08-11	John Barrett
- WinNT SP4	x86	SSLeay 0.9.2	5.00404	 ?      1999-08-10	Joshua Chamas
 
 =head1 BUILD NOTES
 
@@ -391,8 +372,11 @@ Thanks to Alex Rhomberg for Alpha linux ccc patch.
 Thanks to Tobias Manthey for his patches for client 
 certificate support.
 
+Thanks to Daisuke Kuroda for adding PKCS12 certificate
+support.
+
 Thanks to Gamid Isayev for CA cert support and 
-insight into error messaging.
+insights into error messaging.
 
 Thanks to Jeff Long for working through a tricky CA
 cert SSLClientVerify issue.

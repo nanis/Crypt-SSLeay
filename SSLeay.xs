@@ -40,7 +40,7 @@ extern "C" {
  */
 
 
-static void InfoCallback(SSL *s,int where,int ret)
+static void InfoCallback(const SSL *s,int where,int ret)
     {
     char *str;
     int w;

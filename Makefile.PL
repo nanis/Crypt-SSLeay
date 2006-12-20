@@ -6,6 +6,14 @@ use File::Basename qw(dirname basename);
 use Getopt::Long;
 use vars qw($opt_default);
 
+eval "use ExtUtils::MakeMaker::Coverage";
+if( $@ ) {
+    print "Skipping testcover target, ExtUtils::MakeMaker::Coverage not found\n";
+}
+else {
+    print "Adding testcover target\n";
+}
+
 &GetOptions("default", \$opt_default);
 
 $opt_default ||= $ENV{CRYPT_SSLEAY_DEFAULT};
@@ -16,6 +24,9 @@ chdir($currdir) || die("can't change to $currdir: $!");
 my @POSSIBLE_SSL_DIRS = qw(/usr/local/openssl /usr/local/ssl /local/ssl /opt/ssl /usr/local /local /usr);
 if($^O eq 'MSWin32') {
     unshift(@POSSIBLE_SSL_DIRS, 'c:/openssl');
+}
+if($^O eq 'VMS') {
+    @POSSIBLE_SSL_DIRS = '/ssl$root';
 }
 
 my @CANDIDATE;
@@ -90,6 +101,9 @@ if($^O =~ /Win32/) {
 
     $SEP = "\\";
     $LIBS = "-lssleay32 -llibeay32 -lRSAglue -lrsaref";
+} elsif ($^O eq 'VMS') {
+    $SSL_LIB = '-L/SYS$SHARE';
+    $LIBS = '-lSSL$LIBSSL_SHR32 -lSSL$LIBCRYPTO_SHR32';
 } else {
     $SSL_LIB = "-L".$SSL_DIR."/lib";
     $SEP = "/";
@@ -107,7 +121,7 @@ if($^O =~ /Win32/) {
     }
 }
 
-# write include file that determing ssl support
+# write include file that determines ssl support
 my $ssl_header_prefix = '';
 my $candidate_info = join('; ', @$candidate);
 if($candidate->[1] =~ /openssl/i) {
@@ -160,11 +174,14 @@ INFO
 $ENV{PATH} = "$SSL_LIB:$ENV{PATH}";
 
 WriteMakefile(
-    NAME    => 'Crypt::SSLeay',
-    VERSION_FROM => 'SSLeay.pm',
-    LIBS    => ["$SSL_LIB $LIBS"],
-    INC     => "-I".$SSL_INC,
-    dist    => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    NAME          => 'Crypt::SSLeay',
+    AUTHOR        => 'David Landgren',
+    ABSTRACT_FROM => 'SSLeay.pm',
+    VERSION_FROM  => 'SSLeay.pm',
+    LICENSE       => 'perl',
+    LIBS          => ["$SSL_LIB $LIBS"],
+    INC           => "-I".$SSL_INC,
+    dist          => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 );
 
 ## HELPERS
@@ -184,11 +201,12 @@ sub Candidate {
       {
 	  if(-e $_) {
 	      $version_file = $_;
+	      last;
 	  } 
       }
     return unless defined $version_file;
 
-    $open_ssl = ($version_file =~ /openssl/) ? 1 : 0;
+    $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
     my $dirname = $inc_dir = dirname($version_file);
     return unless (-e "$dirname/ssl.h");
 

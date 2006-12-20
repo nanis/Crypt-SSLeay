@@ -1,4 +1,14 @@
-0.52_01
+0.52_02 2006-12-20 19:29:01 UTC
+
+- improved VMS support (CPAN bug #19829).
+- add a test to see if cert file is readable in
+  Net::SSL::configure_certs (CPAN bug #8498) and Net::SSL version
+  to 2.78.
+- known working platforms list removed from documentation. Too old,
+  and CPAN Testers has the up-to-date information.
+- minor documentation improvements.
+
+0.52_01 2006-12-17
 
 - add call to SSL_library_init() in new()
 - maintenance taken over by brian d foy and David Landgren.

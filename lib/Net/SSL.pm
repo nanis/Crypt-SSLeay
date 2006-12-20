@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.77';
+$VERSION = '2.78';
 
 sub _default_context
 {
@@ -407,6 +407,7 @@ sub configure_certs {
 	my $file = $ENV{$_};
 	if($file) {
 	    (-e $file) or die("$file file does not exist: $!");
+	    (-r $file) or die("$file file is not readable");
 	    $count++;
 	    if (/PKCS12/) {
 		$count++;
