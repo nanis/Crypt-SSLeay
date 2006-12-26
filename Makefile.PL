@@ -180,8 +180,7 @@ WriteMakefile(
     VERSION_FROM  => 'SSLeay.pm',
     LICENSE       => 'perl',
     LIBS          => ["$SSL_LIB $LIBS"],
-    INC           => "-I".$SSL_INC,
-    dist          => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    INC           => "-I$SSL_INC",
 );
 
 ## HELPERS

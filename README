@@ -2,11 +2,11 @@ NAME
       Crypt::SSLeay - OpenSSL glue that provides LWP https support
 
 SYNOPSIS
-      lwp-request https://www.nodeworks.com
+      lwp-request https://www.example.com
 
       use LWP::UserAgent;
       my $ua = new LWP::UserAgent;
-      my $req = new HTTP::Request('GET', 'https://www.nodeworks.com');
+      my $req = new HTTP::Request('GET', 'https://www.example.com');
       my $res = $ua->request($req);
       print $res->code."\n";
 
@@ -123,7 +123,7 @@ PROXY SUPPORT
     At the time of this writing, libwww v5.6 seems to proxy https requests
     fine with an Apache mod_proxy server. It sends a line like:
 
-      GET https://www.nodeworks.com HTTP/1.1
+      GET https://www.example.com HTTP/1.1
 
     to the proxy server, which is not the CONNECT request that some proxies
     would expect, so this may not work with other proxy servers than
@@ -342,11 +342,10 @@ SUPPORT
     This module was originally written by Gisle Aas, and was subsequently
     maintained by Joshua Chamas.
 
-    This module is currently maintained by brian d foy and David
-    Landgren.
+    This module is currently maintained by David Landgren.
 
 COPYRIGHT
-     Copyright (c) 2006 brian d foy and David Landgren.
+     Copyright (c) 2006 David Landgren.
      Copyright (c) 1999-2003 Joshua Chamas.
      Copyright (c) 1998 Gisle Aas.
 

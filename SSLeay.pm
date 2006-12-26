@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.52_02';
+$VERSION = '0.53';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -78,8 +78,8 @@ Crypt::SSLeay - OpenSSL glue that provides LWP https support
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.52_02, released
-2006-12-20.
+This document describes C<Crypt::SSLeay> version 0.53, released
+2006-12-26.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -402,12 +402,11 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 This module was originally written by Gisle Aas, and was subsequently
 maintained by Joshua Chamas.
 
-This module is currently maintained by brian d foy and David
-Landgren.
+This module is currently maintained by David Landgren.
 
 =head1 COPYRIGHT
 
- Copyright (c) 2006 brian d foy and David Landgren.
+ Copyright (c) 2006 David Landgren.
  Copyright (c) 1999-2003 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
