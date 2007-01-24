@@ -14,7 +14,7 @@ my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
 
 require Crypt::SSLeay;
-$VERSION = '2.78';
+$VERSION = '2.79';
 
 sub _default_context
 {
@@ -226,8 +226,8 @@ sub read
 
     alarm_ok() && alarm($self->timeout);
     my $n=*$self->{'ssl_ssl'}->read(@_);
-    $self->die_with_error("read failed") if !defined $n;
     alarm_ok() && alarm(0);
+    $self->die_with_error("read failed") if !defined $n;
 
     $n;
 }

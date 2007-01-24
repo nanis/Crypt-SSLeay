@@ -150,7 +150,7 @@ PROXY SUPPORT
       $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
     For an example of LWP scripting with Crypt::SSLeay native proxy support,
-    please see the source of the ./lwp-ssl-test script in the Crypt::SSLeay
+    please see the source of the eg/lwp-ssl-test script in the Crypt::SSLeay
     distribution.
 
 CLIENT CERTIFICATE SUPPORT
@@ -162,10 +162,10 @@ CLIENT CERTIFICATE SUPPORT
       $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
       $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
-    You may test your files with the ./net_ssl_test program by issuing a
+    You may test your files with the eg/net-ssl-test program by issuing a
     command like:
 
-      ./net_ssl_test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
+      perl eg/net-ssl-test -cert=certs/notacacert.pem -key=certs/notacakeynopass.pem -d GET $HOST_NAME
 
     Additionally, if you would like to tell the client where the CA file is,
     you may set these. These *CA* configs are ALPHA as of version .29.
@@ -174,7 +174,7 @@ CLIENT CERTIFICATE SUPPORT
       $ENV{HTTPS_CA_DIR}  = "some_dir";
 
     There is no sample CA cert file at this time for testing, but you may
-    configure ./net_ssl_test to use your CA cert with the -CAfile option.
+    configure eg/net_ssl_test to use your CA cert with the -CAfile option.
 
   Creating a Test Certificate
     To create simple test certificates with openssl, you may:
@@ -345,7 +345,7 @@ SUPPORT
     This module is currently maintained by David Landgren.
 
 COPYRIGHT
-     Copyright (c) 2006 David Landgren.
+     Copyright (c) 2006-2007 David Landgren.
      Copyright (c) 1999-2003 Joshua Chamas.
      Copyright (c) 1998 Gisle Aas.
 

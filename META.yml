@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Crypt-SSLeay
-version:             0.53
+version:             0.53_01
 abstract:            OpenSSL glue that provides LWP https support
 license:             perl
 generated_by:        ExtUtils::MakeMaker version 6.31

@@ -8,7 +8,7 @@ use vars qw(@ISA $VERSION %CIPHERS);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.53';
+$VERSION = '0.53_01';
 
 bootstrap Crypt::SSLeay $VERSION;
 
@@ -78,8 +78,8 @@ Crypt::SSLeay - OpenSSL glue that provides LWP https support
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.53, released
-2006-12-26.
+This document describes C<Crypt::SSLeay> version 0.53_01, released
+2007-01-24.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -95,11 +95,10 @@ This distribution also makes following deprecated modules available:
   Crypt::SSLeay::Conn
   Crypt::SSLeay::X509
 
-Work on Crypt::SSLeay has been continued only to
-provide https support for the LWP (libwww-perl)
-libraries. People wishing to access the OpenSSL API
-directly from Perl are advised to look at the
-C<Net::SSLeay> module.
+Work on Crypt::SSLeay has been continued only to provide https
+support for the LWP (libwww-perl) libraries. People wishing to
+access the OpenSSL API directly from Perl are advised to look at
+the C<Net::SSLeay> module.
 
   http://search.cpan.org/dist/Net_SSLeay.pm/
 
@@ -108,7 +107,7 @@ C<Net::SSLeay> module.
 =head2 OpenSSL
 
 You must have OpenSSL or SSLeay installed before compiling 
-this module.  You can get the latest OpenSSL package from:
+this module. You can get the latest OpenSSL package from:
 
   http://www.openssl.org/
 
@@ -118,9 +117,8 @@ When installing openssl make sure your config looks like:
  or
   > ./config --openssldir=/usr/local/ssl
 
-If you are planning on upgrading the default OpenSSL libraries on 
-a system like RedHat, not that I would recommend this, then 
-you might try something like:
+If you are planning on upgrading the default OpenSSL libraries on
+a system like RedHat, (not recommended), then try something like:
 
   > ./config --openssldir=/usr --shared
 
@@ -133,7 +131,7 @@ shared libraries which is important for such systems.
   > make install
 
 This way Crypt::SSLeay will pick up the includes and 
-libraries automatically.  If your includes end up
+libraries automatically. If your includes end up
 going into a separate directory like /usr/local/include,
 then you may need to symlink /usr/local/openssl/include
 to /usr/local/include
@@ -153,15 +151,11 @@ using the make or nmake commands as shown below.
   > make test
   > make install
 
-  * use nmake for win32
+  * use nmake or dmake on Win32
 
-  !!! NOTE for Win32 users, few people seem to be able to build
-  W  Crypt::SSLeay successfully on that platform.  You don't need
-  I  to because ActiveState has already compiled it for you,
-  N  and is available for their perl builds 618 & 522 as a ppm
-  3  install.  It may also be available for their latest build.
-  2  For problems with this, please contact ActiveState.
-  !!!          Please see http://www.activestate.com/
+Crypt::SSLeay builds correctly with Strawberry Perl. For
+Activestate users, the PPM package is the recommended approach
+for installing. See http://www.activestate.com/
 
 =head1 PROXY SUPPORT
 
@@ -222,10 +216,10 @@ private key files may be used like this:
   $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
   $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
-You may test your files with the F<net_ssl_test> program,
+You may test your files with the F<eg/net_ssl_test> program,
 bundled with the distribution, by issuing a command like:
 
-  ./net_ssl_test -cert=certs/notacacert.pem \
+  perl eg/net_ssl_test -cert=certs/notacacert.pem \
 	-key=certs/notacakeynopass.pem -d GET $HOST_NAME
 
 Additionally, if you would like to tell the client where
@@ -235,9 +229,9 @@ the CA file is, you may set these.
   $ENV{HTTPS_CA_DIR}  = "some_dir";
 
 There is no sample CA cert file at this time for testing,
-but you may configure ./net_ssl_test to use your CA cert
-with the -CAfile option. (TODO: then what is teh ./certs
-directory in the distribution??)
+but you may configure F<eg/net_ssl_test> to use your CA cert
+with the -CAfile option. (TODO: then what is the ./certs
+directory in the distribution?)
 
 =head2 Creating a test certificate
 
@@ -298,7 +292,7 @@ Please see http://www.activestate.com for more info.
 The __umoddi3 problem applies here as well when compiling with gcc.
 
 Alternative solution:
-In Makefile.PL, prepend C<-L>/usr/local/<path to your gcc lib>/<version>
+In F<Makefile.PL>, prepend C<-L>/usr/local/<path to your gcc lib>/<version>
 to the $LIBS value. Add after line 82:
 
  $LIBS = '-L' . dirname(`gcc -print-libgcc-file-name`) . ' ' . $LIBS;
@@ -386,6 +380,9 @@ Thanks to Chip Turner for patch to build under perl 5.8.0.
 Thanks to Joshua Chamas for the time he spent maintaining the
 module.
 
+Thanks to Jeff Lavallee for help with alarms on read failures (CPAN
+bug #12444).
+
 =head1 SUPPORT
 
 For use of Crypt::SSLeay & Net::SSL with perl's LWP, please
@@ -406,7 +403,7 @@ This module is currently maintained by David Landgren.
 
 =head1 COPYRIGHT
 
- Copyright (c) 2006 David Landgren.
+ Copyright (c) 2006-2007 David Landgren.
  Copyright (c) 1999-2003 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 

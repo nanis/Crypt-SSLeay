@@ -1,9 +1,11 @@
-#!/usr/local/bin/perl
+#!/usr/local/bin/perl -w
 
 use strict;
+use Config;
 use ExtUtils::MakeMaker;
 use File::Basename qw(dirname basename);
 use Getopt::Long;
+
 use vars qw($opt_default);
 
 eval "use ExtUtils::MakeMaker::Coverage";
@@ -29,25 +31,22 @@ if($^O eq 'VMS') {
     @POSSIBLE_SSL_DIRS = '/ssl$root';
 }
 
-my @CANDIDATE;
 my $open_ssl = 0;
-my $dir;
-for $dir (@POSSIBLE_SSL_DIRS) {
-    next unless -d $dir;
-    my $candidate = Candidate($dir);
-    next unless $candidate;
-
-    push(@CANDIDATE, $candidate);
+my @CANDIDATE;
+for my $dir (@POSSIBLE_SSL_DIRS) {
+    my $info = Candidate($dir);
+    $info and push @CANDIDATE, $info;
 }
 
 if (@CANDIDATE == 1) {
     my($dir, $inc_dir, $ver) = @{$CANDIDATE[0]};
     print "Found OpenSSL (version $ver) installed at $dir\n";
-} elsif (@CANDIDATE > 1) {
+}
+elsif (@CANDIDATE > 1) {
     print "Found the following OpenSSL installations:\n";
     for (@CANDIDATE) {
-	my($dir, $inc_dir, $ver) = @$_;
-	print "\t$ver\t$dir\n";
+        my($dir, $inc_dir, $ver) = @$_;
+        print "\t$ver\t$dir\n";
     }
 }
 
@@ -55,18 +54,20 @@ my $SSL_DIR;
 if($opt_default && (@CANDIDATE == 1) && $CANDIDATE[0][0]) {
     $SSL_DIR = $CANDIDATE[0][0];
     print "Using --default OpenSSL candidate found at $SSL_DIR\n";
-} else {
-    if($ARGV[0] =~ /^[a-z]\:|^\//i) {
-	$SSL_DIR = shift;
-    } else {
-	unless($CANDIDATE[0][0]) {
-	    print "No OpenSSL installation found, usually in $POSSIBLE_SSL_DIRS[0]\n";
-	}
-	$SSL_DIR = prompt "Which OpenSSL build path do you want to link against?", $CANDIDATE[0][0];
+}
+else {
+    if ($ARGV[0] and $ARGV[0] =~ m{^(?:[a-z]:|/)}i) {
+        $SSL_DIR = shift;
+    }
+    else {
+        unless($CANDIDATE[0][0]) {
+            print "No OpenSSL installation found, usually in $POSSIBLE_SSL_DIRS[0]\n";
+        }
+        $SSL_DIR = prompt "Which OpenSSL build path do you want to link against?", $CANDIDATE[0][0];
     }
 }
 
-my $candidate = &Candidate($SSL_DIR);
+my $candidate = Candidate($SSL_DIR);
 unless($candidate) {
     warn "Apparently no SSLeay installation at '$SSL_DIR'\nAre you sure you got it correct????\n"
       unless -f "$SSL_DIR/include/ssl.h";
@@ -76,48 +77,55 @@ $candidate ||= ["$SSL_DIR", "$SSL_DIR/include"];
 my($SEP, $SSL_LIB, $SSL_INC, $LIBS);
 $SSL_INC = "$SSL_DIR/include";
 
-if($^O =~ /Win32/) {
-    unless($SSL_DIR =~ /^[a-zA-Z]\:/) {
-	# default drive c
-	$SSL_DIR = "c:".$SSL_DIR;
-    }
-    unless($SSL_INC =~ /^[a-zA-Z]\:/) {
-	# default drive c
-	$SSL_INC = "c:".$SSL_INC;
-    }
-    $SSL_INC .= " -I".$SSL_DIR."/inc32";
-    $SSL_DIR =~ s|/|\\|g;
-    $SSL_INC =~ s|/|\\|g;
+warn $^O;
+if ($^O eq 'MSWin32') {
+    # default to drive c unless we have an explicit drive letter
+    $SSL_DIR = "c:$SSL_DIR" if $SSL_DIR !~ /^[a-z]:/i;
+    $SSL_DIR =~ tr{/}{\\};
 
-    # patch from Ben Laurie
-    if(-d "$SSL_DIR/lib") {
-	$SSL_LIB = "-L$SSL_DIR/lib";
-    } elsif(-d "$SSL_DIR/out32dll") {
-	$SSL_LIB = "-L$SSL_DIR\\out32dll";	
-    }else {
-	# Allow developers to point at OpenSSL source...
-	$SSL_LIB = "-L$SSL_DIR";
+    $SSL_INC = "c:$SSL_INC" if $SSL_INC !~ /^[a-z]:/i;
+    $SSL_INC .= " -I$SSL_DIR/inc32";
+    $SSL_INC =~ tr{/}{\\};
+
+    my $vanilla = $Config{cc} eq 'gcc' ? 1 : 0;
+    warn "Assuming $vanilla Vanilla/Strawberry Perl installation";
+    
+    if ($vanilla and -d "$SSL_DIR/lib/MinGW") {
+        $SSL_LIB = "-L$SSL_DIR/lib/MinGW";
+    }
+    elsif(-d "$SSL_DIR/lib") {
+        $SSL_LIB = "-L$SSL_DIR/lib";
+    }
+    elsif(-d "$SSL_DIR/out32dll") {
+        # patch from Ben Laurie
+        $SSL_LIB = "-L$SSL_DIR\\out32dll";        
+    }
+    else {
+        # Allow developers to point at OpenSSL source...
+        $SSL_LIB = "-L$SSL_DIR";
     }
 
     $SEP = "\\";
     $LIBS = "-lssleay32 -llibeay32 -lRSAglue -lrsaref";
-} elsif ($^O eq 'VMS') {
+}
+elsif ($^O eq 'VMS') {
     $SSL_LIB = '-L/SYS$SHARE';
     $LIBS = '-lSSL$LIBSSL_SHR32 -lSSL$LIBCRYPTO_SHR32';
-} else {
+}
+else {
     $SSL_LIB = "-L".$SSL_DIR."/lib";
     $SEP = "/";
     $LIBS = "-lssl -lcrypto -lgcc -lRSAglue -lrsaref";
 
     # ccc on alpha support
     if ($^O eq 'linux' && `uname -m` =~ /alpha/ &&
-	!(system("nm $SSL_DIR/lib/libssl.a|grep -q 'U _Ots'")>>8)) {
-	$LIBS .= ' -lots'; 
+        !(system("nm $SSL_DIR/lib/libssl.a|grep -q 'U _Ots'")>>8)) {
+        $LIBS .= ' -lots'; 
     }
 
     # this fix was suggested for building on RedHat 9
     if(-d '/usr/kerberos/include') {
-	$SSL_INC .= " -I/usr/kerberos/include";
+        $SSL_INC .= " -I/usr/kerberos/include";
     }
 }
 
@@ -159,16 +167,15 @@ print <<INFO;
 BUILD INFORMATION
 ================================================
 
-ssl dir:	$SSL_DIR
-libraries:      $LIBS
-include dir:	$SSL_INC
+ssl dir:        $SSL_DIR
+libraries:      $SSL_LIB $LIBS
+include dir:    $SSL_INC
 ssl header:     @{[$ssl_header_prefix]}ssl.h
 ssl candidate:  $candidate_info
 
 ================================================
 
 INFO
-  ;
 
 # set the path for testing
 $ENV{PATH} = "$SSL_LIB:$ENV{PATH}";
@@ -187,58 +194,65 @@ WriteMakefile(
 
 sub Candidate {
     my $dir = shift;
+    return unless -d $dir;
     my $version_file;
     my $inc_dir;
 
     for (
-	 "$dir/crypto/opensslv.h", # cygwin32 builds
-	 "$dir/inc32/openssl/opensslv.h", # win32 builds
-	 "$dir/include/openssl/opensslv.h", 
-	 "$dir/include/opensslv.h", 
-	 "$dir/include/crypto.h"
-	) 
-      {
-	  if(-e $_) {
-	      $version_file = $_;
-	      last;
-	  } 
-      }
+         "$dir/crypto/opensslv.h", # cygwin32 builds
+         "$dir/inc32/openssl/opensslv.h", # win32 builds
+         "$dir/include/openssl/opensslv.h", 
+         "$dir/include/opensslv.h", 
+         "$dir/include/crypto.h"
+    ) {
+        if(-e $_) {
+            $version_file = $_;
+            last;
+        } 
+    }
     return unless defined $version_file;
 
     $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
     my $dirname = $inc_dir = dirname($version_file);
-    return unless (-e "$dirname/ssl.h");
+    return unless -e "$dirname/ssl.h";
 
     open(VERSION_FILE, $version_file) or return;
     my $version_match = $open_ssl ? "OPENSSL_VERSION_NUMBER" : "SSLEAY_VERSION_NUMBER";
     my $version;
     while (<VERSION_FILE>) {
-	if (/^\#define\s+$version_match\s+0x0+(\d\d\d)/) {
-	    $version = $1;
-	    $version =~ s/(\d)0(\d)/$1$2/;	    
-	    my $type = ($version > 92) ? "OpenSSL" : "SSLeay";
-	    $version = "$type ".join('.', split(//, "0$version"));
-	    last;
-	}
+        if (/^\#define\s+$version_match\s+0x0+(\d\d\d)/) {
+            $version = $1;
+            $version =~ s/(\d)0(\d)/$1$2/;            
+            my $type = ($version > 92) ? "OpenSSL" : "SSLeay";
+            $version = "$type ".join('.', split(//, "0$version"));
+            last;
+        }
     }
     close(VERSION_FILE);
 
     # Silly test to look for the library files
     my $foundlib = 0;
-    my $libd = (-d "$dir/out32dll") ? 'out32dll' : 'lib';
-    if (opendir(LIBDIR, "$dir/$libd")) {
-	while (defined($_ = readdir(LIBDIR))) {
-	    $foundlib++ if /^libssl/;
-	    $foundlib++ if /^libcrypto/;
-	    $foundlib++ if /^ssleay32/;
-	    $foundlib++ if /^libeay32/;
-	}
-	closedir(LIBDIR);
+    my $libd;
+    if (-d "$dir/out32dll") {
+        $libd = 'out32dll';
     }
-    warn "$dir/lib does not seem to contain the SSLeay library files\n"
-	unless $foundlib;
+    elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
+        $libd = 'lib/MinGW';
+    }
+    else {
+        $libd = 'lib';
+    }
+    if (opendir(LIBDIR, "$dir/$libd")) {
+        while (defined($_ = readdir(LIBDIR))) {
+            $foundlib++ if /^libssl/;
+            $foundlib++ if /^libcrypto/;
+            $foundlib++ if /^ssleay32/;
+            $foundlib++ if /^libeay32/;
+        }
+        closedir(LIBDIR);
+    }
+    warn "$dir/$libd does not seem to contain the SSLeay library files\n"
+        unless $foundlib;
 
     [$dir, $inc_dir, $version];
 }
-
-
