@@ -1,5 +1,3 @@
-#!/usr/local/bin/perl -w
-
 use strict;
 use Config;
 use ExtUtils::MakeMaker;
@@ -16,7 +14,7 @@ else {
     print "Adding testcover target\n";
 }
 
-&GetOptions("default", \$opt_default);
+GetOptions("default", \$opt_default);
 
 $opt_default ||= $ENV{CRYPT_SSLEAY_DEFAULT};
 my $currdir = dirname($0) || '.';
@@ -77,7 +75,6 @@ $candidate ||= ["$SSL_DIR", "$SSL_DIR/include"];
 my($SEP, $SSL_LIB, $SSL_INC, $LIBS);
 $SSL_INC = "$SSL_DIR/include";
 
-warn $^O;
 if ($^O eq 'MSWin32') {
     # default to drive c unless we have an explicit drive letter
     $SSL_DIR = "c:$SSL_DIR" if $SSL_DIR !~ /^[a-z]:/i;
@@ -155,26 +152,23 @@ if($] < 5.005) {
 my $openssl_version = $candidate->[2];
 if(($openssl_version =~ /^OpenSSL/) and ($openssl_version !~ /0\.9\.[2-5]/)) {
     print INCLUDE "#define CRYPT_SSLEAY_free OPENSSL_free\n";
-} else {
+}
+else {
     print INCLUDE "#define CRYPT_SSLEAY_free free\n";
 }
 
-close INCLUDE;
+close INCLUDE or die "Cannot close crypt_ssleay_version.h for output: $!\n";
 
 print <<INFO;
-
 ================================================
 BUILD INFORMATION
 ================================================
-
 ssl dir:        $SSL_DIR
 libraries:      $SSL_LIB $LIBS
 include dir:    $SSL_INC
 ssl header:     @{[$ssl_header_prefix]}ssl.h
 ssl candidate:  $candidate_info
-
 ================================================
-
 INFO
 
 # set the path for testing
@@ -188,6 +182,9 @@ WriteMakefile(
     LICENSE       => 'perl',
     LIBS          => ["$SSL_LIB $LIBS"],
     INC           => "-I$SSL_INC",
+    clean         => {
+        FILES => 'crypt_ssleay_version.h',
+    },
 );
 
 ## HELPERS

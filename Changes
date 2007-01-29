@@ -1,3 +1,14 @@
+Revision history for Crypt-SSLeay
+=================================
+
+0.53_02 2007-01-29 10:02:34 UTC
+
+- don't proxy hosts in NO_PROXY environment variable (CPAN
+  bug #11078).
+- don't send user agent string to proxy unless $SEND_USERAGENT_TO_PROXY
+  is set. (CPAN bug #4759).
+- Net::SSL bumped to 2.80
+
 0.53_01 2007-01-24 22:21:09 UTC
 
 - patch for CPAN #12444 applied (Jeff Lavallee). Net::SSL bumped
@@ -17,7 +28,7 @@
   Net::SSL::configure_certs (CPAN bug #8498) and Net::SSL version
   to 2.78.
 - known working platforms list removed from documentation. Too old,
-  1nd CPAN Testers has the up-to-date information.
+  and CPAN Testers has the up-to-date information.
 - minor documentation improvements.
 
 0.52_01 2006-12-17

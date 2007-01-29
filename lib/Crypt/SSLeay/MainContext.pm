@@ -7,13 +7,6 @@ use Carp ();
 
 require Crypt::SSLeay::CTX;
 
-#my %CTX;
-#for(2,3,23) {
-#    my $ctx = Crypt::SSLeay::CTX->new($_);
-#    $ctx->set_cipher_list($ENV{CRYPT_SSLEAY_CIPHER})
-#      if $ENV{CRYPT_SSLEAY_CIPHER};    
-#    $CTX{$_} = $ctx;
-#}
 my $ctx = &main_ctx();
 
 sub main_ctx { 
@@ -23,16 +16,12 @@ sub main_ctx {
     $ctx->set_cipher_list($ENV{CRYPT_SSLEAY_CIPHER})
       if $ENV{CRYPT_SSLEAY_CIPHER};    
 
-#    $ctx = $CTX{$ssl_version};
-#    print STDERR "\n\nCTX $ctx version $ssl_version\n\n";
-
     $ctx;
 }
 
 my %sub_cache = ('main_ctx' => \&main_ctx );
 
-sub import
-{
+sub import {
     my $pkg = shift;
     my $callpkg = caller();
     my @func = @_;
@@ -51,6 +40,3 @@ sub import
 }
 
 1;
-
-
-

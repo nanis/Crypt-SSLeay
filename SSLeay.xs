@@ -422,19 +422,19 @@ issuer_name(cert)
         OUTPUT:
            RETVAL
 
-char*
+char *
 get_notBeforeString(cert)
          X509* cert
          CODE:
-            RETVAL = (char*)X509_get_notBefore(cert)->data;
+            RETVAL = (char *)X509_get_notBefore(cert)->data;
          OUTPUT:
             RETVAL
 
-char*
+char *
 get_notAfterString(cert)
          X509* cert
          CODE:
-            RETVAL = (char*)X509_get_notAfter(cert)->data;
+            RETVAL = (char *)X509_get_notAfter(cert)->data;
          OUTPUT:
             RETVAL
 
