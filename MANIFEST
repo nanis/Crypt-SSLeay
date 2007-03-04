@@ -19,5 +19,6 @@ lib/Net/SSL.pm
 eg/lwp-ssl-test
 eg/net-ssl-test
 t/00-basic.t
-t/net_ssl.t
+t/01-connect.t
+t/02-live.t
 META.yml                                 Module meta-data (added by MakeMaker)

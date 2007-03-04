@@ -1,16 +1,20 @@
 package Crypt::SSLeay;
 
-use Crypt::SSLeay::X509;
-
 use strict;
-use vars qw(@ISA $VERSION %CIPHERS);
+use vars '$VERSION';
+$VERSION = '0.53_03';
 
-require DynaLoader;
-
-@ISA = qw(DynaLoader);
-$VERSION = '0.53_02';
-
-bootstrap Crypt::SSLeay $VERSION;
+eval {
+    require XSLoader;
+    XSLoader::load('Crypt::SSLeay', $VERSION);
+    1;
+}
+or do {
+    require DynaLoader;
+    use vars '@ISA'; # not really locally scoped, it just looks that way
+    @ISA = qw(DynaLoader);
+    bootstrap Crypt::SSLeay $VERSION;
+};
 
 use vars qw(%CIPHERS);
 %CIPHERS = (
@@ -27,6 +31,7 @@ use vars qw(%CIPHERS);
    'DES-CFB-M1'   => "56 bit CFB64 DES encryption with a one byte MD5 MAC",
 );
 
+use Crypt::SSLeay::X509;
 
 # A xsupp bug made this nessesary
 sub Crypt::SSLeay::CTX::DESTROY  { shift->free; }
@@ -39,17 +44,44 @@ __END__
 
 =head1 NAME
 
-Crypt::SSLeay - OpenSSL glue that provides LWP https support
+Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 SYNOPSIS
 
   lwp-request https://www.example.com
 
   use LWP::UserAgent;
-  my $ua = new LWP::UserAgent;
-  my $req = new HTTP::Request('GET', 'https://www.example.com');
+  my $ua  = LWP::UserAgent->new;
+  my $req = HTTP::Request->new('GET', 'https://www.example.com/');
   my $res = $ua->request($req);
-  print $res->code."\n";
+  print $res->content, "\n";
+
+=head1 DESCRIPTION
+
+This document describes C<Crypt::SSLeay> version 0.53_03, released
+2007-xx-xx.
+
+This perl module provides support for the https protocol under LWP,
+to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
+requests. Please see LWP for more information on POST requests.
+
+The C<Crypt::SSLeay> package provides C<Net::SSL>, which is loaded
+by C<LWP::Protocol::https> for https requests and provides the
+necessary SSL glue.
+
+This distribution also makes following deprecated modules available:
+
+  Crypt::SSLeay::CTX
+  Crypt::SSLeay::Conn
+  Crypt::SSLeay::X509
+
+Work on Crypt::SSLeay has been continued only to provide https
+support for the LWP (libwww-perl) libraries.
+
+=head1 ENVIRONMENT VARIABLES
+
+The following environment variables change the way
+C<Crypt::SSLeay> and C<Net::SSL> behave.
 
   # proxy support
   $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
@@ -76,28 +108,6 @@ Crypt::SSLeay - OpenSSL glue that provides LWP https support
   $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
   $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
-=head1 DESCRIPTION
-
-This document describes C<Crypt::SSLeay> version 0.53_02, released
-2007-01-29.
-
-This perl module provides support for the https protocol under LWP,
-to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
-requests. Please see LWP for more information on POST requests.
-
-The C<Crypt::SSLeay> package provides C<Net::SSL>, which is loaded
-by C<LWP::Protocol::https> for https requests and provides the
-necessary SSL glue.
-
-This distribution also makes following deprecated modules available:
-
-  Crypt::SSLeay::CTX
-  Crypt::SSLeay::Conn
-  Crypt::SSLeay::X509
-
-Work on Crypt::SSLeay has been continued only to provide https
-support for the LWP (libwww-perl) libraries.
-
 =head1 INSTALL
 
 =head2 OpenSSL
@@ -109,22 +119,22 @@ this module. You can get the latest OpenSSL package from:
 
 When installing openssl make sure your config looks like:
 
-  > ./config --openssldir=/usr/local/openssl
+  ./config --openssldir=/usr/local/openssl
  or
-  > ./config --openssldir=/usr/local/ssl
+  ./config --openssldir=/usr/local/ssl
 
 If you are planning on upgrading the default OpenSSL libraries on
 a system like RedHat, (not recommended), then try something like:
 
-  > ./config --openssldir=/usr --shared
+  ./config --openssldir=/usr --shared
 
 The --shared option to config will set up building the .so 
-shared libraries which is important for such systems.
+shared libraries which is important for such systems. This is
+followed by:
 
- then
-  > make
-  > make test
-  > make install
+  make
+  make test
+  make install
 
 This way Crypt::SSLeay will pick up the includes and 
 libraries automatically. If your includes end up
@@ -135,29 +145,42 @@ to /usr/local/include
 =head2 Crypt::SSLeay
 
 The latest Crypt::SSLeay can be found at your nearest CPAN,
-and also:
+as well as:
 
   http://search.cpan.org/dist/Crypt-SSLeay/
 
 Once you have downloaded it, Crypt::SSLeay installs easily 
-using the make or nmake commands as shown below.  
+using the C<make> * commands as shown below.  
 
-  > perl Makefile.PL
-  > make
-  > make test
-  > make install
+  perl Makefile.PL
+  make
+  make test
+  make install
 
   * use nmake or dmake on Win32
 
-Crypt::SSLeay builds correctly with Strawberry Perl. For
+=head3 Windows
+C<Crypt::SSLeay> builds correctly with Strawberry Perl.
+
+For
 Activestate users, the PPM package is the recommended approach
-for installing. See http://www.activestate.com/
+for installing. See http://www.activestate.com/ . An
+alternative method is to use Randy Kobes's PPM repository. The
+following command will install the package for ActivePerl:
+
+  ppm install http://theoryx5.uwinnipeg.ca/ppms/Crypt-SSLeay.ppd
+
+=head3 VMS
+
+It is assumed that the OpenSSL installation is located at
+C</ssl$root>. Define this logical to point to the appropriate
+place in the filesystem.
 
 =head1 PROXY SUPPORT
 
 LWP::UserAgent and Crypt::SSLeay have their own versions of 
 proxy support. Please read these sections to see which one
-may be right for you.
+is appropriate.
 
 =head2 LWP::UserAgent proxy support
 
@@ -175,13 +198,13 @@ requests fine with an Apache mod_proxy server.  It sends a line like:
 
 to the proxy server, which is not the CONNECT request that
 some proxies would expect, so this may not work with other
-proxy servers than mod_proxy.  The CONNECT method is used
+proxy servers than mod_proxy. The CONNECT method is used
 by Crypt::SSLeay's internal proxy support.
 
 =head2 Crypt::SSLeay proxy support
 
 For native Crypt::SSLeay proxy support of https requests,
-you need to set an environment variable HTTPS_PROXY to your 
+you need to set the environment variable C<HTTPS_PROXY> to your 
 proxy server and port, as in:
 
   # proxy support
@@ -189,7 +212,7 @@ proxy server and port, as in:
   $ENV{HTTPS_PROXY} = '127.0.0.1:8080';
 
 Use of the C<HTTPS_PROXY> environment variable in this way 
-is similar to LWP::UserAgent->env_proxy() usage, but calling
+is similar to C<LWP::UserAgent->env_proxy()> usage, but calling
 that method will likely override or break the Crypt::SSLeay
 support, so do not mix the two.
 
@@ -200,9 +223,9 @@ this way:
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
   $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
 
-For an example of LWP scripting with Crypt::SSLeay native proxy
+For an example of LWP scripting with C<Crypt::SSLeay> native proxy
 support, please look at the F<eg/lwp-ssl-test> script in the 
-Crypt::SSLeay distribution.
+C<Crypt::SSLeay> distribution.
 
 =head1 CLIENT CERTIFICATE SUPPORT
 
@@ -216,7 +239,7 @@ You may test your files with the F<eg/net-ssl-test> program,
 bundled with the distribution, by issuing a command like:
 
   perl eg/net-ssl-test -cert=certs/notacacert.pem \
-	-key=certs/notacakeynopass.pem -d GET $HOST_NAME
+    -key=certs/notacakeynopass.pem -d GET $HOST_NAME
 
 Additionally, if you would like to tell the client where
 the CA file is, you may set these.
@@ -270,9 +293,9 @@ so you may set before using LWP or Net::SSL:
 
   $ENV{HTTPS_VERSION} = 3;
 
-so that a SSL v3 connection is tried first. At this time
-only a SSL v2 connection will be tried after this, as the 
-connection attempt order remains unchanged by this setting.
+to force a version 3 SSL connection first. At this time only a
+version 2 SSL connection will be tried after this, as the connection
+attempt order remains unchanged by this setting.
 
 =head1 ACKNOWLEDGEMENTS
 

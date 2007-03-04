@@ -1,12 +1,23 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.53_03
+
+- Adjusted the typemap shims to silence the compiler warnings that
+  occur when sizeof(IV) is larger than sizeof(char *).
+- use XSLoader for faster loading if available, otherwise fall
+  back to DynaLoader.
+- Makefile.PL heavily reworked, lots of cruft removed.
+- Ask to see whether the live tests should be run.
+- renamed net_sst.t to 01-connect.t
+- added 02-live.t that performs live HTTPS requests.
+
 0.53_02 2007-01-29 10:02:34 UTC
 
 - don't proxy hosts in NO_PROXY environment variable (CPAN
   bug #11078).
-- don't send user agent string to proxy unless $SEND_USERAGENT_TO_PROXY
-  is set. (CPAN bug #4759).
+- don't send user agent string to proxy unless
+  send_useragent_to_proxy is enabled. (CPAN bug #4759).
 - Net::SSL bumped to 2.80
 
 0.53_01 2007-01-24 22:21:09 UTC

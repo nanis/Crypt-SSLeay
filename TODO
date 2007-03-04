@@ -1,17 +1,11 @@
 TODO for Crypt::SSLeay
 
-Clear out the remaining CPAN bugs.
+1. Clear out the remaining CPAN bugs.
 
-Clean up the compiler warnings. For instance:
+2. Possible typo?
 
-SSLeay.c: In function `XS_Crypt__SSLeay__Conn_read':
-SSLeay.c:639: warning: cast to pointer from integer of different size
-SSLeay.c: In function `XS_Crypt__SSLeay__Conn_get_peer_certificate':
-SSLeay.c:698: warning: cast to pointer from integer of different size
-SSLeay.c: In function `XS_Crypt__SSLeay__Conn_get_verify_result':
-SSLeay.c:724: warning: cast to pointer from integer of different size
-SSLeay.c: In function `XS_Crypt__SSLeay__Conn_get_shared_ciphers':
-SSLeay.c:755: warning: cast to pointer from integer of different size
-SSLeay.c: In function `XS_Crypt__SSLeay__Conn_get_cipher':
-SSLeay.c:782: warning: cast to pointer from integer of different size
+=head1 CLIENT CERTIFICATE SUPPORT
 
+Client certificates are supported. PEM0encoded certificate and
+
+  -> should this read "PEM-encoded"? Check backpan.

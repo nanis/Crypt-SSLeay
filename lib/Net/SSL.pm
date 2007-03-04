@@ -1,21 +1,22 @@
 package Net::SSL;
 
 use strict;
-use vars qw(@ISA $VERSION $NEW_ARGS);
 use MIME::Base64;
 use Socket;
 use Carp;
 
+use vars qw(@ISA $VERSION $NEW_ARGS);
+$VERSION = '2.80';
+
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
+
 my %REAL; # private to this package only
 my $DEFAULT_VERSION = '23';
 my $CRLF = "\015\012";
-
 my $SEND_USERAGENT_TO_PROXY = 0;
 
 require Crypt::SSLeay;
-$VERSION = '2.80';
 
 sub _default_context {
     require Crypt::SSLeay::MainContext;
@@ -64,7 +65,7 @@ sub configure {
     ## - dqbai, 2003-05-10
     if (my $proxy = $self->proxy) {
         ($arg->{PeerAddr}, $arg->{PeerPort}) = split(':',$proxy);
-        $arg->{PeerPort} || die("no port given for proxy server $proxy");
+        $arg->{PeerPort} || croak("no port given for proxy server $proxy");
     }
 
     $self->SUPER::configure($arg);
@@ -96,7 +97,7 @@ sub connect {
         my $proxy_connect = eval { $self->proxy_connect_helper(@_) };
         if(! $proxy_connect || $@) {
             $@ = "proxy connect failed: $@; $!";
-            die $@;
+            croak($@);
         }
     }
     else {
@@ -104,7 +105,7 @@ sub connect {
         if(!$self->SUPER::connect(@_)) {
             # better to die than return here
             $@ = "Connect failed: $@; $!";
-            die $@;
+            croak($@);
         }
     }
 
@@ -145,7 +146,7 @@ sub connect {
                 # don't die, but do set $@, and return undef
                 eval { $self->die_with_error("SSL negotiation failed") };
                 $@ = "$@; $!";
-                die $@;
+                croak($@);
             }
         }
         _alarm_set(0);
@@ -154,7 +155,7 @@ sub connect {
     # odd error in eval {} block, maybe alarm outside the evals
     if($@) {
         $! = "$@; $!";
-        die $@;
+        croak($@);
     }
 
     # successful SSL connection gets stored
@@ -201,7 +202,7 @@ sub die_with_error {
     while(my $err=Crypt::SSLeay::Err::get_error_string()) {
        push @err, $err;
     }
-    die "$reason: " . join( ' | ', @err );
+    croak("$reason: " . join( ' | ', @err ));
 }
 
 sub read {
@@ -301,14 +302,14 @@ sub proxy_connect_helper {
 
     my $proxy = $self->proxy;
     my ($proxy_host, $proxy_port) = split(':',$proxy);
-    $proxy_port || die("no port given for proxy server $proxy");
+    $proxy_port || croak("no port given for proxy server $proxy");
 
     my $proxy_addr = gethostbyname($proxy_host);
-    $proxy_addr || die("can't resolve proxy server name: $proxy_host, $!");
+    $proxy_addr || croak("can't resolve proxy server name: $proxy_host, $!");
     
     my($peer_port, $peer_addr) = (*$self->{ssl_peer_port}, *$self->{ssl_peer_addr});
-    $peer_addr || die("no peer addr given");
-    $peer_port || die("no peer port given");
+    $peer_addr || croak("no peer addr given");
+    $peer_port || croak("no peer port given");
 
     # see if the proxy should be bypassed
     my @no_proxy = split( /\s*,\s*/, $ENV{'NO_PROXY'} || '');
@@ -323,11 +324,11 @@ sub proxy_connect_helper {
 
     if ($is_proxied) {
         $self->SUPER::connect($proxy_port, $proxy_addr)
-          || die("proxy connect to $proxy_host:$proxy_port failed: $!");
+          || croak("proxy connect to $proxy_host:$proxy_port failed: $!");
     }
     else {
         $self->SUPER::connect($peer_port, $peer_addr)
-          || die("proxy bypass to $peer_addr:$peer_addr failed: $!");
+          || croak("proxy bypass to $peer_addr:$peer_addr failed: $!");
     }
 
     my $connect_string;
@@ -360,7 +361,7 @@ sub proxy_connect_helper {
     my $conn_ok = ($header =~ /HTTP\/\d+\.\d+\s+200\s+/is) ? 1 : 0;
 
     if (not $conn_ok) {
-        die("PROXY ERROR HEADER, could be non-SSL URL:\n$header");
+        croak("PROXY ERROR HEADER, could be non-SSL URL:\n$header");
     }
 
     $conn_ok;
@@ -383,22 +384,22 @@ sub configure_certs {
     for (qw(HTTPS_PKCS12_FILE HTTPS_CERT_FILE HTTPS_KEY_FILE)) {
         my $file = $ENV{$_};
         if ($file) {
-            (-e $file) or die("$file file does not exist: $!");
-            (-r $file) or die("$file file is not readable");
+            (-e $file) or croak("$file file does not exist: $!");
+            (-r $file) or croak("$file file is not readable");
             $count++;
             if (/PKCS12/) {
                 $count++;
-                $ctx->use_pkcs12_file($file ,$ENV{'HTTPS_PKCS12_PASSWORD'}) || die("failed to load $file: $!");
+                $ctx->use_pkcs12_file($file ,$ENV{'HTTPS_PKCS12_PASSWORD'}) || croak("failed to load $file: $!");
                 last;
             }
             elsif (/CERT/) {
-                $ctx->use_certificate_file($file ,1) || die("failed to load $file: $!");
+                $ctx->use_certificate_file($file ,1) || croak("failed to load $file: $!");
             }
             elsif (/KEY/) {
-                $ctx->use_PrivateKey_file($file, 1) || die("failed to load $file: $!");
+                $ctx->use_PrivateKey_file($file, 1) || croak("failed to load $file: $!");
             }
             else {
-                die("setting $_ not supported");
+                croak("setting $_ not supported");
             }
         }
     }
@@ -406,7 +407,7 @@ sub configure_certs {
     # if both configs are set, then verify them
     if ($count == 2) {
         if (! $ctx->check_private_key) {
-            die("Private key and certificate do not match");
+            croak("Private key and certificate do not match");
         }
     }
     
@@ -420,7 +421,7 @@ sub getlines { shift->_unimpl("getlines"); }
 
 sub _unimpl {
     my($self, $meth) = @_;
-    die "$meth not implemented for Net::SSL sockets";
+    croak("$meth not implemented for Net::SSL sockets");
 }
 
 1;
@@ -570,6 +571,22 @@ such as C<proxy.example.com:8086>.
   "Connect failed: <contents of $@>; <contents of $!>"
 
 During connect().
+
+=head2 SEE ALSO
+
+=over 4
+
+=item IO::Socket::INET
+
+C<Net::SSL> is implemented by subclassing C<IO::Socket::INET>, hence
+methods not specifically overridden are defined by that package.
+
+=item Net::SSLeay
+
+A package that provides a Perl-level interface to the C<openssl>
+secure sockets layer library.
+
+=back
 
 =cut
 
