@@ -247,6 +247,12 @@ WriteMakefile(
 );
 
 if (open OUT, '> test.config') {
+    print OUT <<INFO;
+ssl $pkg_config->{type} $pkg_config->{ver} in $SSL_DIR
+lib @LIB_FLAGS
+inc @INC_FLAGS
+INFO
+
     print <<INFO;
 The test suite can attempt to connect to public servers
 to ensure that the code is working properly. If you are

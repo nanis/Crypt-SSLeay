@@ -19,10 +19,16 @@ push @prereq, "HTTP::Request" if $@;
 
 my $network_tests;
 if (open IN, '<test.config') {
+    diag("config");
     while (<IN>) {
         chomp;
-        if (my ($key, $value) = ($_ =~ /\A(\S+)\s+(\d+)/)) {
-            $network_tests = $value if $key eq 'network_tests';
+        if (my ($key, $value) = ($_ =~ /\A(\S+)\s+(.*)/)) {
+            if ($key eq 'network_tests') {
+                $network_tests = $value;
+            }
+            elsif (grep {$key eq $_} qw(inc lib ssl)) {
+                diag("$key $value");
+            }
         }
     }
     close IN;

@@ -1,7 +1,12 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.53_03
+0.53_04 2007-03-06 09:39:01 UTC
+
+- add diag() info to determine possible reasons for failure as per
+  http://www.nntp.perl.org/group/perl.cpan.testers/2007/03/msg428964.html
+
+0.53_03 2007-03-04
 
 - Adjusted the typemap shims to silence the compiler warnings that
   occur when sizeof(IV) is larger than sizeof(char *).
