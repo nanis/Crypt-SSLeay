@@ -125,7 +125,7 @@ sub connect {
             local $SIG{PIPE} = \&die;
             $rv = eval { $ssl->connect; };
         }
-        if ($rv <= 0) {
+        if (not defined $rv or $rv <= 0) {
             _alarm_set(0);
             $ssl = undef;
             my %args = (%$new_arg, %$arg);

@@ -238,7 +238,7 @@ WriteMakefile(
     ABSTRACT_FROM => 'SSLeay.pm',
     VERSION_FROM  => 'SSLeay.pm',
     LICENSE       => 'perl',
-    LIBS          => [@LIB_FLAGS],
+    LIBS          => ["@LIB_FLAGS"],
     INC           => "@INC_FLAGS",
     NEEDS_LINKING => 1,
     clean         => {
@@ -247,12 +247,6 @@ WriteMakefile(
 );
 
 if (open OUT, '> test.config') {
-    print OUT <<INFO;
-ssl $pkg_config->{type} $pkg_config->{ver} in $SSL_DIR
-lib @LIB_FLAGS
-inc @INC_FLAGS
-INFO
-
     print <<INFO;
 The test suite can attempt to connect to public servers
 to ensure that the code is working properly. If you are
