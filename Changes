@@ -1,7 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.53_05 2007-03-28 17:35:24 UTC
+0.54 2007-04-12 22:05:26 UTC
+
+- Rebadged 0.53_05, since no bugs appear to have surfaced.
+
+0.53_05
 
 - Fixed up incorrect LIBS key in WriteMakefile args. Thanks to
   David Cantrell for giving me access to an OpenBSD box that
@@ -10,11 +14,11 @@ Revision history for Crypt-SSLeay
   the README, as per cpants.perl.org. (think: improvements
   to the test suite).
 
-0.53_04 2007-03-06 09:45:08 UTC
+0.53_04 2007-03-06 09:39:01 UTC
 
+- add diag() info to determine possible reasons for failure as per
+  http://www.nntp.perl.org/group/perl.cpan.testers/2007/03/msg428964.html
 - Tweaks for Strawberry Perl detection.
-- Minor diagnostic tweaks to track down failures from
-  automated testers.
 
 0.53_03 2007-03-04 18:30:06 UTC
 

@@ -99,13 +99,22 @@ INSTALL
 
       * use nmake for win32
 
-      !!! NOTE for Win32 users, few people seem to be able to build
-      W  Crypt::SSLeay successfully on that platform.  You don't need
-      I  to because ActiveState has already compiled it for you,
-      N  and is available for their perl builds 618 & 522 as a ppm
-      3  install.  It may also be available for their latest build.
-      2  For problems with this, please contact ActiveState.
-      !!!          Please see http://www.activestate.com/
+  Windows
+   For Activestate users, the ActiveState company does not have a permit
+   from the Canadian Federal Government to distribute cryptographic
+   software. This prevents "Crypt::SSLeay" from being distributed as a PPM
+   package from their repository. See
+   <http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/faq/ActivePerl-faq2.html#crypto_packages>
+   for more information on this issue.
+
+   You may download it from Randy Kobes's PPM repository by using the
+   following command:
+
+     ppm install http://theoryx5.uwinnipeg.ca/ppms/Crypt-SSLeay.ppd
+
+   An alternative is to add the uwinnipeg.ca PPM repository to your local
+   installation. See <http://cpan.uwinnipeg.ca/htdocs/faqs/ppm.html> for
+   more details.
 
 PROXY SUPPORT
     LWP::UserAgent and Crypt::SSLeay have their own versions of proxy
@@ -291,6 +300,49 @@ BUILD NOTES
     Got a message "ld.so: Undefined symbol: _CRYPT_mem_ctrl" solution: In
     the Makefile, comment out the line with "-fpic" (also try changing to
     "-fPIC", and this works also, not sure if one is preferred).
+
+OTHER MODULES
+
+A number of CPAN modules list Crypt-SSLeay as a pre-requisite. As of
+March 2007, this list included
+
+    Acme-SDUM-Renew               ROOT
+    ASNMTAP                       ASNMTAP
+    Business-Billing-TMobile-UK   SRSHAH
+    Business-OnlinePayment-Protx  TEEJAY
+    Business-PayPal-IPN           SHERZODR
+    Finance-Bank-CreditMut        CBOUVI
+    Finance-Bank-Fubon-TW         AUTRIJUS
+    Finance-Bank-HDFC             ROHAN
+    Finance-Quote                 HAMPTON
+    Finance-SE-PPM                ERWAN
+    GMail-IMAPD                   KRS
+    Google-Checkout               DZHUO
+    Hey-heyPass                   WILSOND
+    HTTP-QuickBase                CVONROES
+    Mail-Webmail-Gmail            MINCUS
+    Module-Release                BDFOY
+    Net-Artera                    IVAN
+    Net-eBay                      ICHUDOV
+    Net-SMS-MessageNet            DDICK
+    Net-SMS-MessageNet            DDICK
+    Net-SMS-O2                    AWRIGLEY
+    Net-SMS-Optimus               ROOT
+    Net-SMS-PChome                SNOWFLY
+    Net-UPS                       SHERZODR
+    Net-XRC                       IVAN
+    o2sms                         MACKERS
+    WebService-CIA                IMALPASS
+    WWW-FleXtel                   NICOLAW
+    WWW-GMail                     XANTUS
+    WWW-Hotmail                   XANTUS
+    WWW-Mail15                    REFLOG
+    WWW-Myspace                   GRANTG
+    WWW-Postini                   PGUZIS
+    WWW-RIPE-LIRPortal            RIPENCC
+    WWW-Scraper-Gmail             KASTNER
+    WWW-Yahoo-Groups              SPOON
+    Yahoo-Marketing               JLAVALLEE
 
 NOTES
     Many thanks to Gisle Aas for the original writing of this module and

@@ -19,10 +19,16 @@ push @prereq, "HTTP::Request" if $@;
 
 my $network_tests;
 if (open IN, '<test.config') {
+    diag("config on $^O");
     while (<IN>) {
         chomp;
-        if (my ($key, $value) = ($_ =~ /\A(\S+)\s+(\d+)/)) {
-            $network_tests = $value if $key eq 'network_tests';
+        if (my ($key, $value) = ($_ =~ /\A(\S+)\s+(.*)/)) {
+            if ($key eq 'network_tests') {
+                $network_tests = $value;
+            }
+            elsif (grep {$key eq $_} qw(cc inc lib ssl)) {
+                diag("$key $value");
+            }
         }
     }
     close IN;
@@ -87,9 +93,9 @@ SKIP: {
 }
 
 SKIP: {
-    my $live_tests = 1;
-    skip( "Cannot load prerequisite modules @prereq", $live_tests ) if @prereq;
-    skip( "Network tests disabled", $live_tests ) unless $network_tests;
+    my $nr_live_tests = 1;
+    skip( "Cannot load prerequisite modules @prereq", $nr_live_tests ) if @prereq;
+    skip( "Network tests disabled", $nr_live_tests ) unless $network_tests;
 
     my $ua  = LWP::UserAgent->new;
     $ua->agent('Crypt-SSLeay tester ');

@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.53_05';
+$VERSION = '0.54';
 
 eval {
     require XSLoader;
@@ -58,8 +58,8 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.53_05, released
-2007-03-26.
+This document describes C<Crypt::SSLeay> version 0.54, released
+2007-04-13.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -160,15 +160,24 @@ using the C<make> * commands as shown below.
   * use nmake or dmake on Win32
 
 =head3 Windows
+
 C<Crypt::SSLeay> builds correctly with Strawberry Perl.
 
-For
-Activestate users, the PPM package is the recommended approach
-for installing. See http://www.activestate.com/ . An
-alternative method is to use Randy Kobes's PPM repository. The
-following command will install the package for ActivePerl:
+For Activestate users, the ActiveState company does not have a
+permit from the Canadian Federal Government to distribute cryptographic
+software. This prevents C<Crypt::SSLeay> from being distributed as
+a PPM package from their repository. See
+L<http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/faq/ActivePerl-faq2.html#crypto_packages>
+for more information on this issue.
+
+You may download it from Randy Kobes's PPM repository by using
+the following command:
 
   ppm install http://theoryx5.uwinnipeg.ca/ppms/Crypt-SSLeay.ppd
+
+An alternative is to add the uwinnipeg.ca PPM repository to your
+local installation. See L<http://cpan.uwinnipeg.ca/htdocs/faqs/ppm.html>
+for more details.
 
 =head3 VMS
 

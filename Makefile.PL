@@ -143,7 +143,7 @@ elsif ($^O eq 'MSWin32') {
     push @INC_FLAGS, "-I$SSL_DIR\\inc32" if -d "$SSL_DIR/inc32";
 
     my $vanilla = $Config{cc} eq 'gcc' ? 1 : 0;
-    print "Assuming $vanilla Vanilla/Strawberry Perl installation";
+    $vanilla and print "Assuming Vanilla/Strawberry Perl installation\n";
     
     if ($vanilla and -d "$SSL_DIR\\lib\\MinGW") {
         push @LIB_FLAGS, "-L$SSL_DIR\\lib\\MinGW";
@@ -247,6 +247,13 @@ WriteMakefile(
 );
 
 if (open OUT, '> test.config') {
+    print OUT <<INFO;
+ssl $pkg_config->{type} $pkg_config->{ver} in $SSL_DIR
+lib @LIB_FLAGS
+inc @INC_FLAGS
+cc $Config{cc}
+INFO
+
     print <<INFO;
 The test suite can attempt to connect to public servers
 to ensure that the code is working properly. If you are
@@ -267,10 +274,11 @@ sub Candidate {
     my $dir = shift;
     return unless -d $dir;
 
+    my $inc_dir;
     my $version_file;
     for (
          "$dir/crypto/opensslv.h", # cygwin32 builds
-         "$dir/inc32/openssl/opensslv.h", # win32 builds
+         "$dir/inc32/openssl/opensslv.h", # old win32 builds
          "$dir/include/openssl/opensslv.h", 
          "$dir/include/opensslv.h", 
          "$dir/include/crypto.h"
@@ -285,6 +293,10 @@ sub Candidate {
     my $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
     my $inc_dir = dirname($version_file);
     return unless -e "$inc_dir/ssl.h";
+
+    if ($^O eq 'MSWin32') {
+        $inc_dir =~ s{[\\/]openssl\z}{};
+    }
 
     open(VERSION_FILE, $version_file) or return;
     my $version_match = $open_ssl ? "OPENSSL_VERSION_NUMBER" : "SSLEAY_VERSION_NUMBER";
