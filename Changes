@@ -1,6 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.55 2007-06-01 17:34:22 UTC
+
+- Added a blocking() method to Net::SSL (and bumped version to
+  2.81).
+
 0.54 2007-04-12 22:05:26 UTC
 
 - Rebadged 0.53_05, since no bugs appear to have surfaced.

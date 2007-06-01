@@ -291,7 +291,7 @@ sub Candidate {
     return unless defined $version_file;
 
     my $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
-    my $inc_dir = dirname($version_file);
+    $inc_dir = dirname($version_file);
     return unless -e "$inc_dir/ssl.h";
 
     if ($^O eq 'MSWin32') {

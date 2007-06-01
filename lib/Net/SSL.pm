@@ -6,7 +6,7 @@ use Socket;
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.80';
+$VERSION = '2.81';
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -74,6 +74,11 @@ sub configure {
 # override to make sure there is really a timeout
 sub timeout {
     shift->SUPER::timeout || 60;
+}
+
+sub blocking {
+    my $self = shift;
+    $self->SUPER::blocking(@_);
 }
 
 sub connect {
@@ -515,6 +520,16 @@ Is an alias of C<read>.
 
 Returns the timeout value of the socket as defined by the implementing
 class or 60 seconds by default.
+
+=item blocking
+
+Returns a boolean indicating whether the underlying socket is in
+blocking mode. By default, Net::SSL sockets are in blocking mode.
+
+    $sock->blocking(0); # set to non-blocking mode
+
+This method simply calls the underlying C<blocking> method of the
+IO::Socket object.
 
 =item write
 

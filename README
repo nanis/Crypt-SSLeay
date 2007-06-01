@@ -61,23 +61,23 @@ INSTALL
 
     When installing openssl make sure your config looks like:
 
-      > ./config --openssldir=/usr/local/openssl
-     or
-      > ./config --openssldir=/usr/local/ssl
+     ./config --openssldir=/usr/local/openssl
+       or
+     ./config --openssldir=/usr/local/ssl
 
     If you are planning on upgrading the default OpenSSL libraries on a
     system like RedHat, not that I would recommend this, then you might try
     something like:
 
-      > ./config --openssldir=/usr --shared
+      ./config --openssldir=/usr --shared
 
     The --shared option to config will set up building the .so shared
     libraries which is important for such systems.
 
      then
-      > make
-      > make test
-      > make install
+      make
+      make test
+      make install
 
     This way Crypt::SSLeay will pick up the includes and libraries
     automatically. If your includes end up going into a separate directory
@@ -92,12 +92,20 @@ INSTALL
     Once you have downloaded it, Crypt::SSLeay installs easily using the
     make or nmake commands as shown below.
 
-      > perl Makefile.PL
-      > make
-      > make test
-      > make install
+      perl Makefile.PL
+      make
+      make test
+      make install
 
-      * use nmake for win32
+      * use nmake or dmake for win32
+
+   For unattended (batch) installations, to be absolutely certain that
+   F<Makefile.PL> does not prompt for questions on STDIN, set the
+   following environment variable beforehand:
+
+     PERL_MM_USE_DEFAULT=1
+
+   (This is true for any CPAN module that uses C<ExtUtils::MakeMaker>).
 
   Windows
    For Activestate users, the ActiveState company does not have a permit
@@ -392,9 +400,8 @@ SUPPORT
     L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 
     This module was originally written by Gisle Aas, and was subsequently
-    maintained by Joshua Chamas.
-
-    This module is currently maintained by David Landgren.
+    maintained by Joshua Chamas. It is currently maintained by David
+	Landgren.
 
 COPYRIGHT
      Copyright (c) 2006-2007 David Landgren.

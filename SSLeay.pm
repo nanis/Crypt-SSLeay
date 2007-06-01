@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.54';
+$VERSION = '0.55';
 
 eval {
     require XSLoader;
@@ -58,8 +58,8 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.54, released
-2007-04-13.
+This document describes C<Crypt::SSLeay> version 0.55, released
+2007-06-01.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -158,6 +158,14 @@ using the C<make> * commands as shown below.
   make install
 
   * use nmake or dmake on Win32
+
+For unattended (batch) installations, to be absolutely certain that
+F<Makefile.PL> does not prompt for questions on STDIN, set the
+following environment variable beforehand:
+
+  PERL_MM_USE_DEFAULT=1
+
+(This is true for any CPAN module that uses C<ExtUtils::MakeMaker>).
 
 =head3 Windows
 
@@ -354,6 +362,12 @@ bug #12444).
 
 =over 4
 
+=item Net::SSL
+
+If you have downloaded this distribution as of a dependency
+of another distribution, it's probably due to this module
+(which is included in this distribution).
+
 =item Net::SSLeay
 
 A module that offers access to the OpenSSL API directly from Perl.
@@ -380,9 +394,8 @@ Please report all bugs at
 L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 
 This module was originally written by Gisle Aas, and was subsequently
-maintained by Joshua Chamas.
-
-This module is currently maintained by David Landgren.
+maintained by Joshua Chamas. It is currently maintained by David
+Landgren.
 
 =head1 COPYRIGHT
 

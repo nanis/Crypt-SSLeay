@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 use Net::SSL;
 
@@ -28,7 +28,7 @@ else {
 }
 
 SKIP: {
-    skip( "nothing listening on localhost:443", 5 )
+    skip( "nothing listening on localhost:443", 7 )
         unless defined $sock;
 
     is( ref($sock), 'Net::SSL', 'blessed socket' );
@@ -52,4 +52,8 @@ SKIP: {
     like ($@, qr(\Agetlines not implemented for Net::SSL sockets),
         'getlines() not implemented'
     );
+
+    is( $sock->blocking, 1, 'socket is blocking' );
+    $sock->blocking(0);
+    is( $sock->blocking, 0, 'socket is now non-blocking' );
 }

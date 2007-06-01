@@ -1,9 +1,9 @@
 --- #YAML:1.0
 name:                Crypt-SSLeay
-version:             0.54
+version:             0.55
 abstract:            OpenSSL support for LWP
 license:             perl
-generated_by:        ExtUtils::MakeMaker version 6.31
+generated_by:        ExtUtils::MakeMaker version 6.32
 distribution_type:   module
 requires:     
 meta-spec:
