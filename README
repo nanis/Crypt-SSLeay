@@ -59,6 +59,16 @@ INSTALL
 
       http://www.openssl.org
 
+    On Debian systems, you will need to install the libssl-dev package,
+    at least for the duration of the build (it may be removed afterwards).
+
+    Other package-based systems may require something similar. The key is
+    that Crypt::SSLeay makes calls to the OpenSSL library, and how to do
+    so is specified in the C header files that come with the library.
+    Some systems break out the header files into a separate package from
+    that of the libraries. Once the program has been built, you don't
+    need the headers any more.
+
     When installing openssl make sure your config looks like:
 
      ./config --openssldir=/usr/local/openssl
@@ -401,7 +411,7 @@ SUPPORT
 
     This module was originally written by Gisle Aas, and was subsequently
     maintained by Joshua Chamas. It is currently maintained by David
-	Landgren.
+    Landgren.
 
 COPYRIGHT
      Copyright (c) 2006-2007 David Landgren.

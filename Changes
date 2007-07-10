@@ -1,6 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.56 2007-07-10 19:08:20 UTC
+
+- Purely a documentation issue raised by CPAN bug #27935. Users
+  of previous versions do not need to upgrade.
+
 0.55 2007-06-01 17:34:22 UTC
 
 - Added a blocking() method to Net::SSL (and bumped version to

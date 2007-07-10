@@ -7,12 +7,7 @@ use File::Basename qw(dirname);
 use Getopt::Long;
 
 eval "use ExtUtils::MakeMaker::Coverage";
-if( $@ ) {
-    print "Skipping testcover target, ExtUtils::MakeMaker::Coverage not found\n";
-}
-else {
-    print "Adding testcover target\n";
-}
+$@ or print "Adding testcover target\n";
 
 use vars qw($opt_default $opt_libpath);
 
@@ -68,6 +63,17 @@ on your platform, please consider filing a bug report in order to
 have it taken into account in a subsequent version of Crypt::SSLeay.
 
 INFO
+
+    if (-f '/etc/debian_version') {
+        print <<DEBIAN_INFO;
+
+This host looks like it is running Debian. Crypt::SSLeay needs to
+be compiled with C headers that the libssl-dev package makes
+available. Please install that package before trying to build this
+module. (You can always deinstall the package afterwards, once
+Crypt::SSLeay has been built).
+DEBIAN_INFO
+    }
 }
 
 my $SSL_DIR;
@@ -232,18 +238,22 @@ include dir: @INC_FLAGS
 ================================================
 INFO
 
+my @license = $ExtUtils::MakeMaker::VERSION > 6.30
+    ? qw(LICENSE perl)
+    : ();
+
 WriteMakefile(
     NAME          => 'Crypt::SSLeay',
     AUTHOR        => 'David Landgren',
     ABSTRACT_FROM => 'SSLeay.pm',
     VERSION_FROM  => 'SSLeay.pm',
-    LICENSE       => 'perl',
     LIBS          => ["@LIB_FLAGS"],
     INC           => "@INC_FLAGS",
     NEEDS_LINKING => 1,
     clean         => {
         FILES => 'crypt_ssleay_version.h test.config',
     },
+    @license,
 );
 
 if (open OUT, '> test.config') {

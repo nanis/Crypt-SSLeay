@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.55';
+$VERSION = '0.56';
 
 eval {
     require XSLoader;
@@ -58,8 +58,8 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.55, released
-2007-06-01.
+This document describes C<Crypt::SSLeay> version 0.56, released
+2007-07-10.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -116,6 +116,16 @@ You must have OpenSSL or SSLeay installed before compiling
 this module. You can get the latest OpenSSL package from:
 
   http://www.openssl.org/
+
+On Debian systems, you will need to install the libssl-dev package,
+at least for the duration of the build (it may be removed afterwards).
+
+Other package-based systems may require something similar. The key
+is that Crypt::SSLeay makes calls to the OpenSSL library, and how
+to do so is specified in the C header files that come with the
+library.  Some systems break out the header files into a separate
+package from that of the libraries. Once the program has been built,
+you don't need the headers any more.
 
 When installing openssl make sure your config looks like:
 
