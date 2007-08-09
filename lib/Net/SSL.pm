@@ -6,7 +6,7 @@ use Socket;
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.81';
+$VERSION = '2.82';
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -24,7 +24,7 @@ sub _default_context {
 }
 
 sub _alarm_set {
-    return if $^O eq 'MSWin32';
+    return if $^O eq 'MSWin32' or $^O eq 'Netware';
     alarm(shift);
 }
 

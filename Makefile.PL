@@ -9,11 +9,12 @@ use Getopt::Long;
 eval "use ExtUtils::MakeMaker::Coverage";
 $@ or print "Adding testcover target\n";
 
-use vars qw($opt_default $opt_libpath);
+use vars qw($opt_default $opt_libpath $opt_static);
 
 GetOptions(
     "default", \$opt_default,
     "lib=s",   \$opt_libpath,
+    "static",  \$opt_static,
 );
 
 $opt_default ||= $ENV{CRYPT_SSLEAY_DEFAULT};
@@ -50,12 +51,12 @@ my @CANDIDATE = map {Candidate($_)} @POSSIBLE_SSL_DIRS;
 if (@CANDIDATE == 0) {
     $opt_default = 0;
     my $bar = '=' x 72;
-    print <<INFO;
+    print <<"INFO";
 $bar
 No installed SSL libraries found in any of the following places.
 INFO
     print "    $_\n" for @POSSIBLE_SSL_DIRS;
-    print <<INFO;
+    print <<"INFO";
 You will have to either specify a directory location at the following
 prompt, or rerun the Makefile.PL program and use the --lib switch
 to specify the path. If the path in question is considered standard
@@ -65,7 +66,7 @@ have it taken into account in a subsequent version of Crypt::SSLeay.
 INFO
 
     if (-f '/etc/debian_version') {
-        print <<DEBIAN_INFO;
+        print <<"DEBIAN_INFO";
 
 This host looks like it is running Debian. Crypt::SSLeay needs to
 be compiled with C headers that the libssl-dev package makes
@@ -85,7 +86,7 @@ if (@CANDIDATE == 1) {
         $SSL_DIR = $pkg_config->{dir};
     }
     else {
-        print <<INFO;
+        print <<"INFO";
 =======================================================
 Only one $pkg_config->{type} installation found at $pkg_config->{dir}
 Consider running 'perl Makefile.PL --default' the next
@@ -119,7 +120,7 @@ if (not $SSL_DIR) {
         # unknown directory, better check it out
         $pkg_config = Candidate($SSL_DIR);
         if (not $pkg_config) {
-            die <<INFO;
+            die <<"INFO";
 $SSL_DIR does not appear to be an SSL library installation, since
 the required header files were not found. The build cannot proceed.
 INFO
@@ -139,12 +140,12 @@ elsif ($^O eq 'MSWin32') {
     # external tools probably expect \ and not / for path separators
     $SSL_DIR =~ tr{/}{\\};
 
-    # default to drive C:
-    $SSL_DIR = "c:$SSL_DIR" if $SSL_DIR !~ /\A[a-z]:/i;
+    # default to drive C: if no drive or relative path
+    $SSL_DIR = "c:$SSL_DIR" if $SSL_DIR !~ m{\A(?:[a-z]:|\.\.[\\/])}i;
 
     my $inc = $pkg_config->{inc};
     $inc =~ tr{/}{\\};
-    $inc !~ /^[a-z]:/i and $inc = "c:$inc";
+    $inc = "c:$inc" if $inc !~ m{\A(?:[a-z]:|\.\.[\\/])}i;
     push @INC_FLAGS, "-I$inc";
     push @INC_FLAGS, "-I$SSL_DIR\\inc32" if -d "$SSL_DIR/inc32";
 
@@ -157,13 +158,15 @@ elsif ($^O eq 'MSWin32') {
     elsif(-d "$SSL_DIR/lib") {
         push @LIB_FLAGS, "-L$SSL_DIR\\lib";
     }
-    elsif(-d "$SSL_DIR/out32dll") {
-        # patch from Ben Laurie
-        push @LIB_FLAGS, "-L$SSL_DIR\\out32dll";        
-    }
     else {
-        # Allow developers to point at OpenSSL source...
-        push @LIB_FLAGS, "-L$SSL_DIR";
+        my $dir = $opt_static ? "$SSL_DIR\\out32" : "$SSL_DIR\\out32dll";
+        if (-d $dir) {
+            push @LIB_FLAGS, "-L$dir";
+        }
+        else {
+            # Allow developers to point at OpenSSL source...
+            push @LIB_FLAGS, "-L$SSL_DIR";
+        }
     }
 
     push @LIB_FLAGS, qw(-lssleay32 -llibeay32);
@@ -196,7 +199,7 @@ my $ssl_header_prefix = ($pkg_config->{inc} =~ /\bopenssl/i)
 # we need to include crypto.h for SSLeay so the version gets picked up in SSLeay.xs
 
 open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
-print INCLUDE <<INFO;
+print INCLUDE <<"INFO";
 #include "${ssl_header_prefix}ssl.h"
 #include "${ssl_header_prefix}crypto.h"
 #include "${ssl_header_prefix}err.h"
@@ -207,7 +210,7 @@ INFO
 
 if ($] < 5.005) {
     print "adding PL_sv_undef symbol for this ancient perl installation";
-    print INCLUDE <<INFO;
+    print INCLUDE <<"INFO";
 /* defining PL_sv_undef for very old perls ($]) */
 #ifndef PL_sv_undef
 #define PL_sv_undef sv_undef
@@ -216,10 +219,14 @@ if ($] < 5.005) {
 INFO
 }
 
-# OPENSSL_free defined in OpenSSL 0.9.6 and higher
-my $openssl_version = $pkg_config->{ver};
-if(($openssl_version =~ /^OpenSSL/) and ($openssl_version !~ /0\.9\.[2-5]/)) {
-    print INCLUDE "#define CRYPT_SSLEAY_free OPENSSL_free\n";
+if ($pkg_config->{type} eq 'OpenSSL') {
+    # OPENSSL_free defined in OpenSSL 0.9.6 and higher
+    if ($pkg_config->{ver} =~ /\b0\.9\.[2-5]/) {
+        print INCLUDE "#define CRYPT_SSLEAY_free free\n";
+    }
+    else {
+        print INCLUDE "#define CRYPT_SSLEAY_free OPENSSL_free\n";
+    }
 }
 else {
     print INCLUDE "#define CRYPT_SSLEAY_free free\n";
@@ -227,7 +234,7 @@ else {
 
 close INCLUDE or die "Cannot close crypt_ssleay_version.h for output: $!\n";
 
-print <<INFO;
+print <<"INFO";
 
 BUILD INFORMATION
 ================================================
@@ -257,14 +264,14 @@ WriteMakefile(
 );
 
 if (open OUT, '> test.config') {
-    print OUT <<INFO;
+    print OUT <<"INFO";
 ssl $pkg_config->{type} $pkg_config->{ver} in $SSL_DIR
 lib @LIB_FLAGS
 inc @INC_FLAGS
 cc $Config{cc}
 INFO
 
-    print <<INFO;
+    print <<"INFO";
 The test suite can attempt to connect to public servers
 to ensure that the code is working properly. If you are
 behind a strict firewall or have no network connectivity,
@@ -287,8 +294,8 @@ sub Candidate {
     my $inc_dir;
     my $version_file;
     for (
-         "$dir/crypto/opensslv.h", # cygwin32 builds
          "$dir/inc32/openssl/opensslv.h", # old win32 builds
+         "$dir/crypto/opensslv.h", # cygwin32 builds
          "$dir/include/openssl/opensslv.h", 
          "$dir/include/opensslv.h", 
          "$dir/include/crypto.h"
@@ -306,6 +313,9 @@ sub Candidate {
 
     if ($^O eq 'MSWin32') {
         $inc_dir =~ s{[\\/]openssl\z}{};
+    }
+    elsif ($^O eq 'solaris') {
+        $inc_dir =~ s{\/openssl\z}{};
     }
 
     open(VERSION_FILE, $version_file) or return;
@@ -326,8 +336,9 @@ sub Candidate {
     # Silly test to look for the library files
     my $foundlib = 0;
     my $libd;
-    if (-d "$dir/out32dll") {
-        $libd = 'out32dll';
+    my $subdir = $opt_static ? 'out32' : 'out32dll';
+    if (-d "$dir/$subdir") {
+        $libd = $subdir;
     }
     elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
         $libd = 'lib/MinGW';

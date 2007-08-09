@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.56';
+$VERSION = '0.56_01';
 
 eval {
     require XSLoader;
@@ -58,8 +58,8 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.56, released
-2007-07-10.
+This document describes C<Crypt::SSLeay> version 0.56_01, released
+2007-08-09.
 
 This perl module provides support for the https protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
@@ -367,6 +367,9 @@ module.
 
 Thanks to Jeff Lavallee for help with alarms on read failures (CPAN
 bug #12444).
+
+Thanks to Guenter Knauf for significant improvements in configuring
+things in Win32 and Netware lands.
 
 =head1 SEE ALSO
 
