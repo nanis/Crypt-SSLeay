@@ -36,17 +36,22 @@ elsif ($^O eq 'VMS') {
 else {
     # Unix and the rest
     @POSSIBLE_SSL_DIRS = qw(
-        /usr/local/openssl
-        /usr/local/ssl
+        /local
         /local/ssl
         /opt/ssl
-        /usr/local
-        /local
         /usr
+        /usr/local
+        /usr/local/ssl
+        /usr/local/openssl
     );
 }
 
-my @CANDIDATE = map {Candidate($_)} @POSSIBLE_SSL_DIRS;
+my @CANDIDATE = do {
+    my %seen;
+    grep {!$seen{$_->{check}}++}
+        map {Candidate($_)}
+            @POSSIBLE_SSL_DIRS
+};
 
 if (@CANDIDATE == 0) {
     $opt_default = 0;
@@ -175,7 +180,7 @@ elsif ($^O eq 'MSWin32') {
 else {
     push @INC_FLAGS, "-I$pkg_config->{inc}";
 
-    push @LIB_FLAGS, "-L$SSL_DIR/lib", qw(-lssl -lcrypto -lgcc);
+    push @LIB_FLAGS, "-L$pkg_config->{lib}", qw(-lssl -lcrypto -lgcc);
     push @LIB_FLAGS, qw(-lRSAglue -lrsaref) if $pkg_config->{type} ne 'OpenSSL';
 
     # ccc on alpha support
@@ -191,20 +196,15 @@ else {
 }
 
 # write include file that determines ssl support
-my $ssl_header_prefix = ($pkg_config->{inc} =~ /\bopenssl/i)
-    ? 'openssl/'
-    : ''
-;
-
 # we need to include crypto.h for SSLeay so the version gets picked up in SSLeay.xs
 
 open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
 print INCLUDE <<"INFO";
-#include "${ssl_header_prefix}ssl.h"
-#include "${ssl_header_prefix}crypto.h"
-#include "${ssl_header_prefix}err.h"
-#include "${ssl_header_prefix}rand.h"
-#include "${ssl_header_prefix}pkcs12.h"
+#include "$pkg_config->{prefix}ssl.h"
+#include "$pkg_config->{prefix}crypto.h"
+#include "$pkg_config->{prefix}err.h"
+#include "$pkg_config->{prefix}rand.h"
+#include "$pkg_config->{prefix}pkcs12.h"
 
 INFO
 
@@ -239,13 +239,17 @@ print <<"INFO";
 BUILD INFORMATION
 ================================================
 ssl library: $pkg_config->{type} $pkg_config->{ver} in $SSL_DIR
-ssl header:  ${ssl_header_prefix}ssl.h
+ssl header:  $pkg_config->{prefix}ssl.h
 libraries:   @LIB_FLAGS
 include dir: @INC_FLAGS
 ================================================
 INFO
 
-my @license = $ExtUtils::MakeMaker::VERSION > 6.30
+my @license =
+    do {
+        my $version = $ExtUtils::MakeMaker::VERSION;
+        $version =~ tr/_//d;
+        $version} > 6.30
     ? qw(LICENSE perl)
     : ();
 
@@ -297,6 +301,7 @@ sub Candidate {
          "$dir/inc32/openssl/opensslv.h", # old win32 builds
          "$dir/crypto/opensslv.h", # cygwin32 builds
          "$dir/include/openssl/opensslv.h", 
+         "$dir/../include/openssl/opensslv.h", # Solaris
          "$dir/include/opensslv.h", 
          "$dir/include/crypto.h"
     ) {
@@ -306,16 +311,24 @@ sub Candidate {
         } 
     }
     return unless defined $version_file;
+    my $fingerprint = join(':', (stat $version_file)[0,1]);
 
     my $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
     $inc_dir = dirname($version_file);
     return unless -e "$inc_dir/ssl.h";
 
+    my $prefix;
     if ($^O eq 'MSWin32') {
         $inc_dir =~ s{[\\/]openssl\z}{};
+        $prefix  = 'openssl/';
     }
-    elsif ($^O eq 'solaris') {
+    elsif (index($inc_dir, '/../') > -1) {
+        # OpenSSL include directory is in a sibling directory
         $inc_dir =~ s{\/openssl\z}{};
+        $prefix  = 'openssl/';
+    }
+    else {
+        $prefix = ($inc_dir =~ /\bopenssl/i) ? 'openssl/' : '';
     }
 
     open(VERSION_FILE, $version_file) or return;
@@ -334,34 +347,48 @@ sub Candidate {
     close(VERSION_FILE);
 
     # Silly test to look for the library files
-    my $foundlib = 0;
+    my $found_lib;
     my $libd;
     my $subdir = $opt_static ? 'out32' : 'out32dll';
     if (-d "$dir/$subdir") {
-        $libd = $subdir;
+        $libd = [$subdir];
     }
     elsif ($^O eq 'MSWin32' and $Config{cc} eq 'gcc') {
-        $libd = 'lib/MinGW';
+        $libd = ['lib/MinGW'];
     }
     else {
-        $libd = 'lib';
+        # second attempt is for Solaris, like the include directory, the
+        # library directory may be in a sibling directory
+        $libd = ['lib', '../lib'];
     }
-    if (opendir(LIBDIR, "$dir/$libd")) {
-        while (defined($_ = readdir(LIBDIR))) {
-            if (/\A(?:lib(?:crypto|eay32|ssl)|ssleay32)/) {
-                $foundlib++;
-                last;
+
+    SCAN:
+    for my $d (@$libd) {
+        my $lib_dir = "$dir/$d";
+        if (opendir(LIBDIR, $lib_dir)) {
+            while (defined($_ = readdir(LIBDIR))) {
+                if (/\A(?:lib(?:crypto|eay32|ssl)|ssleay32)/) {
+                    $found_lib = $lib_dir;
+                    last SCAN;
+                }
             }
+            closedir(LIBDIR);
         }
-        closedir(LIBDIR);
     }
-    print "$dir/$libd does not seem to contain the SSLeay library files\n"
-        unless $foundlib;
+
+    if (!$found_lib) {
+        my @tried = join( ',' => map {"$dir/$_"} @$libd);
+        print "Did not locate expected SSL library files in @tried\n";
+    }
 
     return {
-        dir  => $dir,
-        inc  => $inc_dir,
-        ver  => $version,
-        type => $type,
+        dir    => $dir,
+        inc    => $inc_dir,
+        lib    => $found_lib,
+        ver    => $version,
+        type   => $type,
+        prefix => $prefix,
+        check  => $fingerprint,
     };
 }
+

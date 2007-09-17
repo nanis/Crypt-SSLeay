@@ -6,7 +6,7 @@ use Socket;
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.82';
+$VERSION = '2.84';
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -24,7 +24,7 @@ sub _default_context {
 }
 
 sub _alarm_set {
-    return if $^O eq 'MSWin32' or $^O eq 'Netware';
+    return if $^O eq 'MSWin32' or $^O eq 'NetWare';
     alarm(shift);
 }
 
@@ -147,10 +147,10 @@ sub connect {
                 my $new_ssl = Net::SSL->new(%args);
                 $REAL{$self} = $new_ssl;
                 return $new_ssl;
-            } else {
+            }
+			else {
                 # don't die, but do set $@, and return undef
                 eval { $self->die_with_error("SSL negotiation failed") };
-                $@ = "$@; $!";
                 croak($@);
             }
         }
@@ -159,7 +159,7 @@ sub connect {
 
     # odd error in eval {} block, maybe alarm outside the evals
     if($@) {
-        $! = "$@; $!";
+        $@ = "$@; $!";
         croak($@);
     }
 
@@ -317,7 +317,7 @@ sub proxy_connect_helper {
     $peer_port || croak("no peer port given");
 
     # see if the proxy should be bypassed
-    my @no_proxy = split( /\s*,\s*/, $ENV{'NO_PROXY'} || '');
+    my @no_proxy = split( /\s*,\s*/, $ENV{NO_PROXY} || $ENV{no_proxy} || '');
     my $is_proxied = 1;
     my $domain;
     for $domain (@no_proxy) {

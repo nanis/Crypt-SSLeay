@@ -1,6 +1,25 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.57 2007-09-17 20:45:20 UTC
+
+- Honour both $ENV{NO_PROXY} and $ENV{no_proxy} in
+  Net::SSL::proxy_connect_helper. (Bug #29371 reported by Jan Dubois).
+- $@ construction used in Net::SSL::connect was messed up, which could
+  lead to sub-optimal error reporting. (Bug #29372 reported by Jan
+  Dubois).
+- Ensure no proxification is used in t/01-connect.t (which might be the
+  reason for all the spurious smoke failures). Bug #29373 reported by,
+  you guessed it, Jan Dubois).
+- Silence a dubious fopen() warning in SSLeay.xs.
+- s/Netware/NetWare/ in Net/SSL.pm platform check
+- Improvements to Makefile.PL for dealing with platforms where openssl
+  is installed with ./include and ./lib as sibling directories rather
+  than child directories. This should allow the code to configure and
+  build "out of the box" on Solaris (and probably other proprietary
+  platforms).
+- Don't carp in LICENSE key addition code in Makefile.PL
+
 0.56_01 2007-08-09 21:59:47 UTC
 
 - Various improvements to the Win32 configure code in Makefile.PL,

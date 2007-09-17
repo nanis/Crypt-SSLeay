@@ -3,6 +3,9 @@ use Test::More tests => 8;
 
 use Net::SSL;
 
+# ensure no proxification takes place
+$ENV{NO_PROXY} = '127.0.0.1';
+
 my $sock;
 eval {
     $sock = Net::SSL->new(

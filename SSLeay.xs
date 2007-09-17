@@ -172,7 +172,7 @@ SSL_CTX_use_pkcs12_file(ctx, filename, password)
         STACK_OF(X509) *ca = NULL;
         PKCS12 *p12;
      CODE:
-        if (fp = fopen(filename, "rb")) {
+        if ((fp = fopen(filename, "rb"))) {
             p12 = d2i_PKCS12_fp(fp, NULL);
             fclose (fp);
 
