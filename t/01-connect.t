@@ -21,6 +21,9 @@ if ($@) {
     if ($fail =~ /\AConnect failed: connect: \b/i) {
         pass( "$test_name - expected failure" );
     }
+    elsif ($fail =~ /\ASSL negotiation failed:/i) {
+        pass( "$test_name - expected failure (443 in use)" );
+    }
     else {
         fail( "$test_name" );
         diag( $fail );

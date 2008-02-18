@@ -1,6 +1,14 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.57_01 2008-02-18 14:42:32 UTC
+
+- use #include <..> rather than #include "..." in
+  crypt_ssleay_version.h.
+- add command-line switch to avoid live tests (bug #30268).
+- skip tests in t/01-connect.t if 443 is already in use (bug #30985).
+- make code gcc -Wwrite-strings compatible (bug #31926).
+
 0.57 2007-09-17 20:45:20 UTC
 
 - Honour both $ENV{NO_PROXY} and $ENV{no_proxy} in

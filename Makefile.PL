@@ -9,12 +9,13 @@ use Getopt::Long;
 eval "use ExtUtils::MakeMaker::Coverage";
 $@ or print "Adding testcover target\n";
 
-use vars qw($opt_default $opt_libpath $opt_static);
+use vars qw($opt_default $opt_libpath $opt_static $opt_live_tests);
 
 GetOptions(
-    "default", \$opt_default,
-    "lib=s",   \$opt_libpath,
-    "static",  \$opt_static,
+    "default",     \$opt_default,
+    "lib=s",       \$opt_libpath,
+    "static",      \$opt_static,
+    "live-tests!", \$opt_live_tests,
 );
 
 $opt_default ||= $ENV{CRYPT_SSLEAY_DEFAULT};
@@ -200,11 +201,11 @@ else {
 
 open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
 print INCLUDE <<"INFO";
-#include "$pkg_config->{prefix}ssl.h"
-#include "$pkg_config->{prefix}crypto.h"
-#include "$pkg_config->{prefix}err.h"
-#include "$pkg_config->{prefix}rand.h"
-#include "$pkg_config->{prefix}pkcs12.h"
+#include <$pkg_config->{prefix}ssl.h>
+#include <$pkg_config->{prefix}crypto.h>
+#include <$pkg_config->{prefix}err.h>
+#include <$pkg_config->{prefix}rand.h>
+#include <$pkg_config->{prefix}pkcs12.h>
 
 INFO
 
@@ -275,16 +276,21 @@ inc @INC_FLAGS
 cc $Config{cc}
 INFO
 
-    print <<"INFO";
+    my $network_tests = 'n';
+    if (not defined $opt_live_tests) {
+        print <<"INFO";
 The test suite can attempt to connect to public servers
 to ensure that the code is working properly. If you are
 behind a strict firewall or have no network connectivity,
 these tests may fail (through no fault of the code).
-
 INFO
-    my $network_tests = prompt
-        "Do you want to run the live tests (y/N) ?",
-        'N';
+
+        $network_tests = prompt "Do you want to run the live tests (y/N) ?", 'N';
+    }
+    elsif ($opt_live_tests) {
+        $network_tests = 'y';
+    }
+
     print OUT "network_tests ", ($network_tests =~ /y/i) ? 1 : 0, "\n";
     close OUT;
 }

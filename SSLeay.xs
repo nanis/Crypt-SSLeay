@@ -42,7 +42,7 @@ extern "C" {
 
 static void InfoCallback(const SSL *s,int where,int ret)
     {
-    char *str;
+    const char *str;
     int w;
 
     w = where & ~SSL_ST_MASK;
