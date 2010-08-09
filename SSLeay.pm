@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.57_01';
+$VERSION = '0.57_02';
 
 eval {
     require XSLoader;
@@ -88,7 +88,7 @@ C<Crypt::SSLeay> and C<Net::SSL> behave.
 
   # proxy_basic_auth
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
-  $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+  $ENV{HTTPS_PROXY_PASSWORD} = 'password';
 
   # debugging (SSL diagnostics)
   $ENV{HTTPS_DEBUG} = 1;
@@ -112,7 +112,7 @@ C<Crypt::SSLeay> and C<Net::SSL> behave.
 
 =head2 OpenSSL
 
-You must have OpenSSL or SSLeay installed before compiling 
+You must have OpenSSL or SSLeay installed before compiling
 this module. You can get the latest OpenSSL package from:
 
   http://www.openssl.org/
@@ -138,7 +138,7 @@ a system like RedHat, (not recommended), then try something like:
 
   ./config --openssldir=/usr --shared
 
-The --shared option to config will set up building the .so 
+The --shared option to config will set up building the .so
 shared libraries which is important for such systems. This is
 followed by:
 
@@ -146,7 +146,7 @@ followed by:
   make test
   make install
 
-This way Crypt::SSLeay will pick up the includes and 
+This way Crypt::SSLeay will pick up the includes and
 libraries automatically. If your includes end up
 going into a separate directory like /usr/local/include,
 then you may need to symlink /usr/local/openssl/include
@@ -159,8 +159,8 @@ as well as:
 
   http://search.cpan.org/dist/Crypt-SSLeay/
 
-Once you have downloaded it, Crypt::SSLeay installs easily 
-using the C<make> * commands as shown below.  
+Once you have downloaded it, Crypt::SSLeay installs easily
+using the C<make> * commands as shown below.
 
   perl Makefile.PL
   make
@@ -205,7 +205,7 @@ place in the filesystem.
 
 =head1 PROXY SUPPORT
 
-LWP::UserAgent and Crypt::SSLeay have their own versions of 
+LWP::UserAgent and Crypt::SSLeay have their own versions of
 proxy support. Please read these sections to see which one
 is appropriate.
 
@@ -218,7 +218,7 @@ To use LWP::UserAgent proxy support, try something like:
   my $ua = new LWP::UserAgent;
   $ua->proxy([qw( https http )], "$proxy_ip:$proxy_port");
 
-At the time of this writing, libwww v5.6 seems to proxy https 
+At the time of this writing, libwww v5.6 seems to proxy https
 requests fine with an Apache mod_proxy server.  It sends a line like:
 
   GET https://www.example.com HTTP/1.1
@@ -231,27 +231,27 @@ by Crypt::SSLeay's internal proxy support.
 =head2 Crypt::SSLeay proxy support
 
 For native Crypt::SSLeay proxy support of https requests,
-you need to set the environment variable C<HTTPS_PROXY> to your 
+you need to set the environment variable C<HTTPS_PROXY> to your
 proxy server and port, as in:
 
   # proxy support
   $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
   $ENV{HTTPS_PROXY} = '127.0.0.1:8080';
 
-Use of the C<HTTPS_PROXY> environment variable in this way 
+Use of the C<HTTPS_PROXY> environment variable in this way
 is similar to C<LWP::UserAgent->env_proxy()> usage, but calling
 that method will likely override or break the Crypt::SSLeay
 support, so do not mix the two.
 
-Basic auth credentials to the proxy server can be provided 
+Basic auth credentials to the proxy server can be provided
 this way:
 
   # proxy_basic_auth
   $ENV{HTTPS_PROXY_USERNAME} = 'username';
-  $ENV{HTTPS_PROXY_PASSWORD} = 'password';  
+  $ENV{HTTPS_PROXY_PASSWORD} = 'password';
 
 For an example of LWP scripting with C<Crypt::SSLeay> native proxy
-support, please look at the F<eg/lwp-ssl-test> script in the 
+support, please look at the F<eg/lwp-ssl-test> script in the
 C<Crypt::SSLeay> distribution.
 
 =head1 CLIENT CERTIFICATE SUPPORT
@@ -286,7 +286,7 @@ run the following command:
 
   openssl req -config /usr/local/openssl/openssl.cnf \
     -new -days 365 -newkey rsa:1024 -x509 \
-    -keyout notacakey.pem -out notacacert.pem 
+    -keyout notacakey.pem -out notacacert.pem
 
 To remove the pass phrase from the key file, run:
 
@@ -399,7 +399,7 @@ Pointers on where to find OpenSSL binary packages (Windows).
 For use of Crypt::SSLeay & Net::SSL with perl's LWP, please
 send email to C<libwww@perl.org>.
 
-For OpenSSL or general SSL support please email the 
+For OpenSSL or general SSL support please email the
 openssl user mailing list at C<openssl-users@openssl.org>.
 This includes issues associated with building and installing
 OpenSSL on one's system.
@@ -417,7 +417,7 @@ Landgren.
  Copyright (c) 1999-2003 Joshua Chamas.
  Copyright (c) 1998 Gisle Aas.
 
-This program is free software; you can redistribute 
-it and/or modify it under the same terms as Perl itself. 
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
 
 =cut

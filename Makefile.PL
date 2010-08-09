@@ -157,7 +157,7 @@ elsif ($^O eq 'MSWin32') {
 
     my $vanilla = $Config{cc} eq 'gcc' ? 1 : 0;
     $vanilla and print "Assuming Vanilla/Strawberry Perl installation\n";
-    
+
     if ($vanilla and -d "$SSL_DIR\\lib\\MinGW") {
         push @LIB_FLAGS, "-L$SSL_DIR\\lib\\MinGW";
     }
@@ -189,7 +189,7 @@ else {
         and `uname -m` =~ /alpha/
         and !(system("nm $SSL_DIR/lib/libssl.a|grep -q 'U _Ots'")>>8)
     ) {
-        push @LIB_FLAGS, '-lots'; 
+        push @LIB_FLAGS, '-lots';
     }
 
     # this fix was suggested for building on RedHat 9
@@ -306,15 +306,15 @@ sub Candidate {
     for (
          "$dir/inc32/openssl/opensslv.h", # old win32 builds
          "$dir/crypto/opensslv.h", # cygwin32 builds
-         "$dir/include/openssl/opensslv.h", 
+         "$dir/include/openssl/opensslv.h",
          "$dir/../include/openssl/opensslv.h", # Solaris
-         "$dir/include/opensslv.h", 
+         "$dir/include/opensslv.h",
          "$dir/include/crypto.h"
     ) {
         if (-e $_) {
             $version_file = $_;
             last;
-        } 
+        }
     }
     return unless defined $version_file;
     my $fingerprint = join(':', (stat $version_file)[0,1]);
@@ -338,19 +338,22 @@ sub Candidate {
     }
 
     open(VERSION_FILE, $version_file) or return;
-    my $version_match = $open_ssl ? "OPENSSL_VERSION_NUMBER" : "SSLEAY_VERSION_NUMBER";
     my $version;
     my $type;
+
+    # Changed version number matching because
+    # #define SSLEAY_VERSION_NUMBER   OPENSSL_VERSION_NUMBER
+    # in crypto/crypto.h in at least some early versions of OpenSSL
     while (<VERSION_FILE>) {
-        if (/^#define\s+$version_match\s+0x0+(\d\d\d)/) {
-            $version = $1;
-            $version =~ s/(\d)0(\d)/$1$2/;            
-            $type = ($version > 92) ? "OpenSSL" : "SSLeay";
-            $version = join('.', split(//, "0$version"));
-            last;
-        }
+        next unless my ($vstr) =
+        /^#define\s+(?:OPENSSL|SSLEAY)_VERSION_NUMBER\s+0x([0-9A-Fa-f]+)/;
+
+        ($type, $version) = parse_openssl_version( $vstr );
+        die "Failed to parse OpenSSL version '$vstr'" unless defined $version;
+        last;
     }
     close(VERSION_FILE);
+    die "Failed to identify OpenSSL version" unless defined $version;
 
     # Silly test to look for the library files
     my $found_lib;
@@ -397,4 +400,81 @@ sub Candidate {
         check  => $fingerprint,
     };
 }
+
+sub parse_openssl_version {
+    my ($vstr) = @_;
+
+    # 0.9.6 or later : MNNFFPPS : major, minor, fix, patch, status (0-f)
+    # 0.9.5a to before 0.9.6 : high bit of PP is set in MNNFFPPS
+    # 0.9.3-dev to before 0.9.5a : MNNFFRBB : major, minor, fix, status (0-1), beta
+    # prior to 0.9.3-dev, MNFP
+
+    if ( $vstr =~ /^(?:[1-9]|0090[6-9])/ ) {
+        return ( OpenSSL => parse_openssl_v096_or_later( $vstr ) );
+    }
+    elsif ( $vstr =~ /^00905[8-9]/ ) {
+        return ( OpenSSL => parse_openssl_v095a_096( $vstr ) );
+    }
+    elsif ( $vstr =~ /^0090[3-5][01]/ ) {
+        return ( OpenSSL => parse_openssl_v093dev_095a( $vstr ) );
+    }
+    else {
+        return ( SSLeay => parse_openssl_pre_v093dev( $vstr ) );
+    }
+    return;
+}
+
+sub parse_openssl_v096_or_later {
+    my ($vstr) = @_;
+
+    # 0.9.6 or later : MNNFFPPS : major, minor, fix, patch, status (0-f)
+    return unless my @v = $vstr =~ /^(.)(..)(..)(..)(.)$/;
+
+    my ($major, $minor, $fix, $patch, $status) = map hex, @v;
+
+    $patch = $patch ? chr( ord('a') + $patch - 1 ) : '';
+
+    if    ( $status ==  0 ) { $status = '-dev' }
+    elsif ( $status == 15 ) { $status = '' }
+    else                    { $status = "-beta$status" }
+    return sprintf( '%u.%u.%u%s%s', $major, $minor, $fix, $patch, $status);
+}
+
+sub parse_openssl_v095a_096 {
+    my ($vstr) = @_;
+
+    # 0.9.5a to before 0.9.6 : high bit of PP is set in MNNFFPPS
+
+    return parse_openssl_v096_or_later(
+        sprintf '%08x', hex($vstr) & 0xfffff7ff
+    );
+}
+
+sub parse_openssl_v093dev_095a {
+    my ($vstr) = @_;
+
+    # 0.9.3-dev to before 0.9.5a : MNNFFRBB : major, minor, fix, status (0-1), beta
+
+    return unless my @v = $vstr =~ /^(0)(09)(0[3-5])([0-1])(..)$/;
+
+    my ($major, $minor, $fix, $status, $patch) = map hex, @v;
+
+    $patch = $patch ? chr( ord('a') + $patch - 1 ) : '';
+    $status = $status ? '' : '-dev';
+    return sprintf( '%u.%u.%u%s%s', $major, $minor, $fix, $patch, $status );
+}
+
+sub parse_openssl_pre_v093dev {
+    my ($vstr) = @_;
+
+    # prior to 0.9.3-dev, MNFP
+
+    return unless my @v = $vstr =~ /^(0)(9)([12])([0-9])$/;
+
+    my ($major, $minor, $fix, $patch) = map hex, @v;
+
+    $patch = $patch ? chr( ord('a') + $patch - 1 ) : '';
+    return sprintf( '%u.%u.%u%s', $major, $minor, $fix, $patch );
+}
+
 

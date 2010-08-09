@@ -1,6 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.57_02 2010-08-08 18:27:40 UTC
+
+- Refactor the version detection algorithm in Makefile.PL to handle all known
+  variations of version number encoding. Should fix bug #52408. 
+
 0.57_01 2008-02-18 14:42:32 UTC
 
 - use #include <..> rather than #include "..." in
