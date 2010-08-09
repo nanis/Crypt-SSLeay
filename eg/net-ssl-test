@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version 
+use vars qw($opt_p $opt_n $opt_bench $opt_debug $opt_version
 	    $opt_v $opt_help
 	    $opt_cert $opt_key $opt_cafile $opt_cadir
 	    );
@@ -11,9 +11,9 @@ use File::Basename;
 use Benchmark;
 
 use Getopt::Long;
-&GetOptions ('p:s' => \$opt_p, 
-	     'proxy:s' => \$opt_p, 
-	     'bench:n' => $opt_bench,
+&GetOptions ('p:s' => \$opt_p,
+	     'proxy:s' => \$opt_p,
+	     'bench:n' => \$opt_bench,
 	     'd' => \$opt_debug,
 	     'version:i' => \$opt_version,
 	     'v:i' => \$opt_version,
@@ -29,7 +29,7 @@ my $basename = &File::Basename::basename($0);
 
 # define sub first, in case you are reading the source :)
 sub help {
-    
+
     print <<HELP;
 Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [-CAfile=FILE] [GET|HEAD] [ssl_server_name] [port]
 
@@ -41,14 +41,14 @@ Usage: $basename [-d] [-b=NNN] [-h] [-p proxy_name:port] [-CAfile=FILE] [GET|HEA
   -cert  client certificate file
   -key   private key file
 
-  -CAfile CA certificates file, use certs/ca-bundle.crt for primary root certs 
-  
+  -CAfile CA certificates file, use certs/ca-bundle.crt for primary root certs
+
  method          defaults to HEAD
  ssl_server_name defaults to www.nodeworks.com
  port            defaults to 443
 
 These are equivalent:
- 
+
   ./net_ssl_test
   ./net_ssl_test HEAD www.nodeworks.com 443
 
@@ -56,7 +56,7 @@ This might be how you debug your proxy:
 
   ./net_ssl_test -d -p http://proxy_name:80 www.nodeworks.com
 
-Note http:// on proxy hostname is stripped off, and is 
+Note http:// on proxy hostname is stripped off, and is
 meaningless to Crypt::SSLeay.
 
 HELP
@@ -80,7 +80,7 @@ if($opt_bench) {
     $host = shift || "www.nodeworks.com";
 }
 if($host =~ m|^(https://)?([^/:]+)(:(\d+))?(/.*)?$|) {
-    ($host, $port, $path) = ($2, $4, $5);	
+    ($host, $port, $path) = ($2, $4, $5);
 }
 
 $port ||= shift || 443;
@@ -106,9 +106,9 @@ if($opt_version) {
 unless(eval { &ssl_connect() }) {
     print <<OUT;
 == FAILED TO CONNECT ==
-Error: $@ 
+Error: $@
 
-If you need to use a proxy, please pass it in as an argument like  
+If you need to use a proxy, please pass it in as an argument like
 
   ./net_ssl_test -p 127.0.0.1:8080
 
@@ -119,9 +119,9 @@ OUT
 }
 
 if($opt_bench) {
-    timethis($opt_bench, sub { &ssl_connect() });   
+    timethis($opt_bench, sub { &ssl_connect() });
 }
-    
+
 
 sub ssl_connect {
     my $sock = Net::SSL->new(
@@ -133,7 +133,7 @@ sub ssl_connect {
     $sock || ($@ ||= "no Net::SSL connection established");
     my $error = $@;
     $error && die("Can't connect to $host:$port; $error; $!");
-  
+
     my $out;
     $out .= "WEB SITE       : $host:$port\n";
     $out .= "CIPHER         : ".$sock->get_cipher."\n";

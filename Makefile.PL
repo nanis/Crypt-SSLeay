@@ -3,7 +3,7 @@ use warnings;
 
 use Config;
 use ExtUtils::MakeMaker;
-use File::Basename qw(dirname);
+use File::Basename qw(basename dirname);
 use Getopt::Long;
 
 eval "use ExtUtils::MakeMaker::Coverage";
@@ -29,7 +29,11 @@ if ($opt_libpath) {
     $opt_default       = 1;
 }
 elsif ($^O eq 'MSWin32') {
-    @POSSIBLE_SSL_DIRS = 'c:\\openssl';
+    push @POSSIBLE_SSL_DIRS, 'c:\\openssl';
+    push @POSSIBLE_SSL_DIRS, $Config{usrinc} if -d $Config{usrinc};
+    # pre-Oct2009 Strawberry Perl
+    push @POSSIBLE_SSL_DIRS, $Config{prefix};
+    push @POSSIBLE_SSL_DIRS, $Config{prefix} . '\..\c';
 }
 elsif ($^O eq 'VMS') {
     @POSSIBLE_SSL_DIRS = '/ssl$root';
@@ -126,10 +130,13 @@ if (not $SSL_DIR) {
         # unknown directory, better check it out
         $pkg_config = Candidate($SSL_DIR);
         if (not $pkg_config) {
-            die <<"INFO";
+            warn <<"INFO";
 $SSL_DIR does not appear to be an SSL library installation, since
 the required header files were not found. The build cannot proceed.
 INFO
+        # avoid failure reports from CPAN Testers
+        # when OpenSSL was not found
+            exit 0;
         }
     }
 }
@@ -155,10 +162,10 @@ elsif ($^O eq 'MSWin32') {
     push @INC_FLAGS, "-I$inc";
     push @INC_FLAGS, "-I$SSL_DIR\\inc32" if -d "$SSL_DIR/inc32";
 
-    my $vanilla = $Config{cc} eq 'gcc' ? 1 : 0;
-    $vanilla and print "Assuming Vanilla/Strawberry Perl installation\n";
+    my $mingw = $Config{cc} eq 'gcc' ? 1 : 0;
+    $mingw and print "Assuming MingW\n";
 
-    if ($vanilla and -d "$SSL_DIR\\lib\\MinGW") {
+    if ($mingw and -d "$SSL_DIR\\lib\\MinGW") {
         push @LIB_FLAGS, "-L$SSL_DIR\\lib\\MinGW";
     }
     elsif(-d "$SSL_DIR/lib") {
@@ -196,10 +203,11 @@ else {
     push @INC_FLAGS, '-I/usr/kerberos/include' if -d '/usr/kerberos/include';
 }
 
-# write include file that determines ssl support
-# we need to include crypto.h for SSLeay so the version gets picked up in SSLeay.xs
+# write include file that determines ssl support we need to include crypto.h
+# for SSLeay so the version gets picked up in SSLeay.xs
 
-open(INCLUDE, ">crypt_ssleay_version.h") || die("can't open crypt_ssleay_version.h for writing: $!");
+open(INCLUDE, ">crypt_ssleay_version.h")
+    || die("can't open crypt_ssleay_version.h for writing: $!");
 print INCLUDE <<"INFO";
 #include <$pkg_config->{prefix}ssl.h>
 #include <$pkg_config->{prefix}crypto.h>
@@ -262,6 +270,9 @@ WriteMakefile(
     LIBS          => ["@LIB_FLAGS"],
     INC           => "@INC_FLAGS",
     NEEDS_LINKING => 1,
+    PREREQ_PM     => {
+        'MIME::Base64' => 0, # for Net::SSL
+    },
     clean         => {
         FILES => 'crypt_ssleay_version.h test.config',
     },
@@ -301,7 +312,6 @@ sub Candidate {
     my $dir = shift;
     return unless -d $dir;
 
-    my $inc_dir;
     my $version_file;
     for (
          "$dir/inc32/openssl/opensslv.h", # old win32 builds
@@ -319,22 +329,16 @@ sub Candidate {
     return unless defined $version_file;
     my $fingerprint = join(':', (stat $version_file)[0,1]);
 
-    my $open_ssl = ($version_file =~ /openssl/i) ? 1 : 0;
-    $inc_dir = dirname($version_file);
+    my $inc_dir = dirname($version_file);
     return unless -e "$inc_dir/ssl.h";
 
     my $prefix;
-    if ($^O eq 'MSWin32') {
-        $inc_dir =~ s{[\\/]openssl\z}{};
-        $prefix  = 'openssl/';
-    }
-    elsif (index($inc_dir, '/../') > -1) {
-        # OpenSSL include directory is in a sibling directory
-        $inc_dir =~ s{\/openssl\z}{};
-        $prefix  = 'openssl/';
+    if ( 'openssl' eq lc basename $inc_dir ) {
+        $prefix = 'openssl/';
+        $inc_dir = dirname $inc_dir;
     }
     else {
-        $prefix = ($inc_dir =~ /\bopenssl/i) ? 'openssl/' : '';
+        $prefix = '';
     }
 
     open(VERSION_FILE, $version_file) or return;

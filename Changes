@@ -1,6 +1,22 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.57_04
+
+- In Makefile.PL, accommodate ActiveState+MingW configuration
+
+0.57_03 2010-08-09 20:12:30
+
+- If the last component of $inc_dir is 'openssl', set $inc_dir to its parent
+  and set $prefix to 'openssl'. Otherwise, leave $inc_dir as is and set $prefix
+  to '' (I hope this fixes bugs #28431, #28680, #32084, #43084, #54103 without
+  breaking anything).
+- Improved OpenSSL detection on Win32/Strawberry Perl (bug #49285).
+- Add MIME::Base64 as a prerequisite as Net::SSL needs it.
+- exit 0 if OpenSSL can't be found to avoid superfluous reports from CPAN
+  Testers.
+- Add \ to $opt_bench in eg/net-ssl-test (bugs #30931, #39363).
+
 0.57_02 2010-08-08 18:27:40 UTC
 
 - Refactor the version detection algorithm in Makefile.PL to handle all known
