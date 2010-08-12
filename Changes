@@ -1,11 +1,17 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.57_04
+0.57_04 2010-08-11 00:22:33 UTC
 
-- In Makefile.PL, accommodate ActiveState+MingW configuration
+- Reorganize Makefile.PL to break individual steps in to subroutines so as to
+  facilitate localized future modifications. Whether there was any point to
+  this remains to be seen.
+- In Makefile.PL, accommodate ActiveState+MingW configuration.
+- Pick the correct lib location for Strawberry Perl (bug #60230).
+- Apply fixes in bug reports #59312 and #33954 to Net/SSL.pm.
+- Bump version number in Net/SSL.pm to indicate development release.
 
-0.57_03 2010-08-09 20:12:30
+0.57_03 2010-08-09 20:12:30 UTC
 
 - If the last component of $inc_dir is 'openssl', set $inc_dir to its parent
   and set $prefix to 'openssl'. Otherwise, leave $inc_dir as is and set $prefix
