@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.57_04';
+$VERSION = '0.57_05';
 
 eval {
     require XSLoader;
@@ -273,6 +273,13 @@ the CA file is, you may set these.
 
   $ENV{HTTPS_CA_FILE} = "some_file";
   $ENV{HTTPS_CA_DIR}  = "some_dir";
+
+Note that, if specified, C<$ENV{HTTPS_CA_FILE}> must point to the actual
+certificate file. That is, C<$ENV{HTTPS_CA_DIR}> is *not* the path were
+C<$ENV{HTTPS_CA_FILE}> is located.
+
+For certificates in C<$ENV{HTTPS_CA_DIR}> to be picked up, follow the
+instructions in the L<OpenSSL documentation|http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html>
 
 There is no sample CA cert file at this time for testing,
 but you may configure F<eg/net-ssl-test> to use your CA cert

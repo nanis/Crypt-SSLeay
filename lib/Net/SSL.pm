@@ -6,7 +6,7 @@ use Socket;
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.84_01';
+$VERSION = '2.84_02';
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
@@ -333,7 +333,9 @@ sub proxy_connect_helper {
           || croak("proxy connect to $proxy_host:$proxy_port failed: $!");
     }
     else {
-        $self->SUPER::connect($peer_port, $peer_addr)
+        # see RT #57836
+        my $peer_addr_packed = gethostbyname($peer_addr);
+        $self->SUPER::connect($peer_port, $peer_addr_packed)
           || croak("proxy bypass to $peer_addr:$peer_addr failed: $!");
     }
 
@@ -383,9 +385,29 @@ sub proxy_connect_helper {
 }
 
 # code adapted from LWP::UserAgent, with $ua->env_proxy API
+# see also RT #57836
 sub proxy {
+    my $self = shift;
     my $proxy_server = $ENV{HTTPS_PROXY} || $ENV{https_proxy};
     return unless $proxy_server;
+
+    my($peer_port, $peer_addr) = (
+        *$self->{ssl_peer_port},
+        *$self->{ssl_peer_addr}
+    );
+    $peer_addr || croak("no peer addr given");
+    $peer_port || croak("no peer port given");
+
+    # see if the proxy should be bypassed
+    my @no_proxy = split( /\s*,\s*/,
+        $ENV{NO_PROXY} || $ENV{no_proxy} || ''
+    );
+    my $is_proxied = 1;
+    for my $domain (@no_proxy) {
+        if ($peer_addr =~ /\Q$domain\E\z/) {
+            return;
+        }
+    }
 
     $proxy_server =~ s|\Ahttps?://||i;
     $proxy_server;
