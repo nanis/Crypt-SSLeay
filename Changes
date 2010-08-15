@@ -1,7 +1,7 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.57_05 2010-08-15 16:10:12 UTC
+0.57_05 2010-08-15 17:41:21 UTC
 
 - Fix for NO_PROXY support in Net::SSL (bug #57836)
 - Bump Net::SSL version number to 2.84_02 after changes
@@ -10,6 +10,15 @@ Revision history for Crypt-SSLeay
   Warnings are due to OpenSSL.
 - Add clarification regarding $ENV{HTTPS_CA_FILE} and $ENV{HTTPS_CA_DIR} to the
   POD.
+- Other POD related changes: 
+    * Remove historic information in README about platforms where the package
+      was successfully built.
+    * Reformat acknowledgements. TODO: Add more people.
+    * Fix link to Net-SSLeay.
+    * Add note about the --live-tests command line option
+    * Generate README from POD.
+    * Formatting fixes.
+    * Update copyright notice.
 
 0.57_04 2010-08-11 00:22:33 UTC
 

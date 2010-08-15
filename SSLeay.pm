@@ -445,7 +445,7 @@ of another distribution, it's probably due to this module
 =item Net::SSLeay
 
 L<Net::SSLeay|Net::SSLeay> provides access to the OpenSSL API directly from
-Perl.
+Perl. See L<http://search.cpan.org/dist/Net-SSLeay/>.
 
 =item OpenSSL binary packages for Windows
 
