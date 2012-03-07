@@ -1,6 +1,15 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.58 2010-08-25 14:06:30 UTC
+
+- Bump version number for Crypt::SSLeay to 0.58 and Net::SSL to 2.85 in
+  preparation for release.
+- Fix typo in POD is SSLeay.pm s/PEM0encoded/PEM encoded/ (checked
+  http://github.com/gitpan/Crypt-SSLeay/blob/9a1582ee1e4d132ae7cf9497bb83144786425d73/SSLeay.pm)
+- Update Changes and TODO. Regenerate README and META.yml. Update package
+  author. Minor POD fixes.
+
 0.57_05 2010-08-15 17:41:21 UTC
 
 - Fix for NO_PROXY support in Net::SSL (bug #57836)
