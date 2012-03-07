@@ -1,5 +1,6 @@
 blib\/
 \B.svn\b
+\B.git\b
 pm_to_blib
 README.old
 crypt_ssleay_version.h
