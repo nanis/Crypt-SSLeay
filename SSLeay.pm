@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.58';
+$VERSION = '0.58_01';
 
 eval {
     require XSLoader;
@@ -290,8 +290,9 @@ L<http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html>
 
 There is no sample CA cert file at this time for testing,
 but you may configure F<eg/net-ssl-test> to use your CA cert
-with the -CAfile option. (TODO: then what is the F<./certs>
-directory in the distribution?)
+with the -CAfile option.
+
+(TODO: then what is the F<./certs> directory in the distribution?)
 
 =head2 Creating a test certificate
 
@@ -314,8 +315,9 @@ The directives for enabling use of PKCS12 certificates is:
     $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
 Use of this type of certificate takes precedence over previous
-certificate settings described. (TODO: unclear? Meaning "the
-presence of this type of certificate"?)
+certificate settings described.
+
+(TODO: unclear? Meaning "the presence of this type of certificate"?)
 
 =head1 SSL versions
 
@@ -410,7 +412,7 @@ this distribution).
 
 =item Net::SSLeay
 
-L<Net::SSLeay|Net::SSLeay> provides access to the OpenSSL API directly
+L<Net::SSLeay> provides access to the OpenSSL API directly
 from Perl. See L<http://search.cpan.org/dist/Net-SSLeay/>.
 
 =item OpenSSL binary packages for Windows
@@ -422,14 +424,13 @@ See L<http://www.openssl.org/related/binaries.html>.
 =head1 SUPPORT
 
 For use of Crypt::SSLeay & Net::SSL with Perl's LWP, please
-send email to L<libwww@perl.org|mailto:libwww@perl.org>.
+send email to L<mailto:libwww@perl.org>.
 
 For OpenSSL or general SSL support, including issues associated with
 building and installing OpenSSL on your system, please email the OpenSSL
-users mailing list at
-L<openssl-users@openssl.org|mailto:openssl-users@openssl.org>. See
-L<http://www.openssl.org/support/community.html> for other mailing lists
-and archives.
+users mailing list at L<mailto:openssl-users@openssl.org>. See
+L<http://www.openssl.org/support/community.html> for other mailing lists and
+archives.
 
 Please report all bugs at
 L<"http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay">.

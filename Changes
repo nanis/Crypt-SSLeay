@@ -1,6 +1,13 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.58_01 2010-09-08 19:11:39 UTC
+
+- L<text|scheme:...> is not supported in POD for 5.8.5 and earlier.
+- TODOs in POD should stand out
+- Add /boot/common/ssl and some other directories to unix_ssl_dirs (see bug
+  #60936).
+
 0.58 2010-08-25 14:06:30 UTC
 
 - Bump version number for Crypt::SSLeay to 0.58 and Net::SSL to 2.85 in
@@ -15,10 +22,10 @@ Revision history for Crypt-SSLeay
 - Fix for NO_PROXY support in Net::SSL (bug #57836)
 - Bump Net::SSL version number to 2.84_02 after changes
 - Fix file/dir permissions (bug #60338)
-- Review warnings when compiling SSLeay.xs against older versions of OpenSSL.
-  Warnings are due to OpenSSL.
-- Add clarification regarding $ENV{HTTPS_CA_FILE} and $ENV{HTTPS_CA_DIR} to the
-  POD.
+- Review warnings when compiling SSLeay.xs against older versions of
+  OpenSSL: Warnings are due to OpenSSL.
+- Add clarification regarding $ENV{HTTPS_CA_FILE} and $ENV{HTTPS_CA_DIR} to
+  the POD.
 - Other POD related changes: 
     * Remove historic information in README about platforms where the package
       was successfully built.
