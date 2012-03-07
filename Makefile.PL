@@ -179,7 +179,8 @@ sub parse_openssl_v096_or_later {
 sub parse_openssl_v095a_096 {
     my ($vstr) = @_;
 
-    # 0.9.5a to before 0.9.6 : high bit of PP is set in MNNFFPPS
+    # 0.9.5a to before 0.9.6 :
+    # high bit of PP is set in MNNFFPPS
 
     return parse_openssl_v096_or_later(
         sprintf '%08x', hex($vstr) & 0xfffff7ff
@@ -189,7 +190,8 @@ sub parse_openssl_v095a_096 {
 sub parse_openssl_v093dev_095a {
     my ($vstr) = @_;
 
-    # 0.9.3-dev to before 0.9.5a : MNNFFRBB : major, minor, fix, status (0-1), beta
+    # 0.9.3-dev to before 0.9.5a
+    # MNNFFRBB : major, minor, fix, status (0-1), beta
 
     return unless my @v = $vstr =~ /^(0)(09)(0[3-5])([0-1])(..)$/;
 
@@ -203,7 +205,8 @@ sub parse_openssl_v093dev_095a {
 sub parse_openssl_pre_v093dev {
     my ($vstr) = @_;
 
-    # prior to 0.9.3-dev, MNFP
+    # prior to 0.9.3-dev,
+    # MNFP : major, minor, fix, patch
 
     return unless my @v = $vstr =~ /^(0)(9)([12])([0-9])$/;
 
