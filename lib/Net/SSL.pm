@@ -6,7 +6,7 @@ use Socket;
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.84_02';
+$VERSION = '2.85';
 
 require IO::Socket;
 @ISA=qw(IO::Socket::INET);
