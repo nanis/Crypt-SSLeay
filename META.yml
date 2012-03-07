@@ -1,13 +1,22 @@
 --- #YAML:1.0
-name:                Crypt-SSLeay
-version:             0.57_01
-abstract:            OpenSSL support for LWP
-license:             perl
-author:              
-    - David Landgren
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
-requires:     
+name:               Crypt-SSLeay
+version:            0.58
+abstract:           OpenSSL support for LWP
+author:
+    - A. Sinan Unur <nanis@cpan.org>
+license:            perl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    MIME::Base64:  0
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.56
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
