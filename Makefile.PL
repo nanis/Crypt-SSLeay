@@ -38,17 +38,16 @@ write_crypt_ssleay_version_h( $pkg_config );
 
 show_build_information( $pkg_config, \@INC_FLAGS, \@LIB_FLAGS);
 
-my @license =
-    do {
-        my $version = $ExtUtils::MakeMaker::VERSION;
-        $version =~ tr/_//d;
-        $version} > 6.30
-    ? qw(LICENSE perl)
-    : ();
+my @license = do {
+    my $version = $ExtUtils::MakeMaker::VERSION;
+    $version =~ tr/_//d;
+    $version
+} > 6.3 ? (LICENSE => 'perl')
+        : ();
 
 WriteMakefile(
     NAME          => 'Crypt::SSLeay',
-    AUTHOR        => 'David Landgren',
+    AUTHOR        => 'A. Sinan Unur <nanis@cpan.org>',
     ABSTRACT_FROM => 'SSLeay.pm',
     VERSION_FROM  => 'SSLeay.pm',
     LIBS          => ["@LIB_FLAGS"],
