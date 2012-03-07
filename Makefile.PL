@@ -270,15 +270,25 @@ sub vms_ssl_dirs {
     );
 }
 
+sub beos_ssl_dirs {
+    return qw(
+        /boot/common
+        /boot/common/openssl
+        /boot/common/ssl
+    );
+}
+
 sub unix_ssl_dirs {
     return qw(
-        /local
-        /local/ssl
-        /opt/ssl
         /usr
         /usr/local
         /usr/local/ssl
         /usr/local/openssl
+        /local
+        /local/openssl
+        /local/ssl
+        /opt/openssl
+        /opt/ssl
     );
 }
 
@@ -356,6 +366,7 @@ sub possible_ssl_dirs {
     }
     return win32_ssl_dirs() if $^O eq 'MSWin32';
     return vms_ssl_dirs()   if $^O eq 'VMS';
+    return beos_ssl_dirs()  if $^O eq 'haiku';
 
     # Unix and the rest
     return unix_ssl_dirs();
