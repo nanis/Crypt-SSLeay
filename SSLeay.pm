@@ -57,9 +57,6 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 DESCRIPTION
 
-This document describes C<Crypt::SSLeay> version 0.57_05, released
-2010-08-15.
-
 This Perl module provides support for the HTTPS protocol under LWP,
 to allow an C<LWP::UserAgent> object to perform GET, HEAD and POST
 requests. Please see LWP for more information on POST requests.
@@ -111,17 +108,19 @@ C<Crypt::SSLeay> and C<Net::SSL> behave.
 
 =head2 OpenSSL
 
-You must have OpenSSL or SSLeay installed before compiling this module. You can
-get the latest OpenSSL package from L<http://www.openssl.org/>.
+You must have OpenSSL or SSLeay installed before compiling this module.
+You can get the latest OpenSSL package from
+L<http://www.openssl.org/>.
 
-On Debian systems, you will need to install the libssl-dev package,
+On Debian systems, you will need to install the C<libssl-dev> package,
 at least for the duration of the build (it may be removed afterwards).
 
-Other package-based systems may require something similar. The key is that
-C<Crypt::SSLeay> makes calls to the OpenSSL library, and how to do so is
-specified in the C header files that come with the library.  Some systems break
-out the header files into a separate package from that of the libraries. Once
-the program has been built, you don't need the headers any more.
+Other package-based systems may require something similar. The key is
+that C<Crypt::SSLeay> makes calls to the OpenSSL library, and how to do
+so is specified in the C header files that come with the library.  Some
+systems break out the header files into a separate package from that of
+the libraries. Once the program has been built, you don't need the
+headers any more.
 
 When installing openssl make sure your config looks like:
 
@@ -144,11 +143,11 @@ followed by:
     make test
     make install
 
-This way Crypt::SSLeay will pick up the includes and
+This way C<Crypt::SSLeay> will pick up the includes and
 libraries automatically. If your includes end up
-going into a separate directory like /usr/local/include,
-then you may need to symlink /usr/local/openssl/include
-to /usr/local/include
+going into a separate directory like F</usr/local/include>,
+then you may need to symlink F</usr/local/openssl/include>
+to F</usr/local/include>
 
 =head2 Crypt::SSLeay
 
@@ -188,10 +187,10 @@ and to force live tests, you can use
 
 C<Crypt::SSLeay> builds correctly with Strawberry Perl.
 
-For Activestate users, the ActiveState company does not have a
+For ActiveState Perl users, the ActiveState company does not have a
 permit from the Canadian Federal Government to distribute cryptographic
-software. This prevents C<Crypt::SSLeay> from being distributed as
-a PPM package from their repository. See
+software. This prevents C<Crypt::SSLeay> from being distributed as a PPM
+package from their repository. See
 L<http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/faq/ActivePerl-faq2.html#crypto_packages>
 for more information on this issue.
 
@@ -207,37 +206,37 @@ for more details.
 =head3 VMS
 
 It is assumed that the OpenSSL installation is located at
-C</ssl$root>. Define this logical to point to the appropriate
+F</ssl$root>. Define this logical to point to the appropriate
 place in the filesystem.
 
 =head1 PROXY SUPPORT
 
-LWP::UserAgent and Crypt::SSLeay have their own versions of
+L<LWP::UserAgent> and L<Crypt::SSLeay> have their own versions of
 proxy support. Please read these sections to see which one
 is appropriate.
 
 =head2 LWP::UserAgent proxy support
 
-LWP::UserAgent has its own methods of proxying which may work for
-you and is likely to be incompatible with Crypt::SSLeay proxy support.
-To use LWP::UserAgent proxy support, try something like:
+C<LWP::UserAgent> has its own methods of proxying which may work for you
+and is likely to be incompatible with C<Crypt::SSLeay> proxy support.
+To use C<LWP::UserAgent> proxy support, try something like:
 
     my $ua = LWP::UserAgent->new;
     $ua->proxy([qw( https http )], "$proxy_ip:$proxy_port");
 
-At the time of this writing, libwww v5.6 seems to proxy https
-requests fine with an Apache mod_proxy server.  It sends a line like:
+At the time of this writing, libwww v5.6 seems to proxy https requests
+fine with an Apache F<mod_proxy> server.  It sends a line like:
 
     GET https://www.example.com HTTP/1.1
 
-to the proxy server, which is not the CONNECT request that
-some proxies would expect, so this may not work with other
-proxy servers than mod_proxy. The CONNECT method is used
-by Crypt::SSLeay's internal proxy support.
+to the proxy server, which is not the C<CONNECT> request that some
+proxies would expect, so this may not work with other proxy servers than
+F<mod_proxy>. The C<CONNECT> method is used by C<Crypt::SSLeay>'s
+internal proxy support.
 
 =head2 Crypt::SSLeay proxy support
 
-For native Crypt::SSLeay proxy support of https requests,
+For native C<Crypt::SSLeay> proxy support of https requests,
 you need to set the environment variable C<HTTPS_PROXY> to your
 proxy server and port, as in:
 
@@ -247,7 +246,7 @@ proxy server and port, as in:
 
 Use of the C<HTTPS_PROXY> environment variable in this way
 is similar to C<LWP::UserAgent->env_proxy()> usage, but calling
-that method will likely override or break the Crypt::SSLeay
+that method will likely override or break the C<Crypt::SSLeay>
 support, so do not mix the two.
 
 Basic auth credentials to the proxy server can be provided
@@ -263,7 +262,7 @@ C<Crypt::SSLeay> distribution.
 
 =head1 CLIENT CERTIFICATE SUPPORT
 
-Client certificates are supported. PEM0encoded certificate and
+Client certificates are supported. PEM encoded certificate and
 private key files may be used like this:
 
     $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
@@ -286,11 +285,12 @@ certificate file. That is, C<$ENV{HTTPS_CA_DIR}> is *not* the path were
 C<$ENV{HTTPS_CA_FILE}> is located.
 
 For certificates in C<$ENV{HTTPS_CA_DIR}> to be picked up, follow the
-instructions on L<http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html>
+instructions on
+L<http://www.openssl.org/docs/ssl/SSL_CTX_load_verify_locations.html>
 
 There is no sample CA cert file at this time for testing,
 but you may configure F<eg/net-ssl-test> to use your CA cert
-with the -CAfile option. (TODO: then what is the ./certs
+with the -CAfile option. (TODO: then what is the F<./certs>
 directory in the distribution?)
 
 =head2 Creating a test certificate
@@ -315,14 +315,14 @@ The directives for enabling use of PKCS12 certificates is:
 
 Use of this type of certificate takes precedence over previous
 certificate settings described. (TODO: unclear? Meaning "the
-presence of this type of certificate??)
+presence of this type of certificate"?)
 
 =head1 SSL versions
 
-Crypt::SSLeay tries very hard to connect to I<any> SSL web server
-accomodating servers that are buggy, old or simply
-not standards-compliant. To this effect, this module will
-try SSL connections in this order:
+C<Crypt::SSLeay> tries very hard to connect to I<any> SSL web server
+accomodating servers that are buggy, old or simply not
+standards-compliant. To this effect, this module will try SSL
+connections in this order:
 
 =over 4
 
@@ -352,85 +352,51 @@ attempt order remains unchanged by this setting.
 
 =head1 ACKNOWLEDGEMENTS
 
-Many thanks to the following individuals who helped improve Crypt-SSLeay:
+Many thanks to the following individuals who helped improve
+C<Crypt-SSLeay>:
 
-=over 4
-
-=item Gisle Aas
-
-for writing this module and many others including libwww, for
+I<Gisle Aas> for writing this module and many others including libwww, for
 perl. The web will never be the same :)
 
-=item Ben Laurie
-
-deserves kudos for his excellent patches for better error
+I<Ben Laurie> deserves kudos for his excellent patches for better error
 handling, SSL information inspection, and random seeding.
 
-=item Dongqiang Bai
+I<Dongqiang Bai> for host name resolution fix when using a proxy.
 
-for host name resolution fix when using a proxy.
+I<Stuart Horner> of Core Communications, Inc. who found the need for
+building C<--shared> OpenSSL libraries.
 
-=item Stuart Horner of Core Communications, Inc.
+I<Pavel Hlavnicka> for a patch for freeing memory when using a pkcs12
+file, and for inspiring more robust C<read()> behavior.
 
-who found the need for building C<--shared> OpenSSL libraries.
+I<James Woodyatt> is a champ for finding a ridiculous memory leak that
+has been the bane of many a Crypt::SSLeay user.
 
-=item Pavel Hlavnicka
+I<Bryan Hart> for his patch adding proxy support, and thanks to I<Tobias
+Manthey> for submitting another approach.
 
-for a patch for freeing memory when using a pkcs12 file, and for inspiring more
-robust C<read()> behavior.
+I<Alex Rhomberg> for Alpha linux ccc patch.
 
-=item James Woodyatt
+I<Tobias Manthey> for his patches for client certificate support.
 
-is a champ for finding a ridiculous memory leak that has been the bane of many
-a Crypt::SSLeay user.
+I<Daisuke Kuroda> for adding PKCS12 certificate support.
 
-=item Bryan Hart
+I<Gamid Isayev> for CA cert support and insights into error messaging.
 
-for his patch adding proxy support, and thanks to Tobias Manthey for submitting
-another approach.
+I<Jeff Long> for working through a tricky CA cert SSLClientVerify issue.
 
-=item Alex Rhomberg
+I<Chip Turner> for a patch to build under perl 5.8.0.
 
-for Alpha linux ccc patch.
+I<Joshua Chamas> for the time he spent maintaining the module.
 
-=item Tobias Manthey
+I<Jeff Lavallee> for help with alarms on read failures (CPAN bug #12444).
 
-for his patches for client certificate support.
+I<Guenter Knauf> for significant improvements in configuring things in
+Win32 and Netware lands and Jan Dubois for various suggestions for
+improvements.
 
-=item Daisuke Kuroda
-
-for adding PKCS12 certificate support.
-
-=item Gamid Isayev
-
-for CA cert support and insights into error messaging.
-
-=item Jeff Long
-
-for working through a tricky CA cert SSLClientVerify issue.
-
-=item Chip Turner
-
-for patch to build under perl 5.8.0.
-
-=item Joshua Chamas
-
-for the time he spent maintaining the module.
-
-=item Jeff Lavallee
-
-for help with alarms on read failures (CPAN bug #12444).
-
-=item Guenter Knauf
-
-for significant improvements in configuring things in Win32
-and Netware lands and Jan Dubois for various suggestions for improvements.
-
-=item and others
-
-who provided bug reports, suggestions, fixes and patches.
-
-=back
+and I<many others> who provided bug reports, suggestions, fixes and
+patches.
 
 =head1 SEE ALSO
 
@@ -438,14 +404,14 @@ who provided bug reports, suggestions, fixes and patches.
 
 =item Net::SSL
 
-If you have downloaded this distribution as of a dependency
-of another distribution, it's probably due to this module
-(which is included in this distribution).
+If you have downloaded this distribution as of a dependency of another
+distribution, it's probably due to this module (which is included in
+this distribution).
 
 =item Net::SSLeay
 
-L<Net::SSLeay|Net::SSLeay> provides access to the OpenSSL API directly from
-Perl. See L<http://search.cpan.org/dist/Net-SSLeay/>.
+L<Net::SSLeay|Net::SSLeay> provides access to the OpenSSL API directly
+from Perl. See L<http://search.cpan.org/dist/Net-SSLeay/>.
 
 =item OpenSSL binary packages for Windows
 
@@ -458,14 +424,17 @@ See L<http://www.openssl.org/related/binaries.html>.
 For use of Crypt::SSLeay & Net::SSL with Perl's LWP, please
 send email to L<libwww@perl.org|mailto:libwww@perl.org>.
 
-For OpenSSL or general SSL support, including issues associated with building
-and installing OpenSSL on your system, please email the OpenSSL users mailing
-list at L<openssl-users@openssl.org|mailto:openssl-users@openssl.org>. See
-L<http://www.openssl.org/support/community.html> for other mailing lists and
-archives.
+For OpenSSL or general SSL support, including issues associated with
+building and installing OpenSSL on your system, please email the OpenSSL
+users mailing list at
+L<openssl-users@openssl.org|mailto:openssl-users@openssl.org>. See
+L<http://www.openssl.org/support/community.html> for other mailing lists
+and archives.
 
 Please report all bugs at
 L<"http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay">.
+
+=head1 AUTHORS
 
 This module was originally written by Gisle Aas, and was subsequently
 maintained by Joshua Chamas, David Landgren, brian d foy and Sinan Unur.
@@ -474,13 +443,15 @@ maintained by Joshua Chamas, David Landgren, brian d foy and Sinan Unur.
 
 Copyright (c) 2010 A. Sinan Unur
 
-Copyright (c) 2006-2007 David Landgren.
+Copyright (c) 2006-2007 David Landgren
 
-Copyright (c) 1999-2003 Joshua Chamas.
+Copyright (c) 1999-2003 Joshua Chamas
 
-Copyright (c) 1998 Gisle Aas.
+Copyright (c) 1998 Gisle Aas
 
-This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
