@@ -282,7 +282,7 @@ SSL_write(ssl, buf, ...)
            STRLEN blen;
            int len;
            int offset = 0;
-           int n;
+           int keep_trying_to_write = 1;
         INPUT:
            char* buf = SvPV(ST(1), blen);
         CODE:
@@ -304,12 +304,32 @@ SSL_write(ssl, buf, ...)
            else {
                len = blen;
            }
-           n = SSL_write(ssl, buf+offset, len);
-           if (n >= 0) {
-               RETVAL = newSViv(n);
-           }
-           else {
-               RETVAL = &PL_sv_undef;
+
+           /* try to handle incomplete writes properly
+            * see RT #64054
+            */
+           while (keep_trying_to_write) {
+                int n = SSL_write(ssl, buf+offset, len);
+                if (n >= 0) {
+                    keep_trying_to_write = 0;
+                    RETVAL = newSViv(n);
+                }
+                else {
+                    int x = SSL_get_error(ssl, n);
+                    switch (x) {
+                        case SSL_ERROR_ZERO_RETURN:
+                            keep_trying_to_write = 0;
+                            RETVAL = newSViv(n);
+                            break;
+                        case SSL_ERROR_WANT_READ:
+                        case SSL_ERROR_WANT_WRITE:
+                            break;
+                        default:
+                            keep_trying_to_write = 0;
+                            RETVAL = &PL_sv_undef;
+                            break;
+                    }
+                }
            }
         OUTPUT:
            RETVAL
@@ -322,7 +342,7 @@ SSL_read(ssl, buf, len,...)
            char *buf;
            STRLEN blen;
            int offset = 0;
-           int n;
+           int keep_trying_to_read = 1;
         INPUT:
            SV* sv = ST(1);
         CODE:
@@ -349,15 +369,34 @@ SSL_read(ssl, buf, len,...)
            SvGROW(sv, offset + len + 1);
            buf = SvPVX(sv);  /* it might have been relocated */
 
-           n = SSL_read(ssl, buf+offset, len);
+           /* try to handle incomplete reads properly
+            * see RT #64054
+            */
 
-           if (n >= 0) {
-               SvCUR_set(sv, offset + n);
-               buf[offset + n] = '\0';
-               RETVAL = newSViv(n);
-           }
-           else {
-               RETVAL = &PL_sv_undef;
+           while (keep_trying_to_read) {
+                int n = SSL_read(ssl, buf+offset, len);
+                if (n > 0) {
+                    SvCUR_set(sv, offset + n);
+                    buf[offset + n] = '\0';
+                    keep_trying_to_read = 0;
+                    RETVAL = newSViv(n);
+                }
+                else {
+                    int x = SSL_get_error(ssl, n);
+                    switch (x) {
+                        case SSL_ERROR_ZERO_RETURN:
+                            keep_trying_to_read = 0;
+                            RETVAL = newSViv(n);
+                            break;
+                        case SSL_ERROR_WANT_READ:
+                        case SSL_ERROR_WANT_WRITE:
+                            break;
+                        default:
+                            keep_trying_to_read = 0;
+                            RETVAL = &PL_sv_undef;
+                            break;
+                    }
+                }
            }
         OUTPUT:
            RETVAL
