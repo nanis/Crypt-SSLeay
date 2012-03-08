@@ -58,6 +58,7 @@ WriteMakefile(
         'Test::More' => '0.88',
     },
     PREREQ_PM     => {
+        'LWP::Protocol::https' => '6.02',
         'MIME::Base64' => 0, # for Net::SSL
     },
     clean         => {
