@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Crypt-SSLeay
-version:            0.58_01
+version:            0.59_01
 abstract:           OpenSSL support for LWP
 author:
     - A. Sinan Unur <nanis@cpan.org>
@@ -9,14 +9,16 @@ distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
 build_requires:
-    ExtUtils::MakeMaker:  0
+    Test::More:  0.88
+    Try::Tiny:   0.09
 requires:
-    MIME::Base64:  0
+    LWP::Protocol::https:  6.02
+    MIME::Base64:         0
 no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+generated_by:       ExtUtils::MakeMaker version 6.57_05
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
