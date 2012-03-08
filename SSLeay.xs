@@ -129,9 +129,15 @@ SSL_CTX_new(packname, ssl_version)
             ctx = SSL_CTX_new(SSLv3_client_method());
         }
         else {
-            /* v2 is the default */
+#ifndef OPENSSL_NO_SSL2 
+            /* v2 is the default */ 
             ctx = SSL_CTX_new(SSLv2_client_method());
+#else 
+            /* v3 is the default */
+            ctx = SSL_CTX_new(SSLv3_client_method());
+#endif
         }                
+
         SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
         SSL_CTX_set_default_verify_paths(ctx);
         SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);

@@ -1,6 +1,22 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.59_02 2012-03-08 16:16:03 UTC
+
+- Forgot to update Changes for 0.59_01. The following is a combined list of
+  the more important fixes incorporated in both.
+
+- Bug RT #64054: Handle incomplete reads/writes better
+
+- Bug RT #73754: Add LWP::Protocol::https to PREREQ_PM
+
+- Bug RT #73755: Crypt-SSLeay does not verify hosts (yet). Don't let that
+  cause a failure during tests.
+
+- Streamline t/02-live.t using Try::Tiny and done_testing
+
+- Plus assorted related small changes.
+
 0.58_01 2010-09-08 19:11:39 UTC
 
 - L<text|scheme:...> is not supported in POD for 5.8.5 and earlier.
