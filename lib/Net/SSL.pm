@@ -367,15 +367,21 @@ sub proxy_connect_helper {
 
     my $timeout;
     my $header = '';
+
     # See RT #33954
-    while ( $header !~ m{HTTP/\d+\.\d+\s+200\s+.*$CRLF$CRLF}s ) {
+    # See also RT #64054
+    # Handling incomplete reads and writes better (for some values of
+    # better) may actually make this problem go away, but either way,
+    # there is no good reason to use \d when checking for 0-9
+
+    while ($header !~ m{HTTP/[0-9][.][0-9]\s+200\s+.*$CRLF$CRLF}) {
         $timeout = $self->timeout(5) unless length $header;
         my $n = $self->SUPER::sysread($header, 8192, length $header);
         last if $n <= 0;
     }
 
     $self->timeout($timeout) if defined $timeout;
-    my $conn_ok = ($header =~ /HTTP\/\d+\.\d+\s+200\s+/is) ? 1 : 0;
+    my $conn_ok = ($header =~ m{HTTP/[0-9]+[.][0-9]+\s+200\s+}is) ? 1 : 0;
 
     if (not $conn_ok) {
         croak("PROXY ERROR HEADER, could be non-SSL URL:\n$header");
