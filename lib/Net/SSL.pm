@@ -120,6 +120,10 @@ sub connect {
     my $new_arg = *$self->{ssl_new_arg};
     $arg->{SSL_Debug} = $debug;
 
+    # setup SNI if available
+    $ssl->can("set_tlsext_host_name") and
+        $ssl->set_tlsext_host_name(*$self->{ssl_peer_addr});
+
     eval {
         local $SIG{ALRM} = sub { $self->die_with_error("SSL connect timeout") };
         # timeout / 2 because we have 3 possible connects here

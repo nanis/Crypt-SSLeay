@@ -437,6 +437,15 @@ SSL_get_cipher(ssl)
         OUTPUT:
            RETVAL        
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
+
+void
+SSL_set_tlsext_host_name(ssl, name)
+        SSL *ssl
+        const char *name
+
+#endif
+
 MODULE = Crypt::SSLeay        PACKAGE = Crypt::SSLeay::X509        PREFIX = X509_
 
 void
