@@ -1,6 +1,22 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.60 2012-07-29 21:43:47 UTC
+
+- Release 0.59_03 as 0.60 so distributions can pick up various fixes. The most
+  important one seems to be bug RT #70565. This should take care of bug RT
+  #77167
+
+- SSL_read and SSL_write now try to handle incomplete reads/writes (see bug RT
+  RT #64054). The current test suite does is not very comprehensive, so caution
+  is recommended at this point. Also, if you have good test cases, I would love
+  to incorporate them into the distribution.
+
+0.59_03 2012-03-10 00:45:28 UTC
+
+- Bump version number and upload to CPAN.
+
+
 0.59_02 2012-03-08 16:16:03 UTC
 
 - Forgot to update Changes for 0.59_01. The following is a combined list of
