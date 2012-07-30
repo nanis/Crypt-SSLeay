@@ -432,8 +432,8 @@ users mailing list at L<mailto:openssl-users@openssl.org>. See
 L<http://www.openssl.org/support/community.html> for other mailing lists and
 archives.
 
-Please report all bugs at
-L<"http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay">.
+Please report all bugs using
+L<rt.cpan.org|http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 
 =head1 AUTHORS
 
