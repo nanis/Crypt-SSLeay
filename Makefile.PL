@@ -47,7 +47,12 @@ my @license = do {
 
 WriteMakefile(
     NAME          => 'Crypt::SSLeay',
-    AUTHOR        => 'A. Sinan Unur <nanis@cpan.org>',
+    AUTHOR        => [ # starting with current maintainer
+        'A. Sinan Unur <nanis@cpan.org>',
+        'David Landgren',
+        'Joshua Chamas',
+        'Gisle Aas',
+    ],
     ABSTRACT_FROM => 'SSLeay.pm',
     VERSION_FROM  => 'SSLeay.pm',
     LIBS          => ["@LIB_FLAGS"],

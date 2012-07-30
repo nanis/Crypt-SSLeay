@@ -442,7 +442,7 @@ maintained by Joshua Chamas, David Landgren, brian d foy and Sinan Unur.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2010 A. Sinan Unur
+Copyright (c) 2010-2012 A. Sinan Unur
 
 Copyright (c) 2006-2007 David Landgren
 
