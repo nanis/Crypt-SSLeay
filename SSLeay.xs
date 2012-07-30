@@ -11,6 +11,13 @@ extern "C" {
 #endif
 #include "EXTERN.h"
 #include "perl.h"
+
+/* CRYPT_SSLEAY_free() may be #defined to be free(), and we want to
+ * call the C runtime version, not the one supplied by the Perl
+ * interpreter.  Therefore we need to #define NO_XSLOCKS to prevent
+ * XSUB.h from redefining free() under PERL_IMPLICIT_SYS.
+ */
+#define NO_XSLOCKS
 #include "XSUB.h"
 
 /* build problem under openssl 0.9.6 and some builds of perl 5.8.x */
