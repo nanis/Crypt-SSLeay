@@ -41,12 +41,13 @@ BEGIN {
     use_ok('HTTP::Request');
 }
 
+use constant METHOD => 'HEAD';
 use constant URL => 'https://rt.cpan.org/';
 use constant PROXY_ADDR_PORT => 'localhost:3128';
 
 test_connect_through_proxy(PROXY_ADDR_PORT);
 
-test_connect(URL);
+test_connect(METHOD, URL);
 
 done_testing;
 
@@ -96,7 +97,7 @@ sub test_connect_through_proxy {
 }
 
 sub test_connect {
-    my ($url) = @_;
+    my ($method, $url) = @_;
 
     diag('[RT #73755] Cheat by disabling LWP::UserAgent host verification');
 
@@ -107,10 +108,10 @@ sub test_connect {
 
     my $req = HTTP::Request->new;
 
-    $req->method('HEAD');
+    $req->method($method);
     $req->uri($url);
 
-    my $test_name = 'HEAD https://rt.cpan.org/';
+    my $test_name = "$method $url";
     my $res;
 
     try {
