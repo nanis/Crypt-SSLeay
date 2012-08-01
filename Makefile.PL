@@ -38,25 +38,33 @@ write_crypt_ssleay_version_h( $pkg_config );
 
 show_build_information( $pkg_config, \@INC_FLAGS, \@LIB_FLAGS);
 
-my @license = do {
-    my $version = $ExtUtils::MakeMaker::VERSION;
-    $version =~ tr/_//d;
-    $version
-} > 6.3 ? (LICENSE => 'perl')
-        : ();
+my $mm_version = $ExtUtils::MakeMaker::VERSION;
+$mm_version =~ tr/_//d;
+
+my @authors = (
+    # starting with current maintainer
+    'A. Sinan Unur <nanis@cpan.org>',
+    'David Landgren',
+    'Joshua Chamas',
+    'Gisle Aas',
+);
+
+my @author = $mm_version > 6.5701
+           ? (AUTHOR => \@authors)
+           : (AUTHOR => $authors[0])
+           ;
+my @license = $mm_version > 6.3
+            ? (LICENSE => 'perl')
+            : ()
+            ;
 
 WriteMakefile(
     NAME          => 'Crypt::SSLeay',
-    AUTHOR        => [ # starting with current maintainer
-        'A. Sinan Unur <nanis@cpan.org>',
-        'David Landgren',
-        'Joshua Chamas',
-        'Gisle Aas',
-    ],
     ABSTRACT_FROM => 'SSLeay.pm',
     VERSION_FROM  => 'SSLeay.pm',
     LIBS          => ["@LIB_FLAGS"],
     INC           => "@INC_FLAGS",
+    @author,
     NEEDS_LINKING => 1,
     BUILD_REQUIRES => {
         'Try::Tiny' => '0.09',
