@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.60';
+$VERSION = '0.61_02';
 
 eval {
     require XSLoader;
