@@ -319,28 +319,32 @@ SSL_write(ssl, buf, ...)
            }
 
            /* try to handle incomplete writes properly
-            * see RT #64054
+            * see RT bug #64054 and RT bug #78695
             */
-           while (keep_trying_to_write) {
+           while (keep_trying_to_write)
+           {
                 int n = SSL_write(ssl, buf+offset, len);
-                if (n >= 0) {
+                int x = SSL_get_error(ssl, n);
+                
+                if
+                (
+                      (n  > 0) ||
+                    ( (n == 0) && (x == SSL_ERROR_ZERO_RETURN) )
+                )
+                {
                     keep_trying_to_write = 0;
                     RETVAL = newSViv(n);
                 }
-                else {
-                    int x = SSL_get_error(ssl, n);
-                    switch (x) {
-                        case SSL_ERROR_ZERO_RETURN:
-                            keep_trying_to_write = 0;
-                            RETVAL = newSViv(n);
-                            break;
-                        case SSL_ERROR_WANT_READ:
-                        case SSL_ERROR_WANT_WRITE:
-                            break;
-                        default:
-                            keep_trying_to_write = 0;
-                            RETVAL = &PL_sv_undef;
-                            break;
+                else
+                {
+                    if 
+                    (
+                        (x != SSL_ERROR_WANT_READ) &&
+                        (x != SSL_ERROR_WANT_WRITE)
+                    )
+                    {
+                        keep_trying_to_write = 0;
+                        RETVAL = &PL_sv_undef;
                     }
                 }
            }
@@ -382,32 +386,34 @@ SSL_read(ssl, buf, len,...)
            SvGROW(sv, offset + len + 1);
            buf = SvPVX(sv);  /* it might have been relocated */
 
-           /* try to handle incomplete reads properly
-            * see RT #64054
+           /* try to handle incomplete writes properly
+            * see RT bug #64054 and RT bug #78695
             */
-
            while (keep_trying_to_read) {
                 int n = SSL_read(ssl, buf+offset, len);
-                if (n > 0) {
+                int x = SSL_get_error(ssl, n);
+
+                if 
+                (   
+                      (n  > 0) || 
+                    ( (n == 0) && (x == SSL_ERROR_ZERO_RETURN) )
+                )
+                {
                     SvCUR_set(sv, offset + n);
                     buf[offset + n] = '\0';
                     keep_trying_to_read = 0;
                     RETVAL = newSViv(n);
                 }
-                else {
-                    int x = SSL_get_error(ssl, n);
-                    switch (x) {
-                        case SSL_ERROR_ZERO_RETURN:
-                            keep_trying_to_read = 0;
-                            RETVAL = newSViv(n);
-                            break;
-                        case SSL_ERROR_WANT_READ:
-                        case SSL_ERROR_WANT_WRITE:
-                            break;
-                        default:
-                            keep_trying_to_read = 0;
-                            RETVAL = &PL_sv_undef;
-                            break;
+                else
+                {
+                    if
+                    ( 
+                        (x != SSL_ERROR_WANT_READ) && 
+                        (x != SSL_ERROR_WANT_WRITE) 
+                    ) 
+                    {
+                        keep_trying_to_read = 0;
+                        RETVAL = &PL_sv_undef;
                     }
                 }
            }
