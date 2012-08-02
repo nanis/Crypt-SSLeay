@@ -320,17 +320,15 @@ SSL_write(ssl, buf, ...)
 
            /* try to handle incomplete writes properly
             * see RT bug #64054 and RT bug #78695
+            * 2012/08/02: Stop trying to distinguish between good & bad
+            * zero returns from underlying SSL_read/SSL_write
             */
            while (keep_trying_to_write)
            {
                 int n = SSL_write(ssl, buf+offset, len);
                 int x = SSL_get_error(ssl, n);
                 
-                if
-                (
-                      (n  > 0) ||
-                    ( (n == 0) && (x == SSL_ERROR_ZERO_RETURN) )
-                )
+                if ( n >= 0 )
                 {
                     keep_trying_to_write = 0;
                     RETVAL = newSViv(n);
@@ -388,16 +386,14 @@ SSL_read(ssl, buf, len,...)
 
            /* try to handle incomplete writes properly
             * see RT bug #64054 and RT bug #78695
+            * 2012/08/02: Stop trying to distinguish between good & bad
+            * zero returns from underlying SSL_read/SSL_write
             */
            while (keep_trying_to_read) {
                 int n = SSL_read(ssl, buf+offset, len);
                 int x = SSL_get_error(ssl, n);
 
-                if 
-                (   
-                      (n  > 0) || 
-                    ( (n == 0) && (x == SSL_ERROR_ZERO_RETURN) )
-                )
+                if ( n >= 0 )
                 {
                     SvCUR_set(sv, offset + n);
                     buf[offset + n] = '\0';
