@@ -347,7 +347,7 @@ SUPPORT
     and archives.
 
     Please report all bugs at
-    "/rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay"" in "http:.
+    <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
 
 AUTHORS
     This module was originally written by Gisle Aas, and was subsequently
