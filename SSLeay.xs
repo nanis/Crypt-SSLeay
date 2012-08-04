@@ -12,12 +12,11 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 
-/* CRYPT_SSLEAY_free() may be #defined to be free(), and we want to
- * call the C runtime version, not the one supplied by the Perl
- * interpreter.  Therefore we need to #define NO_XSLOCKS to prevent
- * XSUB.h from redefining free() under PERL_IMPLICIT_SYS.
- */
+/* CRYPT_SSLEAY_free() will not be #defined to be free() now that we're no
+ * longer supporting pre-2000 OpenSSL.
 #define NO_XSLOCKS
+*/
+
 #include "XSUB.h"
 
 /* build problem under openssl 0.9.6 and some builds of perl 5.8.x */
@@ -25,11 +24,21 @@ extern "C" {
 #define PERL5 1
 #endif
 
-/* ssl.h or openssl/ssl.h is included from the crypt_ssleay_version
- * file which is written when building with perl Makefile.PL
- * #include "ssl.h"
- */
-#include "crypt_ssleay_version.h"
+/* Makefile.PL no longer generates the following header file
+ * #include "crypt_ssleay_version.h"
+ * Among other things, Makefile.PL used to determine whether
+ * to use #include<openssl/ssl.h> or #include<ssl.h> and
+ * whether to use OPENSSL_free or free etc, but such distinctions
+ * ceased to matter pre-2000. Crypt::SSLeay no longer supports
+ * pre-2000 OpenSSL */
+
+#include <openssl/ssl.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#include <openssl/pkcs12.h>
+
+#define CRYPT_SSLEAY_free OPENSSL_free
 
 #undef Free /* undo namespace pollution from crypto.h */
 #ifdef __cplusplus
@@ -37,15 +46,11 @@ extern "C" {
 #endif
 
 
-/* moved this out to Makefile.PL so user can 
- * see value being used printed during build
- * #if SSLEAY_VERSION_NUMBER >= 0x0900
- * #define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
- * #else
- * #define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
- * #endif
- */
-
+#if SSLEAY_VERSION_NUMBER >= 0x0900
+#define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
+#else
+#define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
+#endif
 
 static void InfoCallback(const SSL *s,int where,int ret)
     {
