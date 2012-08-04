@@ -100,18 +100,30 @@ sub run {
     my $MM_VERSION = $ExtUtils::MakeMaker::VERSION;
     $MM_VERSION =~ tr/_//d;
 
-    my $cc = $Config{cc};
-    my $incfmt = $cc eq 'cl' ? q{/I"%s"} : q{-I"%s"};
-    my $libfmt = $cc eq 'cl' ? q{/libpath:"%s"} : q{-L"%s"};
-
     my $ssl_dir = $selected_ssl->{ssl_dir};
-    my $libs = join(' ',
-        sprintf($libfmt, catfile($ssl_dir, 'lib')),
-        $cc eq 'cl' ? sprintf($libfmt, catfile($ssl_dir, 'out32dll')) : (),
-        qw(-lz -lssl -lcrypto -lssl32 -lssleay32 -leay32)
-    );
+    my $cc = $Config{cc};
+    my $inc;
+    my @libs = ('-lz -lssl -lcrypto -lssl32 -lssleay32 -leay32');
 
-    my $inc = sprintf($incfmt, $selected_ssl->{inc_dir});
+    if ($cc eq 'cl') {
+        require Win32;
+        $inc = sprintf(
+            '/I%s',
+            Win32::GetShortPathName($selected_ssl->{inc_dir})
+        );
+        my $libfmt = '"%s"';
+        unshift @libs, sprintf($libfmt, catfile($ssl_dir,
+            $opt_static ? 'out32' : 'out32dll'
+        ));
+        unshift @libs, sprintf($libfmt, catfile($ssl_dir, 'lib'));
+    }
+    else {
+        $inc = sprintf('-I%s', $selected_ssl->{inc_dir});
+        unshift @libs, sprintf('-L%s', catfile($ssl_dir, 'lib'));
+    }
+
+    my $libs = "@libs";
+
     my $crypt_ssleay_version_h = 'crypt_ssleay_version.h';
     my $test_config = 'test.config';
 
@@ -123,6 +135,7 @@ sub run {
         LIBS          => [ $libs ],
         INC           => $inc,
         NEEDS_LINKING => 1,
+        ($opt_static ? (LINK_TYPE => 'static') : ()),
         BUILD_REQUIRES => {
             'File::Basename' => 0,
             'File::Spec' => 0,
