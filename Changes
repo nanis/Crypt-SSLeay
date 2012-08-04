@@ -1,6 +1,17 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.61_05 2012-08-04 00:40:22 UTC
+
+- Trying to distinguish between good vs bad zero returns from underlying
+  SSL_read/SSL_write broke stuff (see RT bug #78695). Revert to previous
+  behavior.
+
+- Completely re-organize Makefile.PL. I hope these changes will help take
+  care of RT bugs #61324, #61249, #63553, and #68084 etc. This is not
+  necessarily finished, but I want to see what happens on CPAN Testers at
+  this point before making a few other minor changes.
+
 0.60 2012-07-29 21:43:47 UTC
 
 - Release 0.59_03 as 0.60 so distributions can pick up various fixes. The most
