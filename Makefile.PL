@@ -6,6 +6,8 @@ use ExtUtils::MakeMaker;
 use File::Basename qw(basename dirname);
 use File::Spec::Functions qw(canonpath catfile updir);
 use Getopt::Long;
+
+use lib 'inc';
 use OpenSSL::Versions qw(parse_openssl_version_number);
 
 eval "use ExtUtils::MakeMaker::Coverage";

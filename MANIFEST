@@ -10,6 +10,7 @@ typemap
 certs/ca-bundle.crt
 certs/notacacert.pem
 certs/notacakeynopass.pem
+inc/OpenSSL/Versions.pm
 lib/Crypt/SSLeay/CTX.pm
 lib/Crypt/SSLeay/Conn.pm
 lib/Crypt/SSLeay/Err.pm
@@ -22,3 +23,4 @@ t/00-basic.t
 t/01-connect.t
 t/02-live.t
 META.yml                                 Module meta-data (added by MakeMaker)
+
