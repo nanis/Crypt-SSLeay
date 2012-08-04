@@ -453,6 +453,7 @@ Copyright (c) 1998 Gisle Aas
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+under the terms of Artistic License 2.0 (see
+L<http://www.perlfoundation.org/artistic_license_2_0>).
 
 =cut
