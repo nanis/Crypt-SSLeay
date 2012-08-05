@@ -9,4 +9,6 @@ MANIFEST.bak
 Makefile$
 Makefile.old
 SSLeay\.(bs|c|o)$
-^.gitignore
+^\.gitignore
+^\.gitattributes
+

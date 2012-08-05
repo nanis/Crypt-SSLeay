@@ -1,0 +1,16 @@
+* text eol=lf
+Changes text
+MANIFEST text
+MANIFEST.SKIP text
+README text
+TODO text
+typemap text
+lwp-ssl-test text
+net-ssl-test text
+
+*.PL text
+*.pm text
+*.t text
+*.xs text
+*.yml text
+
