@@ -1,6 +1,6 @@
 # Crypt::SSLeay - OpenSSL support for LWP
 
-## SYNOPSIS
+## Synopsis
 
     lwp-request https://www.example.com
 
@@ -9,9 +9,9 @@
     my $response = $ua->get('https://www.example.com/');
     print $response->content, "\n";
 
-## DESCRIPTION
+## Description
 
-This Perl module provides support for the HTTPS protocol under LWP, to allow
+this Perl module provides support for the HTTPS protocol under LWP, to allow
 an "LWP::UserAgent" object to perform GET, HEAD and POST requests.  Please
 see LWP for more information on POST requests.
 
@@ -28,9 +28,9 @@ This distribution also makes following deprecated modules available:
 Work on Crypt::SSLeay has been continued only to provide https support
 for the LWP (libwww-perl) libraries.
 
-## ENVIRONMENT VARIABLES
+## Environment Variables
 
-The following environment variables change the way "Crypt::SSLeay" and
+the following environment variables change the way "Crypt::SSLeay" and
 "Net::SSL" behave.
 
 ### Proxy Support
@@ -64,7 +64,7 @@ The following environment variables change the way "Crypt::SSLeay" and
     $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
     $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
-## INSTALLATION
+## Installation
 
 ### OpenSSL
 
@@ -248,7 +248,7 @@ There is no sample CA cert file at this time for testing, but you may
 configure `eg/net-ssl-test` to use your CA cert with the -CAfile option.
 (TODO: then what is the ./certs directory in the distribution?)
 
-###  Creating a test certificate
+### Creating a test certificate
 
 To create simple test certificates with OpenSSL, you may run the following
 command:
@@ -261,7 +261,7 @@ To remove the pass phrase from the key file, run:
 
     openssl rsa -in notacakey.pem -out notacakeynopass.pem
 
-###  PKCS12 support
+### PKCS12 support
 
 The directives for enabling use of PKCS12 certificates is:
 
@@ -294,9 +294,9 @@ to force a version 3 SSL connection first. At this time, only a version 2 SSL
 connection will be tried after this, as the connection attempt order remains
 unchanged by this setting.
 
-## ACKNOWLEDGEMENTS
+## Acknowledgements
 
-Many thanks to the following individuals who helped improve Crypt-SSLeay:
+many thanks to the following individuals who helped improve Crypt-SSLeay:
 
 * _Gisle Aas_ for writing this module and many others including libwww,
 for perl. The web will never be the same :)
@@ -380,9 +380,9 @@ This module was originally written by Gisle Aas, and was subsequently
 maintained by Joshua Chamas, David Landgren, brian d foy, and A. Sinan
 Unur.
 
-## COPYRIGHT
+## Copyright
 
-Copyright © 2010-2012 A. Sinan Unur
+copyright © 2010-2012 A. Sinan Unur
 
 Copyright © 2006-2007 David Landgren
 
@@ -390,8 +390,8 @@ Copyright © 1999-2003 Joshua Chamas
 
 Copyright © 1998 Gisle Aas
 
-## LICENSE
+## License
 
-This program is free software; you can redistribute it and/or modify it
+this program is free software; you can redistribute it and/or modify it
 under the terms of Artistic License 2.0. See <http://www.perlfoundation.org/artistic_license_2_0>.
 
