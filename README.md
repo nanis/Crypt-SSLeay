@@ -345,13 +345,13 @@ patches.
 
 ## See Also
 
-*  Net::SSL
+*   `Net::SSL`
 
     If you have downloaded this distribution as of a dependency of
     another distribution, it's probably due to this module (which is
     included in this distribution).
 
-*   Net::SSLeay
+*   `Net::SSLeay`
 
     Net::SSLeay provides access to the OpenSSL API directly from Perl.
     See <http://search.cpan.org/dist/Net-SSLeay/>.
@@ -361,7 +361,7 @@ patches.
 
 ## Support
 
-*   For use of Crypt::SSLeay & Net::SSL with Perl's LWP, please send email
+*   For use of `Crypt::SSLeay` & `Net::SSL` with Perl's LWP, please send email
     to libwww@perl.org <mailto:libwww@perl.org>.
 
 *   For OpenSSL or general SSL support, including issues associated with
@@ -382,13 +382,13 @@ Unur.
 
 ## Copyright
 
-copyright © 2010-2012 A. Sinan Unur
+Copyright &copy; 2010-2012 A. Sinan Unur
 
-Copyright © 2006-2007 David Landgren
+Copyright &copy; 2006-2007 David Landgren
 
-Copyright © 1999-2003 Joshua Chamas
+Copyright &copy; 1999-2003 Joshua Chamas
 
-Copyright © 1998 Gisle Aas
+Copyright &copy; 1998 Gisle Aas
 
 ## License
 
