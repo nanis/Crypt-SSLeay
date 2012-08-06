@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.62_01';
+$VERSION = '0.63';
 
 eval {
     require XSLoader;
@@ -79,28 +79,35 @@ support for the LWP (libwww-perl) libraries.
 The following environment variables change the way
 C<Crypt::SSLeay> and C<Net::SSL> behave.
 
-    # proxy support
+=head2 Proxy Support
+
     $ENV{HTTPS_PROXY} = 'http://proxy_hostname_or_ip:port';
 
-    # proxy_basic_auth
+=head2 Proxy Basic Authentication
+
     $ENV{HTTPS_PROXY_USERNAME} = 'username';
     $ENV{HTTPS_PROXY_PASSWORD} = 'password';
 
-    # debugging (SSL diagnostics)
+=head2 SSL diagnostics and Debugging
+
     $ENV{HTTPS_DEBUG} = 1;
 
-    # default ssl version
+=head2 Default SSL Version
+
     $ENV{HTTPS_VERSION} = '3';
 
-    # client certificate support
+=head2 Client Certificate Support
+
     $ENV{HTTPS_CERT_FILE} = 'certs/notacacert.pem';
     $ENV{HTTPS_KEY_FILE}  = 'certs/notacakeynopass.pem';
 
-    # CA cert peer verification
+=head2 CA cert Peer Verification
+
     $ENV{HTTPS_CA_FILE}   = 'certs/ca-bundle.crt';
     $ENV{HTTPS_CA_DIR}    = 'certs/';
 
-    # Client PKCS12 cert support
+=head2 Client PKCS12 cert support
+
     $ENV{HTTPS_PKCS12_FILE}     = 'certs/pkcs12.pkcs12';
     $ENV{HTTPS_PKCS12_PASSWORD} = 'PKCS12_PASSWORD';
 
@@ -108,54 +115,56 @@ C<Crypt::SSLeay> and C<Net::SSL> behave.
 
 =head2 OpenSSL
 
-You must have OpenSSL or SSLeay installed before compiling this module.
-You can get the latest OpenSSL package from
-L<http://www.openssl.org/>.
+You must have OpenSSL installed before compiling this module. You can get
+the latest OpenSSL package from L<http://www.openssl.org/>. We no longer
+support pre-2000 versions of OpenSSL.
 
-On Debian systems, you will need to install the C<libssl-dev> package,
-at least for the duration of the build (it may be removed afterwards).
+If you are building OpenSSL from source, please follow the directions
+included in the package.
 
-Other package-based systems may require something similar. The key is
-that C<Crypt::SSLeay> makes calls to the OpenSSL library, and how to do
-so is specified in the C header files that come with the library.  Some
-systems break out the header files into a separate package from that of
-the libraries. Once the program has been built, you don't need the
-headers any more.
+If you are going to use an OpenSSL library which you built from source or
+whose header and library files are not in a place searched by your compiler
+by default, make sure you set appropriate environment variables before
+trying to build C<Crypt::SSLeay>.
 
-When installing openssl make sure your config looks like:
+For example, if you are using ActiveState Perl and MinGW installed using
+ppm, and you installed OpenSSL in C<C:\opt\openssl-1.0.1c>, then you would
+issue the following commands to build C<Crypt::SSLeay>:
 
-    ./config --openssldir=/usr/local/openssl
+    C:\...\> set LIBRARY_PATH=C:\opt\openssl-1.0.1c\lib;%LIBRARY_PATH%
+    C:\...\> set CPATH=C:\opt\openssl-1.0.1c\include;%CPATH%
+    C:\...\> perl Makefile.PL --live-tests
+    C:\...\> dmake test
 
-or
+On Linux/BSD/Solaris/GNU etc systems, you would use make rather than dmake,
+but you would need to set the same variables if your OpenSSL library is in a
+custom location. If everything builds OK, but you get failures when during
+tests, ensure that C<LD_LIBRARY_PATH> points to the location where the
+correct shared libraries are located.
 
-    ./config --openssldir=/usr/local/ssl
+If you are using a Microsoft compiler (keep in mind that perl and OpenSSL
+need to have been built using the same compiler as well), you would use:
 
-If you are planning on upgrading the default OpenSSL libraries on
-a system like RedHat, (not recommended), then try something like:
+    C:\...\> set LIB=C:\opt\openssl-1.0.1c\lib;%LIB%
+    C:\...\> set INCLUDE=C:\opt\openssl-1.0.1c\include;%INCLUDE%
+    C:\...\> perl Makefile.PL --live-tests
+    C:\...\> nmake test
 
-    ./config --openssldir=/usr --shared
-
-The C<--shared> option to config will set up building the .so
-shared libraries which is important for such systems. This is
-followed by:
-
-    make
-    make test
-    make install
-
-This way C<Crypt::SSLeay> will pick up the includes and
-libraries automatically. If your includes end up
-going into a separate directory like F</usr/local/include>,
-then you may need to symlink F</usr/local/openssl/include>
-to F</usr/local/include>
+Depending on your OS, pre-built OpenSSL packages may be available. You may
+need to install a development version of your operating system's OpenSSL
+library package. The key is that C<Crypt::SSLeay> makes calls to the OpenSSL
+library, and how to do so is specified in the C header files that come
+with the library. Some systems break out the header files into a separate
+package from that of the libraries. Once the program has been built, you
+don't need the headers any more.
 
 =head2 Crypt::SSLeay
 
-The latest Crypt::SSLeay can be found at your nearest CPAN,
-as well as L<http://search.cpan.org/dist/Crypt-SSLeay/>
+The latest Crypt::SSLeay can be found at your nearest CPAN, as well as
+L<http://search.cpan.org/dist/Crypt-SSLeay/>.
 
-Once you have downloaded it, Crypt::SSLeay installs easily
-using the C<make> * commands as shown below.
+Once you have downloaded it, C<Crypt::SSLeay> installs easily using the
+standard build process:
 
     perl Makefile.PL
     make
@@ -164,16 +173,17 @@ using the C<make> * commands as shown below.
 
 On Windows systems, both Strawberry Perl and ActiveState (as a separate
 download via ppm) projects include a MingW based compiler distribution and
-C<dmake> which can be used to build both OpenSSL and C<Crypt-SSLeay>. If you
-have such a set up, use C<dmake> above.
+dmake which can be used to build both OpenSSL and C<Crypt::SSLeay>. If you
+have such a set up, use dmake above.
 
-For unattended (batch) installations, to be absolutely certain that
-F<Makefile.PL> does not prompt for questions on STDIN, set the
-following environment variable beforehand:
+F<Makefile.PL> takes two optional arguments:
 
-    PERL_MM_USE_DEFAULT=1
+=over 4
 
-(This is true for any CPAN module that uses C<ExtUtils::MakeMaker>).
+=item C<--live-tests>
+
+Boolean. Specifies whether we should try to connect to an HTTPS URL during
+testing. Default is false.
 
 To skip live tests, you can use
 
@@ -183,31 +193,38 @@ and to force live tests, you can use
 
     perl Makefile.PL --live-tests
 
+=item C<--static>
+
+Boolean. Default is false. (B<TODO>: Does it work?)
+
+=back
+
+For unattended (batch) installations, to be absolutely certain that
+F<Makefile.PL> does not prompt for questions on STDIN, set the environment
+variable C<PERL_MM_USE_DEFAULT=1> as with any CPAN module built using
+L<ExtUtils::MakeMaker>.
+
 =head3 Windows
 
-C<Crypt::SSLeay> builds correctly with Strawberry Perl.
+C<Crypt::SSLeay> builds correctly with Strawberry Perl and ActiveState Perl
+using the bundled MinGW.
 
-For ActiveState Perl users, the ActiveState company does not have a
-permit from the Canadian Federal Government to distribute cryptographic
-software. This prevents C<Crypt::SSLeay> from being distributed as a PPM
-package from their repository. See
-L<http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/faq/ActivePerl-faq2.html#crypto_packages>
-for more information on this issue.
+For ActiveState Perl users, the ActiveState company does not have a permit
+from the Canadian Federal Government to distribute cryptographic software.
+This prevents C<Crypt::SSLeay> from being distributed as a PPM package from
+their repository.
 
-You may download it from Randy Kobes's PPM repository by using
-the following command:
-
-    ppm install http://theoryx5.uwinnipeg.ca/ppms/Crypt-SSLeay.ppd
-
-An alternative is to add the uwinnipeg.ca PPM repository to your
-local installation. See L<http://cpan.uwinnipeg.ca/htdocs/faqs/ppm.html>
-for more details.
+See L<http://docs.activestate.com/activeperl/5.16/faq/ActivePerl-faq2.html#crypto_packages>
+for more information on this issue. You may be able to download a PPM for
+C<Crypt::SSLeay> from an alternative repository (see L<PPM::Repositories>).
 
 =head3 VMS
 
-It is assumed that the OpenSSL installation is located at
-F</ssl$root>. Define this logical to point to the appropriate
-place in the filesystem.
+I do not have any experience with VMS. If OpenSSL headers and libraries are
+not in standard locations searched by your build system by default, please
+set things up so that they are. If you have generic instructions on how to
+do it, please open a ticket on RT with the information so I can add it to
+this document.
 
 =head1 PROXY SUPPORT
 
@@ -423,14 +440,14 @@ See L<http://www.openssl.org/related/binaries.html>.
 
 =head1 SUPPORT
 
-For use of Crypt::SSLeay & Net::SSL with Perl's LWP, please
-send email to L<mailto:libwww@perl.org>.
+For use of C<Crypt::SSLeay> & C<Net::SSL> with Perl's L<LWP>, please
+send email to C<libwww@perl.org>.
 
 For OpenSSL or general SSL support, including issues associated with
 building and installing OpenSSL on your system, please email the OpenSSL
-users mailing list at L<mailto:openssl-users@openssl.org>. See
-L<http://www.openssl.org/support/community.html> for other mailing lists and
-archives.
+users mailing list at C<openssl-users@openssl.org>. See
+L<http://www.openssl.org/support/community.html> for other mailing lists
+and archives.
 
 Please report all bugs using
 L<rt.cpan.org|http://rt.cpan.org/NoAuth/Bugs.html?Dist=Crypt-SSLeay>.
