@@ -1,6 +1,14 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.64 2012-08-06 01:23:30
+
+- Drastically simplify Makefile.PL to resolve RT bugs #61249, #61324,
+  #63553, #68208, and #68084.
+
+- Forgot to update Changes for 0.63, so this version overrides that.
+
+
 0.61_05 2012-08-04 00:40:22 UTC
 
 - Trying to distinguish between good vs bad zero returns from underlying
