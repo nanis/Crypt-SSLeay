@@ -2,6 +2,7 @@ Changes
 MANIFEST
 MANIFEST.SKIP
 Makefile.PL
+openssl-version.c
 README.md
 SSLeay.pm
 SSLeay.xs

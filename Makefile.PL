@@ -1,7 +1,9 @@
 use strict;
 use warnings;
 
+use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
+use File::Spec::Functions qw( catfile );
 use Getopt::Long;
 
 eval "use ExtUtils::MakeMaker::Coverage";
@@ -29,18 +31,18 @@ $opt_live_tests ||= is_live_test_wanted();
 
 my $test_config = 'test.config';
 
-my $openssl_version_cmd = q{openssl version -a};
-my $openssl_version_output = `$openssl_version_cmd`;
+show_cmd_output('openssl version -a');
 
-if (defined $openssl_version_output) {
-    my $sep = '=' x 80 . "\n";
-    print $sep,
-        "Output from '$openssl_version_cmd'\n$openssl_version_output",
-        $sep;
-}
-else {
-    print "Didn't get any output from '$openssl_version_cmd'\n";
-}
+my $my_openssl_version_cmd = eval {
+    build_openssl_version('openssl-version.c')
+};
+
+unless (defined $my_openssl_version_cmd) {
+    print "Failed to build and link a simple executable using OpenSSL:\n$_\n";
+    exit 0;
+};
+
+show_cmd_output($my_openssl_version_cmd);
 
 WriteMakefile(
     NAME => 'Crypt::SSLeay',
@@ -56,6 +58,8 @@ WriteMakefile(
     ($opt_static ? (LINK_TYPE => 'static') : ()),
 
     BUILD_REQUIRES => {
+        'ExtUtils::CBuilder' => '0.280205',
+        'File::Spec' => 0,
         'Try::Tiny' => '0.09',
         'Test::More' => '0.88',
     },
@@ -66,7 +70,7 @@ WriteMakefile(
     },
 
     clean => {
-        FILES => $test_config,
+        FILES => "$test_config *.o $my_openssl_version_cmd",
     },
 
     ($mm_version > 6.3 ? (LICENSE => 'artistic_2') : ()),
@@ -101,5 +105,32 @@ sub write_test_config {
         or die "Cannot close '$file': $!";
 
     return;
+}
+
+sub show_cmd_output {
+    my ($cmd) = @_;
+    my $sep = '=' x 80 . "\n";
+
+    my $output = `$cmd`;
+
+    print
+        $sep,
+        defined($output)
+        ? "Output from '$cmd':\n$output"
+        : "No output from '$cmd'",
+        $sep
+    ;
+
+    return;
+}
+
+sub build_openssl_version {
+    my ($source) = @_;
+
+    my $builder = ExtUtils::CBuilder->new;
+    my $object = $builder->compile(source => $source);
+    my $executable = $builder->link_executable(objects => $object);
+
+    return catfile('.', $executable);
 }
 
