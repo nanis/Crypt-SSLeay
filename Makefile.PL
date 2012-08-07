@@ -29,6 +29,19 @@ $opt_live_tests ||= is_live_test_wanted();
 
 my $test_config = 'test.config';
 
+my $openssl_version_cmd = q{openssl version -a};
+my $openssl_version_output = `$openssl_version_cmd`;
+
+if (defined $openssl_version_output) {
+    my $sep = '=' x 80 . "\n";
+    print $sep,
+        "Output from '$openssl_version_cmd'\n$openssl_version_output",
+        $sep;
+}
+else {
+    print "Didn't get any output from '$openssl_version_cmd'\n";
+}
+
 WriteMakefile(
     NAME => 'Crypt::SSLeay',
 
