@@ -53,7 +53,7 @@ WriteMakefile(
 
     VERSION_FROM => 'SSLeay.pm',
 
-    LIBS => [q{-lz -lssl -lcrypto -lssl32 -lssleay32 -leay32}],
+    LIBS => [q{-lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz}],
 
     ($opt_static ? (LINK_TYPE => 'static') : ()),
 
