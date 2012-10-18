@@ -420,6 +420,8 @@ sub proxy {
     }
 
     $proxy_server =~ s|\Ahttps?://||i;
+    # sanitize the end of the string too
+    $proxy_server =~ s|:[^0-9]*([0-9]+)[^0-9]*\Z|:$1|;
     $proxy_server;
 }
 
