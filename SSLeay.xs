@@ -281,6 +281,10 @@ SSL_free(ssl)
         SSL* ssl
 
 int
+SSL_pending(ssl)
+        SSL* ssl
+
+int
 SSL_set_fd(ssl,fd)
         SSL* ssl
         int  fd
