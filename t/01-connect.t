@@ -1,5 +1,7 @@
 use strict;
 use Test::More tests => 8;
+use if ($^O ne 'MSWin32'), 'POSIX';
+eval "setlocale(LC_MESSAGES, 'C');" if $^O ne 'MSWin32';
 
 use Net::SSL;
 
