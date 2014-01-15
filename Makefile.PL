@@ -84,6 +84,8 @@ WriteMakefile1(
     },
 
     LICENSE => 'artistic_2',
+
+    MIN_PERL_VERSION => 5.006,
 );
 
 write_test_config($test_config, {network_tests => $opt_live_tests});
