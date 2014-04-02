@@ -1,3 +1,4 @@
+use 5.006;
 use strict;
 use warnings;
 
@@ -44,10 +45,16 @@ unless (defined $my_openssl_version_cmd) {
 
 show_cmd_output($my_openssl_version_cmd);
 
-WriteMakefile(
+WriteMakefile1(
+    META_MERGE => {
+        resources => {
+            repository => 'https://github.com/nanis/Crypt-SSLeay',
+        },
+    },
+
     NAME => 'Crypt::SSLeay',
 
-    AUTHOR => $mm_version > 6.5701 ? \@authors : $authors[0],
+    AUTHOR => \@authors,
 
     ABSTRACT_FROM => 'SSLeay.pm',
 
@@ -57,11 +64,14 @@ WriteMakefile(
 
     ($opt_static ? (LINK_TYPE => 'static') : ()),
 
-    BUILD_REQUIRES => {
-        'ExtUtils::CBuilder' => '0.280205',
-        'File::Spec' => 0,
+    TEST_REQUIRES => {
         'Try::Tiny' => '0.09',
         'Test::More' => '0.88',
+    },
+
+    CONFIGURE_REQUIRES => {
+        'File::Spec' => 0,
+        'ExtUtils::CBuilder' => '0.280205',
     },
 
     PREREQ_PM => {
@@ -73,7 +83,9 @@ WriteMakefile(
         FILES => "$test_config *.o $my_openssl_version_cmd",
     },
 
-    ($mm_version > 6.3 ? (LICENSE => 'artistic_2') : ()),
+    LICENSE => 'artistic_2',
+
+    MIN_PERL_VERSION => 5.006,
 );
 
 write_test_config($test_config, {network_tests => $opt_live_tests});
@@ -132,5 +144,37 @@ sub build_openssl_version {
     my $executable = $builder->link_executable(objects => $object);
 
     return catfile('.', $executable);
+}
+
+
+sub WriteMakefile1 {  #Compatibility code for old versions of EU::MM. Written by Alexandr Ciornii, version 0.23. Added by eumm-upgrade.
+    my %params=@_;
+    my $eumm_version=$ExtUtils::MakeMaker::VERSION;
+    $eumm_version=eval $eumm_version;
+    die "EXTRA_META is deprecated" if exists $params{EXTRA_META};
+    die "License not specified" if not exists $params{LICENSE};
+    if ($params{AUTHOR} and ref($params{AUTHOR}) eq 'ARRAY' and $eumm_version < 6.5705) {
+        $params{META_ADD}->{author}=$params{AUTHOR};
+        $params{AUTHOR}=join(', ',@{$params{AUTHOR}});
+    }
+    if ($params{TEST_REQUIRES} and $eumm_version < 6.64) {
+        $params{BUILD_REQUIRES}={ %{$params{BUILD_REQUIRES} || {}} , %{$params{TEST_REQUIRES}} };
+        delete $params{TEST_REQUIRES};
+    }
+    if ($params{BUILD_REQUIRES} and $eumm_version < 6.5503) {
+        #EUMM 6.5502 has problems with BUILD_REQUIRES
+        $params{PREREQ_PM}={ %{$params{PREREQ_PM} || {}} , %{$params{BUILD_REQUIRES}} };
+        delete $params{BUILD_REQUIRES};
+    }
+    delete $params{CONFIGURE_REQUIRES} if $eumm_version < 6.52;
+    delete $params{MIN_PERL_VERSION} if $eumm_version < 6.48;
+    delete $params{META_MERGE} if $eumm_version < 6.46;
+    delete $params{META_ADD} if $eumm_version < 6.46;
+    delete $params{LICENSE} if $eumm_version < 6.31;
+    delete $params{AUTHOR} if $] < 5.005;
+    delete $params{ABSTRACT_FROM} if $] < 5.005;
+    delete $params{BINARY_LOCATION} if $] < 5.005;
+
+    WriteMakefile(%params);
 }
 
