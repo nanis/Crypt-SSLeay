@@ -61,6 +61,8 @@ SKIP: {
         'getlines() not implemented'
     );
 
+    # RT #90803: Don't whether $sock->blocking returns 1 or 0.
+    # Instead, test true/false.
     ok( $sock->blocking, 'socket is blocking' );
     $sock->blocking(0);
     ok( !$sock->blocking, 'socket is now non-blocking' );
