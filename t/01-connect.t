@@ -61,7 +61,7 @@ SKIP: {
         'getlines() not implemented'
     );
 
-    is( $sock->blocking, 1, 'socket is blocking' );
+    ok( $sock->blocking, 'socket is blocking' );
     $sock->blocking(0);
-    is( $sock->blocking, 0, 'socket is now non-blocking' );
+    ok( !$sock->blocking, 'socket is now non-blocking' );
 }
