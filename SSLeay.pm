@@ -33,7 +33,7 @@ use vars qw(%CIPHERS);
 
 use Crypt::SSLeay::X509;
 
-# A xsupp bug made this nessesary
+# A xsupp bug made this necessary
 sub Crypt::SSLeay::CTX::DESTROY  { shift->free; }
 sub Crypt::SSLeay::Conn::DESTROY { shift->free; }
 sub Crypt::SSLeay::X509::DESTROY { shift->free; }
@@ -172,7 +172,7 @@ standard build process:
     make install
 
 On Windows systems, both Strawberry Perl and ActiveState (as a separate
-download via ppm) projects include a MingW based compiler distribution and
+download via ppm) projects include a MinGW based compiler distribution and
 dmake which can be used to build both OpenSSL and C<Crypt::SSLeay>. If you
 have such a set up, use dmake above.
 
@@ -339,9 +339,8 @@ certificate settings described.
 =head1 SSL versions
 
 C<Crypt::SSLeay> tries very hard to connect to I<any> SSL web server
-accomodating servers that are buggy, old or simply not
-standards-compliant. To this effect, this module will try SSL
-connections in this order:
+accommodating servers that are buggy, old or simply not standards-compliant.
+To this effect, this module will try SSL connections in this order:
 
 =over 4
 
@@ -365,9 +364,9 @@ Net::SSL:
 
     $ENV{HTTPS_VERSION} = 3;
 
-to force a version 3 SSL connection first. At this time only a
-version 2 SSL connection will be tried after this, as the connection
-attempt order remains unchanged by this setting.
+to force a version 3 SSL connection first. At this time only a version 2 SSL
+connection will be tried after this, as the connection attempt order remains
+unchanged by this setting.
 
 =head1 ACKNOWLEDGEMENTS
 
