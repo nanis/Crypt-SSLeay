@@ -533,6 +533,11 @@ Attempts to read up to 32KiB of data from the socket. Returns
 C<undef> if nothing was read, otherwise returns the data as
 a scalar.
 
+=item pending
+
+Provides access to OpenSSL's C<pending> attribute on the SSL connection
+object.
+
 =item getline
 
 Reads one character at a time until a newline is encountered,
