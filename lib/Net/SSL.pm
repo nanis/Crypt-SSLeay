@@ -420,6 +420,11 @@ sub proxy {
     }
 
     $proxy_server =~ s|\Ahttps?://||i;
+    # sanitize the end of the string too
+    # see also http://www.nntp.perl.org/group/perl.libwww/2012/10/msg7629.html
+    # and https://github.com/nanis/Crypt-SSLeay/pull/1
+    # Thank you Mark Allen and YigangX Wen
+    $proxy_server =~ s|(:[1-9][0-9]{0,4})/\z|$1|;
     $proxy_server;
 }
 
