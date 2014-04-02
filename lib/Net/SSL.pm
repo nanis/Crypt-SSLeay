@@ -198,6 +198,12 @@ sub get_cipher {
     *$self->{ssl_ssl}->get_cipher(@_);
 }
 
+sub pending {
+    my $self = shift;
+    $self = $REAL{$self} || $self;
+    *$self->{ssl_ssl}->pending(@_);
+}
+
 sub ssl_context {
     my $self = shift;
     $self = $REAL{$self} || $self;
