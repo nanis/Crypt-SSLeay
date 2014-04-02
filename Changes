@@ -1,6 +1,13 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_04 2014-04-02 18:03:11 UTC
+
+- Work in progress
+
+- Address pull requests from GitHub and bug reports on RT. These address RT
+  issues #83764, #86425, #86819, #62133, #82715, #90803
+
 0.64 2012-08-06 01:23:30
 
 - Drastically simplify Makefile.PL to resolve RT bugs #61249, #61324,
