@@ -1,6 +1,6 @@
 # 00-basic.t
 
-use Test::More tests => 12;
+use Test::More;
 
 BEGIN {
     use_ok( 'Crypt::SSLeay' );
@@ -34,4 +34,6 @@ SKIP: {
 }
 
 my $ctx = main_ctx();
-is(ref($ctx), 'Crypt::SSLeay::CTX', 'we have a context');
+isa_ok($ctx, 'Crypt::SSLeay::CTX', 'we have a context');
+
+done_testing;
