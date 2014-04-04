@@ -1,6 +1,17 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_05 2014-04-04 12:3821 UTC
+
+- Work in progress
+
+- Reorganize Makefile.PL to allow incpath and libpath command line
+  arguments. This attempts to address RT #88786, #88269, #79477, and #78848.
+  This was supposed to be the next step immediately after drastically
+  specifying Makefile.PL. But never got done.
+
+- Also add encoded version number to openssl-version output.
+
 0.65_04 2014-04-02 18:03:11 UTC
 
 - Work in progress

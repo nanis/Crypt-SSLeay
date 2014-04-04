@@ -2,93 +2,177 @@ use 5.006;
 use strict;
 use warnings;
 
+use Devel::CheckLib;
 use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
-use File::Spec::Functions qw( catfile );
-use Getopt::Long;
+use Getopt::Long qw( GetOptionsFromArray );
+use Path::Class;
+use Try::Tiny;
 
-eval "use ExtUtils::MakeMaker::Coverage";
-$@ or print "Adding testcover target\n";
+run(\@ARGV) unless caller;
 
-my @authors = reverse ( # reverse chronological order
-    'Gisle Aas',
-    'Joshua Chamas',
-    'David Landgren',
-    'A. Sinan Unur <nanis@cpan.org>',
-);
+sub run {
+    my $argv = shift;
 
-my $mm_version = $ExtUtils::MakeMaker::VERSION;
-$mm_version =~ tr/_//d;
+    eval "use ExtUtils::MakeMaker::Coverage";
+    $@ or print "Adding testcover target\n";
 
-my ($opt_static, $opt_live_tests);
+    my @authors = reverse ( # reverse chronological order
+        'Gisle Aas',
+        'Joshua Chamas',
+        'David Landgren',
+        'A. Sinan Unur <nanis@cpan.org>',
+    );
 
-GetOptions(
-    'static',      \$opt_static,
-    'live-tests!', \$opt_live_tests,
-);
+    my $mm_version = $ExtUtils::MakeMaker::VERSION;
+    $mm_version =~ tr/_//d;
 
-$opt_live_tests ||= $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
-$opt_live_tests ||= is_live_test_wanted();
+    my %opt;
+    GetOptionsFromArray(
+        $argv,
+        \%opt,
+        'incpath=s',
+        'libpath=s',
+        'live-tests!',
+        'static',
+    ) or die "Error parsing command line options\n";
 
-my $test_config = 'test.config';
+    # Address RT #78848 and RT #88269
+    # Adopted from Makefile.PL in Crypt::OpenSSL::Random
 
-show_cmd_output('openssl version -a');
+    for my $path (grep defined, @opt{qw(incpath libpath)}) {
+        try {
+            $path = file($path)->absolute->resolve
+        }
+        catch {
+            die "Error resolving '$path': $_";
+        };
+    }
 
-my $my_openssl_version_cmd = eval {
-    build_openssl_version('openssl-version.c')
-};
+    try {
+        assert_lib => (
+            lib => 'ssl',
+            header => 'openssl/ssl.h',
+            $opt{libpath} ? (libpath => $opt{libpath}) : (),
+            $opt{incpath} ? (incpath => $opt{incpath}) : (),
+        );
+    }
+    catch {
+        warn "-lssl not found. Need to install OpenSSL development packages.\n";
+    };
 
-unless (defined $my_openssl_version_cmd) {
-    print "Failed to build and link a simple executable using OpenSSL:\n$_\n";
-    exit 0;
-};
+    my $my_openssl_version_cmd = eval {
+        build_openssl_version('openssl-version.c', \%opt);
+    };
 
-show_cmd_output($my_openssl_version_cmd);
+    unless (defined $my_openssl_version_cmd) {
+        print "Failed to build and link a simple executable using OpenSSL:\n";
+        exit 0;
+    };
 
-WriteMakefile1(
-    META_MERGE => {
-        resources => {
-            repository => 'https://github.com/nanis/Crypt-SSLeay',
+    show_cmd_output($my_openssl_version_cmd);
+
+    $opt{live_tests} ||= $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
+    $opt{live_tests} ||= is_live_test_wanted();
+
+    my %params = (
+        META_MERGE => {
+            resources => {
+                repository => 'https://github.com/nanis/Crypt-SSLeay',
+            },
         },
-    },
 
-    NAME => 'Crypt::SSLeay',
+        NAME => 'Crypt::SSLeay',
 
-    AUTHOR => \@authors,
+        AUTHOR => \@authors,
 
-    ABSTRACT_FROM => 'SSLeay.pm',
+        ABSTRACT_FROM => 'SSLeay.pm',
 
-    VERSION_FROM => 'SSLeay.pm',
+        VERSION_FROM => 'SSLeay.pm',
 
-    LIBS => [q{-lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz}],
+        INC => $opt{incdir} ? qq{-I$opt{incdir}} : q{},
 
-    ($opt_static ? (LINK_TYPE => 'static') : ()),
+        LIBS => $opt{libdir}
+                ? [ qq{-L$opt{libdir} -lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
+                : [  q{-lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
+        ,
 
-    TEST_REQUIRES => {
-        'Try::Tiny' => '0.09',
-        'Test::More' => '0.88',
-    },
+        ($opt{static} ? (LINK_TYPE => 'static') : ()),
 
-    CONFIGURE_REQUIRES => {
-        'File::Spec' => 0,
-        'ExtUtils::CBuilder' => '0.280205',
-    },
+        TEST_REQUIRES => {
+            'Try::Tiny' => '0.09',
+            'Test::More' => '0.19',
+        },
 
-    PREREQ_PM => {
-        'LWP::Protocol::https' => '6.02',
-        'MIME::Base64' => 0, # for Net::SSL
-    },
+        CONFIGURE_REQUIRES => {
+            'Devel::CheckLib' => '0.99',
+            'ExtUtils::CBuilder' => '0.280205',
+            'Getopt::Long' => 0,
+            'Path::Class' => '0.26',
+        },
 
-    clean => {
-        FILES => "$test_config *.o $my_openssl_version_cmd",
-    },
+        PREREQ_PM => {
+            'LWP::Protocol::https' => '6.02',
+            'MIME::Base64' => 0, # for Net::SSL
+        },
 
-    LICENSE => 'artistic_2',
+        clean => {
+            FILES => "test.config openssl-version.o $my_openssl_version_cmd",
+        },
 
-    MIN_PERL_VERSION => 5.006,
-);
+        LICENSE => 'artistic_2',
 
-write_test_config($test_config, {network_tests => $opt_live_tests});
+        MIN_PERL_VERSION => 5.006,
+    );
+
+    $mm_version = eval $mm_version;
+
+    die "EXTRA_META is deprecated" if exists $params{EXTRA_META};
+    die "License not specified" if not exists $params{LICENSE};
+
+    if (
+        $params{AUTHOR} and
+        ref($params{AUTHOR}) eq ref([]) and
+        $mm_version < 6.5705
+    ) {
+        $params{META_ADD}->{author} = $params{AUTHOR};
+        $params{AUTHOR}=join(', ', @{$params{AUTHOR}});
+    }
+
+    if ($params{TEST_REQUIRES} and $mm_version < 6.64) {
+        $params{BUILD_REQUIRES} = {
+            %{ $params{BUILD_REQUIRES} || {} },
+            %{ $params{TEST_REQUIRES} },
+        };
+        delete $params{TEST_REQUIRES};
+    }
+
+    if ($params{BUILD_REQUIRES} and $mm_version < 6.5503) {
+        #EUMM 6.5502 has problems with BUILD_REQUIRES
+        $params{PREREQ_PM} = {
+            %{ $params{PREREQ_PM} || {} },
+            %{ $params{BUILD_REQUIRES}},
+        };
+        delete $params{BUILD_REQUIRES};
+    }
+
+    delete $params{CONFIGURE_REQUIRES} if $mm_version < 6.52;
+    delete $params{MIN_PERL_VERSION} if $mm_version < 6.48;
+    delete $params{META_MERGE} if $mm_version < 6.46;
+    delete $params{META_ADD} if $mm_version < 6.46;
+    delete $params{LICENSE} if $mm_version < 6.31;
+    delete $params{AUTHOR} if $] < 5.005;
+    delete $params{ABSTRACT_FROM} if $] < 5.005;
+    delete $params{BINARY_LOCATION} if $] < 5.005;
+
+    WriteMakefile(%params);
+
+    write_test_config('test.config' =>
+        {
+            network_tests => $opt{live_tests}
+        }
+    );
+}
 
 sub is_live_test_wanted {
     print <<EO_CHUNK;
@@ -104,18 +188,14 @@ EO_CHUNK
 }
 
 sub write_test_config {
-    my ($file, $config) = @_;
+    my $file = shift;
+    my $config = shift;
 
-    open my $out, '>', $file
-        or die "Cannot open '$file' for writing: $!";
-
-    for my $key (sort keys %$config) {
-        printf $out "%s\t%s\n", $key, $config->{$key};
-    }
-
-    close $out
-        or die "Cannot close '$file': $!";
-
+    file($file)->spew(
+        [
+            map sprintf("%s\t%s\n", $_, $config->{$_}), sort keys %$config
+        ]
+    );
     return;
 }
 
@@ -125,11 +205,9 @@ sub show_cmd_output {
 
     my $output = `$cmd`;
 
-    print
-        $sep,
-        defined($output)
-        ? "Output from '$cmd':\n$output"
-        : "No output from '$cmd'",
+    print $sep,
+        defined($output) ? "Output from '$cmd':\n$output"
+                         : "No output from '$cmd'",
         $sep
     ;
 
@@ -137,44 +215,21 @@ sub show_cmd_output {
 }
 
 sub build_openssl_version {
-    my ($source) = @_;
+    my $source = shift;
+    my $opt = shift;
 
     my $builder = ExtUtils::CBuilder->new;
-    my $object = $builder->compile(source => $source);
-    my $executable = $builder->link_executable(objects => $object);
 
-    return catfile('.', $executable);
+    my $object = $builder->compile(
+        source => $source,
+        $opt->{incpath} ? (include_dirs => "$opt->{incpath}") : (),
+    );
+
+    my $executable = $builder->link_executable(
+        objects => $object,
+    );
+
+    return file($executable)->absolute->resolve;
 }
 
-
-sub WriteMakefile1 {  #Compatibility code for old versions of EU::MM. Written by Alexandr Ciornii, version 0.23. Added by eumm-upgrade.
-    my %params=@_;
-    my $eumm_version=$ExtUtils::MakeMaker::VERSION;
-    $eumm_version=eval $eumm_version;
-    die "EXTRA_META is deprecated" if exists $params{EXTRA_META};
-    die "License not specified" if not exists $params{LICENSE};
-    if ($params{AUTHOR} and ref($params{AUTHOR}) eq 'ARRAY' and $eumm_version < 6.5705) {
-        $params{META_ADD}->{author}=$params{AUTHOR};
-        $params{AUTHOR}=join(', ',@{$params{AUTHOR}});
-    }
-    if ($params{TEST_REQUIRES} and $eumm_version < 6.64) {
-        $params{BUILD_REQUIRES}={ %{$params{BUILD_REQUIRES} || {}} , %{$params{TEST_REQUIRES}} };
-        delete $params{TEST_REQUIRES};
-    }
-    if ($params{BUILD_REQUIRES} and $eumm_version < 6.5503) {
-        #EUMM 6.5502 has problems with BUILD_REQUIRES
-        $params{PREREQ_PM}={ %{$params{PREREQ_PM} || {}} , %{$params{BUILD_REQUIRES}} };
-        delete $params{BUILD_REQUIRES};
-    }
-    delete $params{CONFIGURE_REQUIRES} if $eumm_version < 6.52;
-    delete $params{MIN_PERL_VERSION} if $eumm_version < 6.48;
-    delete $params{META_MERGE} if $eumm_version < 6.46;
-    delete $params{META_ADD} if $eumm_version < 6.46;
-    delete $params{LICENSE} if $eumm_version < 6.31;
-    delete $params{AUTHOR} if $] < 5.005;
-    delete $params{ABSTRACT_FROM} if $] < 5.005;
-    delete $params{BINARY_LOCATION} if $] < 5.005;
-
-    WriteMakefile(%params);
-}
 
