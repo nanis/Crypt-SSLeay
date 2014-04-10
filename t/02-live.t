@@ -35,10 +35,13 @@ BEGIN {
 # Make sure prerequisites are there
 
 BEGIN {
-    use_ok('Net::SSL');
+    # Make sure LWP uses us even when IO::Socket::SSL
+    # is installed.
+    $Net::HTTPS::SSL_SOCKET_CLASS = 'Net::SSL';
+    use_ok('HTTP::Request');
     use_ok('LWP::UserAgent');
     use_ok('LWP::Protocol::https');
-    use_ok('HTTP::Request');
+    use_ok('Net::SSL');
 }
 
 use constant METHOD => 'HEAD';
@@ -123,7 +126,10 @@ sub test_connect {
     };
 
     if ($res->is_success) {
-        pass($test_name);
+        pass($test_name) if isa_ok(
+            $res->header('Client-SSL-Socket-Class'),
+            'Net::SSL',
+        );
     }
     else {
         fail($test_name);

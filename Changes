@@ -1,6 +1,12 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_07 2014-04-10 12:38:06 UTC
+
+- Work in progres
+
+- Make sure t/02-live.t actually uses Net::SSL.
+
 0.65_06 2014-04-10 10:35:14 UTC
 
 - Work in progress
