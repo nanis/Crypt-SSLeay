@@ -6,6 +6,7 @@ use Devel::CheckLib;
 use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
 use Getopt::Long qw( GetOptionsFromArray );
+use IO::Interactive::Tiny;
 use Path::Class;
 use Try::Tiny;
 
@@ -37,8 +38,23 @@ sub run {
         'static',
     ) or die "Error parsing command line options\n";
 
+    if (
+        (not exists $opt{incpath}) and
+        (exists $ENV{OPENSSL_INCLUDE})
+    )
+    {
+        $opt{incpath} = $ENV{OPENSSL_INCLUDE};
+    }
+
+    if (
+        (not exists $opt{libpath}) and
+        (exists $ENV{OPENSSL_LIB})
+    )
+    {
+        $opt{libpath} = $ENV{OPENSSL_LIB};
+    }
+
     # Address RT #78848 and RT #88269
-    # Adopted from Makefile.PL in Crypt::OpenSSL::Random
 
     for my $path (grep defined, @opt{qw(incpath libpath)}) {
         try {
@@ -49,17 +65,13 @@ sub run {
         };
     }
 
-    try {
-        assert_lib => (
-            lib => 'ssl',
-            header => 'openssl/ssl.h',
-            $opt{libpath} ? (libpath => $opt{libpath}) : (),
-            $opt{incpath} ? (incpath => $opt{incpath}) : (),
-        );
-    }
-    catch {
-        warn "-lssl not found. Need to install OpenSSL development packages.\n";
-    };
+    check_lib_or_exit(
+        debug => 0,
+        lib => 'ssl',
+        header => 'openssl/ssl.h',
+        $opt{libpath} ? (libpath => "$opt{libpath}") : (),
+        $opt{incpath} ? (incpath => "$opt{incpath}") : (),
+    );
 
     my $my_openssl_version_cmd = eval {
         build_openssl_version('openssl-version.c', \%opt);
@@ -72,8 +84,22 @@ sub run {
 
     show_cmd_output($my_openssl_version_cmd);
 
-    $opt{live_tests} ||= $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
-    $opt{live_tests} ||= is_live_test_wanted();
+    # Only check other locations if command line option was not specified
+    if (
+        (not exists $opt{'live-tests'}) and
+        (exists $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED})
+    )
+    {
+        $opt{live_tests} = $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
+    }
+
+    if (
+        (not exists $opt{'live-tests'}) and
+        (IO::Interactive::Tiny::is_interactive())
+    )
+    {
+        $opt{'live-tests'} = is_live_test_wanted();
+    }
 
     my %params = (
         META_MERGE => {
@@ -90,10 +116,10 @@ sub run {
 
         VERSION_FROM => 'SSLeay.pm',
 
-        INC => $opt{incdir} ? qq{-I$opt{incdir}} : q{},
+        INC => $opt{incpath} ? qq{-I$opt{incpath}} : q{},
 
-        LIBS => $opt{libdir}
-                ? [ qq{-L$opt{libdir} -lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
+        LIBS => $opt{libpath}
+                ? [ qq{-L$opt{libpath} -lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
                 : [  q{-lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
         ,
 
@@ -108,6 +134,7 @@ sub run {
             'Devel::CheckLib' => '0.99',
             'ExtUtils::CBuilder' => '0.280205',
             'Getopt::Long' => 0,
+            'IO::Intereactive::Tiny' => 0,
             'Path::Class' => '0.26',
         },
 
@@ -169,7 +196,7 @@ sub run {
 
     write_test_config('test.config' =>
         {
-            network_tests => $opt{live_tests}
+            network_tests => $opt{'live-tests'}
         }
     );
 }
@@ -231,5 +258,4 @@ sub build_openssl_version {
 
     return file($executable)->absolute->resolve;
 }
-
 
