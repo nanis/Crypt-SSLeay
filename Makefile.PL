@@ -10,10 +10,12 @@ use IO::Interactive::Tiny;
 use Path::Class;
 use Try::Tiny;
 
-run(\@ARGV) unless caller;
+caller
+    or run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 libeay32 z}]);
 
 sub run {
     my $argv = shift;
+    my $libs = shift;
 
     eval "use ExtUtils::MakeMaker::Coverage";
     $@ or print "Adding testcover target\n";
@@ -36,6 +38,7 @@ sub run {
         'libpath=s',
         'live-tests!',
         'static',
+        'verbose!',
     ) or die "Error parsing command line options\n";
 
     if (
@@ -65,16 +68,10 @@ sub run {
         };
     }
 
-    check_lib_or_exit(
-        debug => 0,
-        lib => 'ssl',
-        header => 'openssl/ssl.h',
-        $opt{libpath} ? (libpath => "$opt{libpath}") : (),
-        $opt{incpath} ? (incpath => "$opt{incpath}") : (),
-    );
+    $libs = filter_libs(\%opt, $libs);
 
     my $my_openssl_version_cmd = eval {
-        build_openssl_version('openssl-version.c', \%opt);
+        build_openssl_version(\%opt, 'openssl-version.c');
     };
 
     unless (defined $my_openssl_version_cmd) {
@@ -119,14 +116,14 @@ sub run {
         INC => $opt{incpath} ? qq{-I$opt{incpath}} : q{},
 
         LIBS => $opt{libpath}
-                ? [ qq{-L$opt{libpath} -lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
-                : [  q{-lssl -lcrypto -lssl32 -lssleay32 -leay32 -lz} ]
+                ? [ join ' ', "-L$opt{libpath}", map "-l$_", @$libs ]
+                : [ join ' ', map "-l$_", @$libs ]
         ,
 
         ($opt{static} ? (LINK_TYPE => 'static') : ()),
 
         TEST_REQUIRES => {
-            'Try::Tiny' => '0.09',
+            'Try::Tiny' => '0.19',
             'Test::More' => '0.19',
         },
 
@@ -136,6 +133,7 @@ sub run {
             'Getopt::Long' => 0,
             'IO::Intereactive::Tiny' => 0,
             'Path::Class' => '0.26',
+            'Try::Tiny' => '0.19',
         },
 
         PREREQ_PM => {
@@ -144,7 +142,12 @@ sub run {
         },
 
         clean => {
-            FILES => "test.config openssl-version.o $my_openssl_version_cmd",
+            FILES => join(' ',
+                'test.config',
+                'openssl-version.o',
+                $my_openssl_version_cmd,
+                'assertlib*',
+            ),
         },
 
         LICENSE => 'artistic_2',
@@ -242,10 +245,10 @@ sub show_cmd_output {
 }
 
 sub build_openssl_version {
-    my $source = shift;
     my $opt = shift;
+    my $source = shift;
 
-    my $builder = ExtUtils::CBuilder->new;
+    my $builder = ExtUtils::CBuilder->new(quiet => !$opt->{verbose});
 
     my $object = $builder->compile(
         source => $source,
@@ -257,5 +260,34 @@ sub build_openssl_version {
     );
 
     return file($executable)->absolute->resolve;
+}
+
+sub filter_libs {
+    my $opt = shift;
+    my $libs = shift;
+    my @found;
+
+    for my $lib (@$libs) {
+       eval {
+           assert_lib(
+                debug => !!$opt->{verbose},
+                lib => $lib,
+                header => 'openssl/ssl.h',
+                $opt->{libpath} ? (libpath => "$opt->{libpath}") : (),
+                $opt->{incpath} ? (incpath => "$opt->{incpath}") : (),
+            );
+            push @found, $lib;
+        };
+    }
+    unless (@found) {
+        printf(
+            "Cannot link with any of the requested libraries '%s'\n",
+            join(', ' => @$libs),
+        );
+        exit 0;
+    }
+
+    printf "Found libraries '%s'\n", join(', ' => @found);
+    return \@found;
 }
 

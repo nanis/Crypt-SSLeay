@@ -1,6 +1,14 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_08 2014-04-10 13:40:08 UTC
+
+- Work in progress
+
+- In Makefile.PL, use assert_lib to find the libraries against which we can
+  actually link rather than passing a big bowl of libs to WriteMakefile.
+  Bail out early if we can't link against any of the candidate libraries.
+
 0.65_07 2014-04-10 12:38:06 UTC
 
 - Work in progres
