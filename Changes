@@ -1,7 +1,26 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.65_05 2014-04-04 12:3821 UTC
+0.65_06 2014-04-10 10:35:14 UTC
+
+- Work in progress
+
+- Address RT bugs #88786, #88269, #78848, and #79477
+
+- Makefile.PL now respects live-tests and no-live-tests, and allows library
+  and header locations to be specified via the command line arguments
+  libpath and incpath, respectively.
+
+- These options can also be specified using the environment variables
+
+        CRYPT_SSLEAY_LIVE_TEST_WANTED
+        OPENSSL_LIB
+        OPENSSL_INC
+
+- Also fixed a number of embarrasing logic errors and typos in Makefile.PL
+  which were introduced in previous 0.65_xx versions.
+
+0.65_05 2014-04-04 12:38:21 UTC
 
 - Work in progress
 
