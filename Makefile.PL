@@ -132,7 +132,7 @@ sub run {
             'Devel::CheckLib' => '0.99',
             'ExtUtils::CBuilder' => '0.280205',
             'Getopt::Long' => 0,
-            'IO::Intereactive::Tiny' => 0,
+            'IO::Interactive::Tiny' => 0,
             'Path::Class' => '0.26',
             'Try::Tiny' => '0.19',
         },
