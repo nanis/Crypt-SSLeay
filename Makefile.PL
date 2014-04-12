@@ -59,12 +59,15 @@ sub run {
 
     # Address RT #78848 and RT #88269
 
-    for my $path (grep defined, @opt{qw(incpath libpath)}) {
+    for my $arg (qw(incpath libpath)) {
+        my $path = $opt{$arg};
+
         try {
-            $path = file($path)->absolute->resolve
+            $opt{$arg} = file($path)->absolute->resolve
         }
         catch {
-            die "Error resolving '$path': $_";
+            print "Failed to resolve '$arg=$path': $_\n";
+            exit 0;
         };
     }
 
@@ -75,27 +78,25 @@ sub run {
     };
 
     unless (defined $my_openssl_version_cmd) {
-        print "Failed to build and link a simple executable using OpenSSL:\n";
+        print "Failed to build and link a simple executable using OpenSSL\n";
         exit 0;
     };
 
     show_cmd_output($my_openssl_version_cmd);
 
-    # Only check other locations if command line option was not specified
-    if (
-        (not exists $opt{'live-tests'}) and
-        (exists $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED})
-    )
-    {
-        $opt{live_tests} = $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
+    # No live tests by default
+    if ($ENV{PERL_MM_USE_DEFAULT}) {
+        $opt{'live-tests'} = 0;
     }
-
-    if (
-        (not exists $opt{'live-tests'}) and
-        (IO::Interactive::Tiny::is_interactive())
-    )
-    {
-        $opt{'live-tests'} = is_live_test_wanted();
+    # otherwise, only check other ways of requesting live tests if command
+    # line option was not given
+    elsif (not exists $opt{'live-tests'}) {
+        if (exists $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED}) {
+            $opt{'live-tests'} = $ENV{CRYPT_SSLEAY_LIVE_TEST_WANTED};
+        }
+        elsif (IO::Interactive::Tiny::is_interactive()) {
+            $opt{'live-tests'} = is_live_test_wanted();
+        }
     }
 
     my %params = (
@@ -199,7 +200,7 @@ sub run {
 
     write_test_config('test.config' =>
         {
-            network_tests => $opt{'live-tests'}
+            network_tests => ($opt{'live-tests'} ? 1 : 0),
         }
     );
 }
