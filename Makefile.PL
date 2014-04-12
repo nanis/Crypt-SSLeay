@@ -249,7 +249,7 @@ sub build_openssl_version {
     my $opt = shift;
     my $source = shift;
 
-    my $builder = ExtUtils::CBuilder->new(quiet => !$opt->{verbose});
+    my $builder = ExtUtils::CBuilder->new(quiet => !($opt->{verbose} ? 1 : 0));
 
     my $object = $builder->compile(
         source => $source,
@@ -271,7 +271,7 @@ sub filter_libs {
     for my $lib (@$libs) {
        eval {
            assert_lib(
-                debug => !!$opt->{verbose},
+                debug => ($opt->{verbose} ? 1 : 0),
                 lib => $lib,
                 header => 'openssl/ssl.h',
                 $opt->{libpath} ? (libpath => "$opt->{libpath}") : (),
@@ -280,9 +280,9 @@ sub filter_libs {
             push @found, $lib;
         };
     }
-    unless (@found) {
+    unless (grep /crypt|ssl|eay/, @found) {
         printf(
-            "Cannot link with any of the requested libraries '%s'\n",
+            "Cannot link with any of the requested SSL libraries '%s'\n",
             join(', ' => @$libs),
         );
         exit 0;
