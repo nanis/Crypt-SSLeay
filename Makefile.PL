@@ -11,7 +11,7 @@ use Path::Class;
 use Try::Tiny;
 
 caller
-    or run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 libeay32 z}]);
+    or run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
 
 sub run {
     my $argv = shift;
@@ -40,6 +40,10 @@ sub run {
         'static',
         'verbose!',
     ) or die "Error parsing command line options\n";
+
+    if ($ENV{AUTOMATED_TESTING}) {
+        $opt{verbose} = 1;
+    }
 
     if (
         (not exists $opt{incpath}) and
