@@ -141,14 +141,14 @@ SSL_CTX_new(packname, ssl_version)
             ctx = SSL_CTX_new(SSLv3_client_method());
         }
         else {
-#ifndef OPENSSL_NO_SSL2 
-            /* v2 is the default */ 
+#ifndef OPENSSL_NO_SSL2
+            /* v2 is the default */
             ctx = SSL_CTX_new(SSLv2_client_method());
-#else 
+#else
             /* v3 is the default */
             ctx = SSL_CTX_new(SSLv3_client_method());
 #endif
-        }                
+        }
 
         SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
         SSL_CTX_set_default_verify_paths(ctx);
@@ -194,7 +194,7 @@ SSL_CTX_use_pkcs12_file(ctx, filename, password)
             p12 = d2i_PKCS12_fp(fp, NULL);
             fclose (fp);
 
-            if (p12) { 
+            if (p12) {
                 if(PKCS12_parse(p12, password, &pkey, &cert, &ca)) {
                     if (pkey) {
                         RETVAL = SSL_CTX_use_PrivateKey(ctx, pkey);
@@ -251,13 +251,13 @@ SSL_new(packname, ctx, debug, ...)
            ssl = SSL_new(ctx);
            SSL_set_connect_state(ssl);
            /* The set mode is necessary so the SSL connection can
-            * survive a renegotiated cipher that results from 
-            * modssl VerifyClient config changing between 
+            * survive a renegotiated cipher that results from
+            * modssl VerifyClient config changing between
             * VirtualHost & some other config block.  At modssl
             * this would be a [trace] ssl message:
             *  "Changed client verification type will force renegotiation"
             * -- jc 6/28/2001
-            */                      
+            */
 #ifdef SSL_MODE_AUTO_RETRY
            SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
 #endif
@@ -336,7 +336,7 @@ SSL_write(ssl, buf, ...)
            {
                 int n = SSL_write(ssl, buf+offset, len);
                 int x = SSL_get_error(ssl, n);
-                
+
                 if ( n >= 0 )
                 {
                     keep_trying_to_write = 0;
@@ -344,7 +344,7 @@ SSL_write(ssl, buf, ...)
                 }
                 else
                 {
-                    if 
+                    if
                     (
                         (x != SSL_ERROR_WANT_READ) &&
                         (x != SSL_ERROR_WANT_WRITE)
@@ -389,7 +389,7 @@ SSL_read(ssl, buf, len,...)
            }
            if (len < 0)
                croak("Negative length");
-        
+
            SvGROW(sv, offset + len + 1);
            buf = SvPVX(sv);  /* it might have been relocated */
 
@@ -412,10 +412,10 @@ SSL_read(ssl, buf, len,...)
                 else
                 {
                     if
-                    ( 
-                        (x != SSL_ERROR_WANT_READ) && 
-                        (x != SSL_ERROR_WANT_WRITE) 
-                    ) 
+                    (
+                        (x != SSL_ERROR_WANT_READ) &&
+                        (x != SSL_ERROR_WANT_WRITE)
+                    )
                     {
                         keep_trying_to_read = 0;
                         RETVAL = &PL_sv_undef;
@@ -453,7 +453,7 @@ SSL_get_cipher(ssl)
         CODE:
            RETVAL = (char*) SSL_get_cipher(ssl);
         OUTPUT:
-           RETVAL        
+           RETVAL
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
 
