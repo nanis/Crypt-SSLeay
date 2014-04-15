@@ -60,11 +60,21 @@ done_testing;
 
 # see https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
 sub is_openssl_vulnerable_to_heartbleed {
-    my $v = openssl_hex_version();
+    my %vulnerable = map $_ => undef, qw(
+        0x1000100f
+        0x1000101f
+        0x1000102f
+        0x1000103f
+        0x1000104f
+        0x1000105f
+        0x1000106f
+        0x10002001
+    );
 
-    return if $v lt '0x1000100f';
-    return if $v ge '0x1000107f';
+    # not one of the vulnerable versions
+    return unless exists $vulnerable{ openssl_hex_version() };
 
+    # vulnerable version, but heartbeats disabled, so immune
     return if openssl_cflags =~ m{[-/]DOPENSSL_NO_HEARTBEATS};
 
     my $vs = openssl_version();
