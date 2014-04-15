@@ -9,6 +9,15 @@ BEGIN {
     use_ok( 'Crypt::SSLeay::Err' );
     use_ok( 'Crypt::SSLeay::MainContext', 'main_ctx' );
     use_ok( 'Crypt::SSLeay::X509' );
+    use_ok(
+        'Crypt::SSLeay::Version',
+        qw(
+            openssl_cflags
+            openssl_hex_version
+            openssl_platform
+            openssl_version
+        ),
+    );
     use_ok( 'Net::SSL' );
 }
 
@@ -29,11 +38,13 @@ SKIP: {
             eval "use Test::Pod::Coverage";
             $@ ? 0 : 1;
         };
-    pod_coverage_ok( 'Crypt::SSLeay', 'Crypt-SSLeay POD coverage is go!' );
-    pod_coverage_ok( 'Net::SSL', 'Net::SSL POD coverage is go!' );
+    pod_coverage_ok( 'Crypt::SSLeay', 'Crypt-SSLeay POD coverage is go' );
+    pod_coverage_ok( 'Net::SSL', 'Net::SSL POD coverage is go' );
 }
 
-my $ctx = main_ctx();
-isa_ok($ctx, 'Crypt::SSLeay::CTX', 'we have a context');
+{
+    my $ctx = main_ctx();
+    isa_ok($ctx, 'Crypt::SSLeay::CTX', 'we have a context');
+}
 
-done_testing;
+done_testing();

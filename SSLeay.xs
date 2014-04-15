@@ -510,4 +510,34 @@ get_notAfterString(cert)
          OUTPUT:
             RETVAL
 
+MODULE = Crypt::SSLeay      PACKAGE = Crypt::SSLeay::Version    PREFIX = VERSION_
+
+const char *
+VERSION_openssl_version()
+    CODE:
+        RETVAL = SSLeay_version(SSLEAY_VERSION);
+    OUTPUT:
+        RETVAL
+
+SV *
+VERSION_openssl_hex_version()
+    CODE:
+
+        RETVAL = newSVpvf("0x%8.8x", (unsigned) OPENSSL_VERSION_NUMBER);
+    OUTPUT:
+        RETVAL
+
+const char *
+VERSION_openssl_cflags()
+    CODE:
+        RETVAL = SSLeay_version(SSLEAY_CFLAGS);
+    OUTPUT:
+        RETVAL
+
+const char *
+VERSION_openssl_platform()
+    CODE:
+        RETVAL = SSLeay_version(SSLEAY_PLATFORM);
+    OUTPUT:
+        RETVAL
 
