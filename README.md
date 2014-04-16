@@ -22,6 +22,12 @@ or
     use Net::SSL;
     use LWP::UserAgent;
 
+## OpenSSL Heartbleed Bug
+
+A test is included to check if the version of OpenSSL against which you are building `Crypt::SSLeay` is vulnerable to the [Heartbleed Bug](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160). See my blog post [Is a strong caution about Heartbleed worth the disruption to distributions with a declared dependency on Crypt::SSLeay?](http://blog.nu42.com/2014/04/is-strong-caution-about-heartbleed.html) for the reasoning behind this.
+
+This will break automated installs. You can still force install the module with a vulnerable OpenSSL with the knowledge that you are on a system vulnerable to an extremely serious bug.
+
 ## Synopsis
 
     use Net::SSL;

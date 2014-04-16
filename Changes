@@ -1,6 +1,13 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_14 2014-04-16 23:55:42 UTC
+
+- REMINDER: make test WILL FAIL if your OpenSSL is vulnerable to Heartbleed.
+
+- Add additional functions exposing information that can be obtained via
+  SSLeay_version.
+
 0.65_13 2014-04-15 22:22:43 UTC
 
 - Work in progress

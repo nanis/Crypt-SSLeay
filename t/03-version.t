@@ -5,15 +5,29 @@ use warnings;
 
 use Test::More;
 use Crypt::SSLeay::Version qw(
+    openssl_built_on
     openssl_cflags
+    openssl_dir
     openssl_hex_version
     openssl_platform
     openssl_version
 );
 
 {
+    my $built_on = openssl_built_on();
+    ok(defined $built_on, 'openssl_built_on returns a defined value');
+    note $built_on;
+    like(
+        $built_on,
+        qr/\Abuilt on:/,
+        'openssl_built_on return value looks valid',
+    );
+}
+
+{
     my $cflags = openssl_cflags();
     ok(defined $cflags, 'openssl_cflags returns a defined value');
+    note $cflags;
     like(
         $cflags,
         qr/\Acompiler:/,
@@ -22,8 +36,20 @@ use Crypt::SSLeay::Version qw(
 }
 
 {
+    my $dir = openssl_dir();
+    ok(defined $dir, 'openssl_dir returns a defined value');
+    note $dir;
+    like(
+        $dir,
+        qr/\AOPENSSLDIR:/,
+        'openssl_dir return value looks valid',
+    );
+}
+
+{
     my $platform = openssl_platform();
     ok(defined $platform, 'openssl_platform returns a defined value');
+    note $platform;
     like(
         $platform,
         qr/\Aplatform:/,
@@ -34,6 +60,7 @@ use Crypt::SSLeay::Version qw(
 {
     my $version = openssl_version();
     ok(defined $version, 'openssl_version returns a defined value');
+    note $version;
     like(
         $version,
         qr/\AOpenSSL/,
@@ -44,6 +71,7 @@ use Crypt::SSLeay::Version qw(
 {
     my $hex_version = openssl_hex_version();
     ok(defined $hex_version, 'openssl_hex_version returns a defined value');
+    note $hex_version;
     like(
         $hex_version,
         qr/\A0x[[:xdigit:]]{8}\z/,

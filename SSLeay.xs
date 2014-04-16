@@ -541,3 +541,18 @@ VERSION_openssl_platform()
     OUTPUT:
         RETVAL
 
+const char *
+VERSION_openssl_built_on()
+    CODE:
+        RETVAL = SSLeay_version(SSLEAY_BUILT_ON);
+    OUTPUT:
+        RETVAL
+
+const char *
+VERSION_openssl_dir()
+    CODE:
+        RETVAL = SSLeay_version(SSLEAY_DIR);
+    OUTPUT:
+        RETVAL
+
+
