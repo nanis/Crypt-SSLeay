@@ -17,6 +17,10 @@ sub run {
     my $argv = shift;
     my $libs = shift;
 
+    unless ($ENV{AUTOMATED_TESTING}) {
+        show_do_you_need_crypt_ssleay();
+    }
+
     eval "use ExtUtils::MakeMaker::Coverage";
     $@ or print "Adding testcover target\n";
 
@@ -296,3 +300,34 @@ sub filter_libs {
     return \@found;
 }
 
+sub show_do_you_need_crypt_ssleay {
+    print <<EO_DO_YOU_NEED_CRYPT_SSLEAY;
+
+    *** THIS IS NOT AN ERROR, JUST A MESSAGE FOR YOUR INFORMATION ***
+
+    Do you really need Crypt::SSLeay?
+
+    Starting with version 6.02 of LWP, https support was unbundled into
+    LWP::Protocol::https. This module specifies as one of its prerequisites
+    IO::Socket::SSL which is automatically used by LWP::UserAgent unless
+    this preference is overridden separately. IO::Socket::SSL is a more
+    complete implementation, and, crucially, it allows hostname
+    verification. Crypt::SSLeay does not support this. At this point,
+    Crypt::SSLeay is maintained to support existing software that already
+    depends on it.
+
+    However, it is possible that your software does not really depend on
+    Crypt::SSLeay, only on the ability of LWP::UserAgent class to
+    communicate with sites over SSL/TLS.
+
+    If are using version LWP 6.02 or later, and therefore have installed
+    LWP::Protocol::https and its dependencies, and do not explicitly use
+    Net::SSL before loading LWP::UserAgent, or override the default socket
+    class, you are probably using IO::Socket::SSL and do not really need
+    Crypt::SSLeay.
+
+    Before installing Crypt::SSLeay, you may want to try specifying a
+    dependency on LWP::Protocol::https.
+
+EO_DO_YOU_NEED_CRYPT_SSLEAY
+}
