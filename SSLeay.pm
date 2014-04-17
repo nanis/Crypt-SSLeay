@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.65_13';
+$VERSION = '0.65_14';
 
 eval {
     require XSLoader;
@@ -45,6 +45,10 @@ __END__
 =head1 NAME
 
 Crypt::SSLeay - OpenSSL support for LWP
+
+=head1 HEARTBLEED WARNING
+
+C<make test> B<WILL FAIL> if your OpenSSL is vulnerable to the L<Heartbleed Bug|https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160>. You can, of course, force install the module but you will be doing so aware of the fact that your system is vulnerable to an extremely serious bug.
 
 =head1 SYNOPSIS
 
