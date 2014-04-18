@@ -2,13 +2,13 @@ use 5.006;
 use strict;
 use warnings;
 
-use Devel::CheckLib;
 use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
 use Getopt::Long qw( GetOptionsFromArray );
-use IO::Interactive::Tiny;
 use Path::Class;
 use Try::Tiny;
+
+use inc::IO::Interactive::Tiny;
 
 caller
     or run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
@@ -68,6 +68,7 @@ sub run {
     # Address RT #78848 and RT #88269
 
     for my $arg (qw(incpath libpath)) {
+        next unless exists $opt{$arg};
         my $path = $opt{$arg};
 
         try {
@@ -109,6 +110,15 @@ sub run {
 
     my %params = (
         META_MERGE => {
+            keywords => [ qw(lwp lwp-useragent openssl https) ],
+            no_index => {
+                directory => [ 'inc' ],
+            },
+            build => {
+                recommends => {
+                    'Devel::CheckLib' => '0.99',
+                },
+            },
             resources => {
                 repository => 'https://github.com/nanis/Crypt-SSLeay',
             },
@@ -137,10 +147,8 @@ sub run {
         },
 
         CONFIGURE_REQUIRES => {
-            'Devel::CheckLib' => '0.99',
             'ExtUtils::CBuilder' => '0.280205',
             'Getopt::Long' => 0,
-            'IO::Interactive::Tiny' => 0,
             'Path::Class' => '0.26',
             'Try::Tiny' => '0.19',
         },
@@ -274,6 +282,15 @@ sub build_openssl_version {
 sub filter_libs {
     my $opt = shift;
     my $libs = shift;
+
+    try {
+        require Devel::CheckLib;
+        Devel::CheckLib->import;
+    }
+    catch {
+        return $libs;
+    };
+
     my @found;
 
     for my $lib (@$libs) {

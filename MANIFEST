@@ -11,6 +11,7 @@ typemap
 certs/ca-bundle.crt
 certs/notacacert.pem
 certs/notacakeynopass.pem
+inc/IO/Interactive/Tiny.pm
 lib/Crypt/SSLeay/CTX.pm
 lib/Crypt/SSLeay/Conn.pm
 lib/Crypt/SSLeay/Err.pm

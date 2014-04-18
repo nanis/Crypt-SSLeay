@@ -88,7 +88,7 @@ done_testing;
 
 # see https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
 sub is_openssl_vulnerable_to_heartbleed {
-    my %vulnerable = map $_ => undef, qw(
+    my %vulnerable = map { $_ => undef } qw(
         0x1000100f
         0x1000101f
         0x1000102f
