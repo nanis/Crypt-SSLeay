@@ -25,5 +25,7 @@ t/00-basic.t
 t/01-connect.t
 t/02-live.t
 t/03-version.t
+t/boilerplate.t
+t/manifest.t
 META.yml                                 Module meta-data (added by MakeMaker)
 

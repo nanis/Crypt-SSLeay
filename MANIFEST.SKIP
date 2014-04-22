@@ -9,7 +9,10 @@ Crypt-SSLeay-.*
 MANIFEST.bak
 Makefile$
 Makefile.old
+openssl-version
+openssl-version.exe
 SSLeay\.(bs|c|o)$
+test.config
 ^\.gitignore
 ^\.gitattributes
 ^\.travis
