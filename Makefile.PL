@@ -17,10 +17,6 @@ sub run {
     my $argv = shift;
     my $libs = shift;
 
-    unless ($ENV{AUTOMATED_TESTING}) {
-        show_do_you_need_crypt_ssleay();
-    }
-
     eval "use ExtUtils::MakeMaker::Coverage";
     $@ or print "Adding testcover target\n";
 
@@ -81,6 +77,10 @@ sub run {
     }
 
     $libs = filter_libs(\%opt, $libs);
+
+    unless ($ENV{AUTOMATED_TESTING}) {
+        show_do_you_need_crypt_ssleay();
+    }
 
     my $my_openssl_version_cmd = eval {
         build_openssl_version(\%opt, 'openssl-version.c');
