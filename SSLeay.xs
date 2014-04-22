@@ -121,7 +121,6 @@ SSL_CTX_new(packname, ssl_version)
         SSL_CTX* ctx;
         static int bNotFirstTime;
         char buf[ CRYPT_SSLEAY_RAND_BUFSIZE ];
-        int rand_bytes_read;
 
         if(!bNotFirstTime) {
             SSLeay_add_all_algorithms();
@@ -139,8 +138,9 @@ SSL_CTX_new(packname, ssl_version)
         /* Also, http://wiki.openssl.org/index.php/Random_Numbers#Seeds
          * seems to indicate maybe we should not be doing this ourselves
          */
-        rand_bytes_read = RAND_load_file("/dev/urandom", 1024);
-        if (rand_bytes_read <= 0) {
+        if (RAND_load_file("/dev/urandom", CRYPT_SSLEAY_RAND_BUFSIZE)
+            != CRYPT_SSLEAY_RAND_BUFSIZE)
+        {
             /* Couldn't read /dev/urandom, just seed off
              * of the stack variable (the old way)
              */
