@@ -519,11 +519,10 @@ VERSION_openssl_version()
     OUTPUT:
         RETVAL
 
-SV *
-VERSION_openssl_hex_version()
+unsigned
+VERSION_openssl_int_version()
     CODE:
-
-        RETVAL = newSVpvf("0x%8.8x", (unsigned) OPENSSL_VERSION_NUMBER);
+        RETVAL = ((unsigned) OPENSSL_VERSION_NUMBER);
     OUTPUT:
         RETVAL
 

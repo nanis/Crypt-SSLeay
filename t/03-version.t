@@ -8,7 +8,7 @@ use Crypt::SSLeay::Version qw(
     openssl_built_on
     openssl_cflags
     openssl_dir
-    openssl_hex_version
+    openssl_int_version
     openssl_platform
     openssl_version
 );
@@ -69,59 +69,59 @@ use Crypt::SSLeay::Version qw(
 }
 
 {
-    my $hex_version = openssl_hex_version();
-    ok(defined $hex_version, 'openssl_hex_version returns a defined value');
-    note $hex_version;
-    like(
-        $hex_version,
-        qr/\A0x[[:xdigit:]]{8}\z/,
-        'openssl_hex_version return value looks valid',
-    );
+    my $int_version = openssl_int_version();
+    ok(defined $int_version, 'openssl_int_version returns a defined value');
+    note sprintf('0x%08x', $int_version);
+    ok ($int_version >= 0x0922, 'OpenSSL version geq lowest known version');
 }
 
-ok(
-    ! is_openssl_vulnerable_to_heartbleed(),
-    'OpenSSL vulnerable to Heartbleed Bug',
-);
+warn_if_openssl_possibly_vulnerable_to_heartbleed();
 
 done_testing;
 
 # see https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
-sub is_openssl_vulnerable_to_heartbleed {
-    my %vulnerable = map { $_ => undef } qw(
-        0x1000100f
-        0x1000101f
-        0x1000102f
-        0x1000103f
-        0x1000104f
-        0x1000105f
-        0x1000106f
-        0x10002001
+sub warn_if_openssl_possibly_vulnerable_to_heartbleed {
+    my %vulnerable = map { $_ => undef } (
+        0x1000100f,
+        0x1000101f,
+        0x1000102f,
+        0x1000103f,
+        0x1000104f,
+        0x1000105f,
+        0x1000106f,
+        0x10002001,
     );
 
     # not one of the vulnerable versions
-    return unless exists $vulnerable{ openssl_hex_version() };
+    return unless exists $vulnerable{ openssl_int_version() };
 
     # vulnerable version, but heartbeats disabled, so immune
     return if openssl_cflags =~ m{[-/]DOPENSSL_NO_HEARTBEATS};
 
-    my $vs = openssl_version();
+    my $version_string = openssl_version();
+    my $built_on = openssl_built_on();
 
     diag(<<EO_DIAG
-        You have '$vs'
-        and SSL Heartbeats are not disabled.
+    You have '$version_string'
+    built on '$built_on'
+    and SSL Heartbeats are not disabled.
 
-        That means your client will be vulnerable to a server
-        exploiting the Heartbleed bug. The risk is compounded
-        by the fact that Crypt::SSLeay does not verify hosts.
-        You can still force install Crypt::SSLeay, but you
-        need to be aware of this issue, and strongly consider
-        upgrading to a safer version of OpenSSL.
+    That means your client may be vulnerable to a server exploiting the
+    Heartbleed bug unless the vulnerability was patched without changing
+    version. The vulnerability was disclosed on or about 2014/04/07. A
+    build date after that may indicate that the library you are using
+    may have been patched. You should check this.
 
-        See also:
+    The risk is compounded by the fact that Crypt::SSLeay does not
+    verify hosts.  You can still force install Crypt::SSLeay, but you
+    need to be aware of this issue, and strongly consider upgrading to a
+    safer version of OpenSSL.
 
-          - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
-          - http://isc.sans.edu/diary/17945
+    See also:
+
+      - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
+      - http://isc.sans.edu/diary/17945
+      - http://seclists.org/fulldisclosure/2014/Apr/91
 EO_DIAG
     );
     return 1;

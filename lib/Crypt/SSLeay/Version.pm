@@ -9,7 +9,7 @@ our @EXPORT_OK = qw(
     openssl_built_on
     openssl_cflags
     openssl_dir
-    openssl_hex_version
+    openssl_int_version
     openssl_platform
     openssl_version
 );
@@ -26,7 +26,7 @@ Crypt::SSLeay::Version - Obtain OpenSSL version information
 
     use Crypt::SSLeay::Version qw(
         openssl_cflags
-        openssl_hex_version
+        openssl_int_version
         openssl_platform
         openssl_version
     );
@@ -59,9 +59,9 @@ The compiler flags set for the compilation process in the form "compiler: ..." i
 
 The C<OPENSSLDIR> setting of the library build in the form "OPENSSLDIR: ..." if available or "OPENSSLDIR: N/A" otherwise.
 
-=head2 openssl_hex_version
+=head2 openssl_int_version
 
-The value of the C<OPENSSL_VERSION_NUMBER> macro as a hex string.
+The value of the C<OPENSSL_VERSION_NUMBER> macro as an unsigned integer. This value is more like a string as version information is packed into specific nibbles see C<crypto/opensslv.h> in the OpenSSL source and L<https://metacpan.org/pod/OpenSSL::Versions|OpenSSL::Versions> for explanation.
 
 =head2 openssl_platform
 

@@ -12,10 +12,12 @@ BEGIN {
     use_ok(
         'Crypt::SSLeay::Version',
         qw(
+            openssl_built_on
             openssl_cflags
-            openssl_hex_version
+            openssl_dir
             openssl_platform
             openssl_version
+            openssl_version_number
         ),
     );
     use_ok( 'Net::SSL' );
