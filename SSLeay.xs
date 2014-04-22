@@ -194,8 +194,8 @@ SSL_CTX_use_PrivateKey_file(ctx, filename ,mode)
 int
 SSL_CTX_use_pkcs12_file(ctx, filename, password)
      SSL_CTX* ctx
-     char* filename
-     char* password
+     const char *filename
+     const char *password
      PREINIT:
         FILE *fp;
         EVP_PKEY *pkey;
@@ -450,15 +450,19 @@ SSL_get_verify_result(ssl)
         OUTPUT:
            RETVAL
 
+#define CRYPT_SSLEAY_SHARED_CIPHERS_BUFSIZE 512
+
 char*
 SSL_get_shared_ciphers(ssl)
-        SSL* ssl
-        PREINIT:
-           char buf[512];
-        CODE:
-           RETVAL = SSL_get_shared_ciphers(ssl, buf, sizeof(buf));
-        OUTPUT:
-           RETVAL
+    SSL* ssl
+    PREINIT:
+        char buf[ CRYPT_SSLEAY_SHARED_CIPHERS_BUFSIZE ];
+    CODE:
+        RETVAL = SSL_get_shared_ciphers(
+                    ssl, buf, CRYPT_SSLEAY_SHARED_CIPHERS_BUFSIZE
+                 );
+    OUTPUT:
+        RETVAL
 
 char*
 SSL_get_cipher(ssl)
