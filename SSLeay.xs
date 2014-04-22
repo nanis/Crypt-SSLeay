@@ -111,6 +111,8 @@ ERR_get_error_string()
 
 MODULE = Crypt::SSLeay    PACKAGE = Crypt::SSLeay::CTX    PREFIX = SSL_CTX_
 
+#define CRYPT_SSLEAY_RAND_BUFSIZE 1024
+
 SSL_CTX*
 SSL_CTX_new(packname, ssl_version)
      SV* packname
@@ -118,7 +120,7 @@ SSL_CTX_new(packname, ssl_version)
      CODE:
         SSL_CTX* ctx;
         static int bNotFirstTime;
-        char buf[1024];
+        char buf[ CRYPT_SSLEAY_RAND_BUFSIZE ];
         int rand_bytes_read;
 
         if(!bNotFirstTime) {
@@ -131,12 +133,18 @@ SSL_CTX_new(packname, ssl_version)
 
         /**** Code from Devin Heitmueller, 10/3/2002 ****/
         /**** Use /dev/urandom to seed if available  ****/
+        /* see also
+         * http://sockpuppet.org/blog/2014/02/25/safely-generate-random-numbers/
+         */
+        /* Also, http://wiki.openssl.org/index.php/Random_Numbers#Seeds
+         * seems to indicate maybe we should not be doing this ourselves
+         */
         rand_bytes_read = RAND_load_file("/dev/urandom", 1024);
         if (rand_bytes_read <= 0) {
             /* Couldn't read /dev/urandom, just seed off
              * of the stack variable (the old way)
              */
-            RAND_seed(buf,sizeof buf);
+            RAND_seed(buf, CRYPT_SSLEAY_RAND_BUFSIZE);
         }
 
         if(ssl_version == 23) {
