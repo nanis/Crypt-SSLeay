@@ -89,20 +89,25 @@ PROTOTYPES: DISABLE
 
 MODULE = Crypt::SSLeay         PACKAGE = Crypt::SSLeay::Err PREFIX = ERR_
 
-char*
-ERR_get_error_string()
-  CODE:
-    unsigned long l;
-    char buf[1024];
+#define CRYPT_SSLEAY_ERR_BUFSIZE 1024
 
-    if(!(l=ERR_get_error()))
-       RETVAL=NULL;
-    else {
-       ERR_error_string(l,buf);
-       RETVAL=buf;
-    }
-  OUTPUT:
-    RETVAL
+const char *
+ERR_get_error_string()
+    PREINIT:
+        unsigned long code;
+        char buf[ CRYPT_SSLEAY_ERR_BUFSIZE ];
+
+    CODE:
+        if ((code = ERR_get_error()) == 0) {
+            RETVAL = NULL;
+        }
+        else {
+            /* www.openssl.org/docs/crypto/ERR_error_string.html */
+            ERR_error_string_n(code, buf, CRYPT_SSLEAY_ERR_BUFSIZE);
+            RETVAL = buf;
+        }
+    OUTPUT:
+        RETVAL
 
 MODULE = Crypt::SSLeay    PACKAGE = Crypt::SSLeay::CTX    PREFIX = SSL_CTX_
 
