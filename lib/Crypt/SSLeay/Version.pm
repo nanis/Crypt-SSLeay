@@ -9,9 +9,9 @@ our @EXPORT_OK = qw(
     openssl_built_on
     openssl_cflags
     openssl_dir
-    openssl_int_version
     openssl_platform
     openssl_version
+    openssl_version_number
 );
 
 use strict;
@@ -24,11 +24,13 @@ Crypt::SSLeay::Version - Obtain OpenSSL version information
 
 =head1 SYNOPSIS
 
-    use Crypt::SSLeay::Version qw(
+    use Crypt::SSLeay::Version qw(\
+        openssl_built_on
         openssl_cflags
-        openssl_int_version
+        openssl_dir
         openssl_platform
         openssl_version
+        openssl_version_number
     );
 
     my $version = openssl_version();
@@ -59,10 +61,6 @@ The compiler flags set for the compilation process in the form "compiler: ..." i
 
 The C<OPENSSLDIR> setting of the library build in the form "OPENSSLDIR: ..." if available or "OPENSSLDIR: N/A" otherwise.
 
-=head2 openssl_int_version
-
-The value of the C<OPENSSL_VERSION_NUMBER> macro as an unsigned integer. This value is more like a string as version information is packed into specific nibbles see C<crypto/opensslv.h> in the OpenSSL source and L<https://metacpan.org/pod/OpenSSL::Versions|OpenSSL::Versions> for explanation.
-
 =head2 openssl_platform
 
 The "Configure" target of the library build in the form "platform: ..." if available or "platform: information not available" otherwise.
@@ -70,6 +68,10 @@ The "Configure" target of the library build in the form "platform: ..." if avail
 =head2 openssl_version
 
 The version of the OpenSSL library including the release date.
+
+=head2 openssl_version_number
+
+The value of the C<OPENSSL_VERSION_NUMBER> macro as an unsigned integer. This value is more like a string as version information is packed into specific nibbles see C<crypto/opensslv.h> in the OpenSSL source and L<https://metacpan.org/pod/OpenSSL::Versions|OpenSSL::Versions> for explanation.
 
 =head1 AUTHOR
 

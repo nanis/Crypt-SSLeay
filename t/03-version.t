@@ -8,9 +8,9 @@ use Crypt::SSLeay::Version qw(
     openssl_built_on
     openssl_cflags
     openssl_dir
-    openssl_int_version
     openssl_platform
     openssl_version
+    openssl_version_number
 );
 
 {
@@ -69,10 +69,10 @@ use Crypt::SSLeay::Version qw(
 }
 
 {
-    my $int_version = openssl_int_version();
-    ok(defined $int_version, 'openssl_int_version returns a defined value');
-    note sprintf('0x%08x', $int_version);
-    ok ($int_version >= 0x0922, 'OpenSSL version geq lowest known version');
+    my $version_number = openssl_version_number();
+    ok(defined $version_number, 'openssl_int_version returns a defined value');
+    note sprintf('0x%08x', $version_number);
+    ok ($version_number >= 0x0922, 'OpenSSL version geq lowest known version');
 }
 
 warn_if_openssl_possibly_vulnerable_to_heartbleed();
@@ -93,7 +93,7 @@ sub warn_if_openssl_possibly_vulnerable_to_heartbleed {
     );
 
     # not one of the vulnerable versions
-    return unless exists $vulnerable{ openssl_int_version() };
+    return unless exists $vulnerable{ openssl_version_number() };
 
     # vulnerable version, but heartbeats disabled, so immune
     return if openssl_cflags =~ m{[-/]DOPENSSL_NO_HEARTBEATS};

@@ -519,10 +519,10 @@ VERSION_openssl_version()
     OUTPUT:
         RETVAL
 
-unsigned
-VERSION_openssl_int_version()
+long
+VERSION_openssl_version_number()
     CODE:
-        RETVAL = ((unsigned) OPENSSL_VERSION_NUMBER);
+        RETVAL = OPENSSL_VERSION_NUMBER;
     OUTPUT:
         RETVAL
 
