@@ -384,7 +384,7 @@ sub proxy_connect_helper {
     # better) may actually make this problem go away, but either way,
     # there is no good reason to use \d when checking for 0-9
 
-    while ($header !~ m{HTTP/[0-9][.][0-9]\s+200\s+.*$CRLF$CRLF}) {
+    while ($header !~ m{HTTP/[0-9][.][0-9]\s+200\s+.*$CRLF$CRLF}s) {
         $timeout = $self->timeout(5) unless length $header;
         my $n = $self->SUPER::sysread($header, 8192, length $header);
         last if $n <= 0;
