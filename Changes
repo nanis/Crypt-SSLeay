@@ -1,6 +1,13 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.65_15 2014-04-22  UTC
+
+- Various minor fixes to C code
+- Various fixes to the distribution such as manifest files, additional
+  tests, bundled module etc
+- Address RT bugs #94828 and #79212
+
 0.65_14 2014-04-16 23:55:42 UTC
 
 - REMINDER: make test WILL FAIL if your OpenSSL is vulnerable to Heartbleed.
