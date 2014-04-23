@@ -132,13 +132,11 @@ SSL_CTX_new(packname, ssl_version)
 
         /**** Code from Devin Heitmueller, 10/3/2002 ****/
         /**** Use /dev/urandom to seed if available  ****/
-        /* see also
-         * http://sockpuppet.org/blog/2014/02/25/safely-generate-random-numbers/
+        /* ASU: 2014/04/23 It looks like it is OK to leave
+         * this in. See following thread:
+         * http://security.stackexchange.com/questions/56469/
          */
-        /* Also, http://wiki.openssl.org/index.php/Random_Numbers#Seeds
-         * seems to indicate maybe we should not be doing this ourselves
-         */
-        if (RAND_load_file("/dev/urandom", CRYPT_SSLEAY_RAND_BUFSIZE)
+       if (RAND_load_file("/dev/urandom", CRYPT_SSLEAY_RAND_BUFSIZE)
             != CRYPT_SSLEAY_RAND_BUFSIZE)
         {
             /* Couldn't read /dev/urandom, just seed off
