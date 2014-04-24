@@ -1,6 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.68    2014-04-24 14:13:07 UTC
+
+- Previous release did not bump version number in Net::SSL even though there
+  was a minor change. Correct that oversight.
+
 0.66    2014-04-24 14:00:42 UTC
 
 - Various minor fixes to C code
