@@ -283,12 +283,10 @@ sub filter_libs {
     my $opt = shift;
     my $libs = shift;
 
-    try {
+    return $libs unless eval {
         require Devel::CheckLib;
         Devel::CheckLib->import;
-    }
-    catch {
-        return $libs;
+        1;
     };
 
     my @found;
