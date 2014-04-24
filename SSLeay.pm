@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars '$VERSION';
-$VERSION = '0.70';
+$VERSION = '0.72';
 $VERSION = eval $VERSION;
 
 eval {
@@ -49,7 +49,7 @@ Crypt::SSLeay - OpenSSL support for LWP
 
 =head1 HEARTBLEED WARNING
 
-C<make test> B<WILL FAIL> if your OpenSSL is vulnerable to the L<Heartbleed Bug|https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160>. You can, of course, force install the module but you will be doing so aware of the fact that your system is vulnerable to an extremely serious bug.
+C<perl Makefile.PL> will display a warning if it thinks your OpenSSL might be vulnerable to the  L<Heartbleed Bug|https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160>. You can, of course, go ahead and install the module, but you should be aware that your system might be exposed to an extremely serious vulnerability. This is just a heuristic based on the version reported by OpenSSL. It is entirely possible that your distrbution actually pushed a patched library, so if you have concerns, you should investigate further.
 
 =head1 SYNOPSIS
 
