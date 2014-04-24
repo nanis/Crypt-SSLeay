@@ -1,7 +1,7 @@
 Revision history for Crypt-SSLeay
 =================================
 
-0.65_15 2014-04-22  UTC
+0.66    2014-04-24 14:00:42 UTC
 
 - Various minor fixes to C code
 - Various fixes to the distribution such as manifest files, additional
