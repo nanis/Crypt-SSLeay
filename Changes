@@ -1,6 +1,15 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.73_01 2014-10-25  19:05:10 UTC
+
+-   Disable SSLv3 at compile time by default.
+-   Use Bytes::Random::Secure::random_bytes to enhance entropy instead of
+    trying to read from /dev/random, and using contents of stack area if
+    that failed.
+-   Use a decent list of ciphers by default.
+-   General clean up
+
 0.73    2014-10-25 16:15:42 UTC
 
 - RT #98108: Using `caller` to decide whether Makefile.PL should be run
