@@ -153,6 +153,7 @@ sub run {
         },
 
         PREREQ_PM => {
+            'Bytes::Random::Secure' => '0.28',
             'LWP::Protocol::https' => '6.02',
             'MIME::Base64' => 0, # for Net::SSL
         },

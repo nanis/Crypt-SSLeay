@@ -106,13 +106,13 @@ MODULE = Crypt::SSLeay    PACKAGE = Crypt::SSLeay::CTX    PREFIX = SSL_CTX_
 #define CRYPT_SSLEAY_RAND_BUFSIZE 1024
 
 SSL_CTX*
-SSL_CTX_new(packname, ssl_version)
-     SV* packname
-     int ssl_version
+SSL_CTX_new(package)
+     SV* package
      CODE:
         SSL_CTX* ctx;
         static int bNotFirstTime;
-        char buf[ CRYPT_SSLEAY_RAND_BUFSIZE ];
+        unsigned char buf[ CRYPT_SSLEAY_RAND_BUFSIZE ];
+        size_t i;
 
         if(!bNotFirstTime) {
             OpenSSL_add_all_algorithms();
@@ -122,38 +122,44 @@ SSL_CTX_new(packname, ssl_version)
             bNotFirstTime = 1;
         }
 
-        /**** Code from Devin Heitmueller, 10/3/2002 ****/
-        /**** Use /dev/urandom to seed if available  ****/
-        /* ASU: 2014/04/23 It looks like it is OK to leave
-         * this in. See following thread:
-         * http://security.stackexchange.com/questions/56469/
+        /* Add to entropy using Bytes::Random::Secure::random_bytes
+         * See also http://security.stackexchange.com/questions/56469/
          */
-       if (RAND_load_file("/dev/urandom", CRYPT_SSLEAY_RAND_BUFSIZE)
-            != CRYPT_SSLEAY_RAND_BUFSIZE)
-        {
-            /* Couldn't read /dev/urandom, just seed off
-             * of the stack variable (the old way)
-             */
-            RAND_seed(buf, CRYPT_SSLEAY_RAND_BUFSIZE);
-        }
+        do {
+            dSP;
+            int count;
 
-        if(ssl_version == 23) {
-            ctx = SSL_CTX_new(SSLv23_client_method());
-        }
-        else if(ssl_version == 3) {
-            ctx = SSL_CTX_new(SSLv3_client_method());
-        }
-        else {
-#ifndef OPENSSL_NO_SSL2
-            /* v2 is the default */
-            ctx = SSL_CTX_new(SSLv2_client_method());
+            ENTER;
+            SAVETMPS;
+            PUSHMARK(SP);
+            XPUSHs(sv_2mortal(newSViv(CRYPT_SSLEAY_RAND_BUFSIZE)));
+            PUTBACK;
+            count = call_pv("Bytes::Random::Secure::random_bytes", G_SCALAR);
+            SPAGAIN;
+            if (count != 1) {
+                croak("Failed to get random bytes\n");
+            }
+            SV *random_bytes = POPs;
+            memcpy(
+                buf,
+                SvPVbyte_nolen(random_bytes),
+                CRYPT_SSLEAY_RAND_BUFSIZE
+            );
+            PUTBACK;
+            FREETMPS;
+            LEAVE;
+        } while (0);
+
+        RAND_seed(buf, CRYPT_SSLEAY_RAND_BUFSIZE);
+
+        ctx = SSL_CTX_new(CRYPT_SSL_CLIENT_METHOD);
+        SSL_CTX_set_options(ctx,
+#ifndef CRYPT_SSLEAY_USE_SSLv3
+            SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3
 #else
-            /* v3 is the default */
-            ctx = SSL_CTX_new(SSLv3_client_method());
+            SSL_OP_ALL | SSL_OP_NO_SSLv2
 #endif
-        }
-
-        SSL_CTX_set_options(ctx,SSL_OP_ALL|0);
+        );
         SSL_CTX_set_default_verify_paths(ctx);
         SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
         RETVAL = ctx;
