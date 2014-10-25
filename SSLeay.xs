@@ -128,6 +128,7 @@ SSL_CTX_new(package)
         do {
             dSP;
             int count;
+            SV *random_bytes;
 
             ENTER;
             SAVETMPS;
@@ -139,7 +140,7 @@ SSL_CTX_new(package)
             if (count != 1) {
                 croak("Failed to get random bytes\n");
             }
-            SV *random_bytes = POPs;
+            random_bytes = POPs;
             memcpy(
                 buf,
                 SvPVbyte_nolen(random_bytes),
