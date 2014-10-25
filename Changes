@@ -1,6 +1,12 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.73_02 2014-10-25  19:56:37 UTC
+
+-   Allow SSLv3 to be allowed at runtime depending on the value of an
+    environment variable.
+-   Don't declare a C variable in the middle of a block
+
 0.73_01 2014-10-25  19:05:10 UTC
 
 -   Disable SSLv3 at compile time by default.

@@ -2,7 +2,7 @@ package Crypt::SSLeay;
 
 use strict;
 use vars qw( @ISA $VERSION $XS_VERSION );
-$XS_VERSION = $VERSION = '0.73_01';
+$XS_VERSION = $VERSION = '0.73_02';
 $VERSION = eval $VERSION;
 
 use Bytes::Random::Secure;
