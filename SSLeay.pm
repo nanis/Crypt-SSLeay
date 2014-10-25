@@ -1,20 +1,19 @@
 package Crypt::SSLeay;
 
 use strict;
-use vars '$VERSION';
-$VERSION = '0.72';
+use vars qw( @ISA $VERSION $XS_VERSION );
+$XS_VERSION = $VERSION = '0.73';
 $VERSION = eval $VERSION;
 
 eval {
     require XSLoader;
-    XSLoader::load('Crypt::SSLeay', $VERSION);
+    XSLoader::load('Crypt::SSLeay', $XS_VERSION);
     1;
 }
 or do {
     require DynaLoader;
-    use vars '@ISA'; # not really locally scoped, it just looks that way
     @ISA = qw(DynaLoader);
-    bootstrap Crypt::SSLeay $VERSION;
+    bootstrap Crypt::SSLeay;
 };
 
 use vars qw(%CIPHERS);

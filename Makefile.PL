@@ -10,8 +10,7 @@ use Try::Tiny;
 
 use inc::IO::Interactive::Tiny;
 
-caller
-    or run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
+run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
 
 sub run {
     my $argv = shift;

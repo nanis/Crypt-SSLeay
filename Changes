@@ -1,6 +1,20 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.73    2014-10-25 16:15:42 UTC
+
+- RT #98108: Using `caller` to decide whether Makefile.PL should be run
+  means CPANPLUS can't invoke Makefile.PL via `do`. Remove for now. I don't
+  know if I am every going to write tests for Makefile.PL ;-)
+
+- 0.70 failed to build because I was not passing the correct version string
+  to XSLoader::load. Also, some machines out there still have versions of
+  `Getopt::Long` that do not provide `GetOptionsFromArray`. Require minimum
+  2.36 in Makefile.PL.
+
+- It turns out `Dynaloader::bootstrap` does not take a version argument. Who
+  knew ;-)
+
 0.70    2014-04-24 14:53:43 UTC
 
 - RT #94974: I forgot that `return` just returns from the code block for
