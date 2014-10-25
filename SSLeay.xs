@@ -1,9 +1,12 @@
-/*
- * $Id: SSLeay.xs,v 1.2 2000/05/10 16:37:25 ben Exp $
- * Copyright 1998 Gisle Aas.
+/* Copyright (c) 2010-2014 A. Sinan Unur <nanis@cpan.org>
+ * Copyright (c) 2006-2007 David Landgren
+ * Copyright (c) 1999-2003 Joshua Chamas
+ * Copyright (c) 1998 Gisle Aas
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the same terms as Perl itself.
+ * This library is free software. You can use, and distribute it under the
+ * terms of Artistic License version 2.0:
+ * http://www.perlfoundation.org/artistic_license_2_0
+ *
  */
 
 #ifdef __cplusplus
@@ -12,25 +15,12 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 
-/* CRYPT_SSLEAY_free() will not be #defined to be free() now that we're no
- * longer supporting pre-2000 OpenSSL.
-#define NO_XSLOCKS
-*/
-
 #include "XSUB.h"
 
 /* build problem under openssl 0.9.6 and some builds of perl 5.8.x */
 #ifndef PERL5
 #define PERL5 1
 #endif
-
-/* Makefile.PL no longer generates the following header file
- * #include "crypt_ssleay_version.h"
- * Among other things, Makefile.PL used to determine whether
- * to use #include<openssl/ssl.h> or #include<ssl.h> and
- * whether to use OPENSSL_free or free etc, but such distinctions
- * ceased to matter pre-2000. Crypt::SSLeay no longer supports
- * pre-2000 OpenSSL */
 
 #include <openssl/ssl.h>
 #include <openssl/crypto.h>
@@ -45,12 +35,14 @@ extern "C" {
 }
 #endif
 
+/* See https://www.openssl.org/docs/ssl/SSL_CTX_new.html
+ * The list of protocols available can later be limited using the
+ * SSL_OP_NO_SSLv2, SSL_OP_NO_SSLv3, SSL_OP_NO_TLSv1, SSL_OP_NO_TLSv1_1 and
+ * SSL_OP_NO_TLSv1_2 options of the SSL_CTX_set_options() or
+ * SSL_set_options() functions.
+ */
 
-#if SSLEAY_VERSION_NUMBER >= 0x0900
-#define CRYPT_SSL_CLIENT_METHOD SSLv3_client_method()
-#else
-#define CRYPT_SSL_CLIENT_METHOD SSLv2_client_method()
-#endif
+#define CRYPT_SSL_CLIENT_METHOD SSLv23_client_method()
 
 static void InfoCallback(const SSL *s,int where,int ret)
     {
