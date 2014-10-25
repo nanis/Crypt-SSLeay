@@ -106,8 +106,9 @@ MODULE = Crypt::SSLeay    PACKAGE = Crypt::SSLeay::CTX    PREFIX = SSL_CTX_
 #define CRYPT_SSLEAY_RAND_BUFSIZE 1024
 
 SSL_CTX*
-SSL_CTX_new(package)
-     SV* package
+SSL_CTX_new(package,allow_sslv3)
+     SV *package
+     int allow_sslv3
      CODE:
         SSL_CTX* ctx;
         static int bNotFirstTime;
@@ -154,13 +155,20 @@ SSL_CTX_new(package)
         RAND_seed(buf, CRYPT_SSLEAY_RAND_BUFSIZE);
 
         ctx = SSL_CTX_new(CRYPT_SSL_CLIENT_METHOD);
-        SSL_CTX_set_options(ctx,
-#ifndef CRYPT_SSLEAY_USE_SSLv3
-            SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3
-#else
-            SSL_OP_ALL | SSL_OP_NO_SSLv2
-#endif
-        );
+        if (allow_sslv3) {
+            SSL_CTX_set_options(ctx,
+                SSL_OP_ALL |
+                SSL_OP_NO_SSLv2
+            );
+        }
+        else {
+            SSL_CTX_set_options(ctx,
+                SSL_OP_ALL |
+                SSL_OP_NO_SSLv2 |
+                SSL_OP_NO_SSLv3
+            );
+        }
+
         SSL_CTX_set_default_verify_paths(ctx);
         SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
         RETVAL = ctx;

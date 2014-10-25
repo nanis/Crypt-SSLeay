@@ -37,7 +37,9 @@ use constant CRYPT_SSLEAY_DEFAULT_CIPHER_LIST => join(
 my $ctx = &main_ctx();
 
 sub main_ctx {
-    my $ctx = Crypt::SSLeay::CTX->new;
+    my $ctx = Crypt::SSLeay::CTX->new(
+        defined $ENV{CRYPT_SSLEAY_ALLOW_SSLv3}
+    );
 
     if ($ENV{CRYPT_SSLEAY_CIPHER}) {
         $ctx->set_cipher_list($ENV{CRYPT_SSLEAY_CIPHER});
