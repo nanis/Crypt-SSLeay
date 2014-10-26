@@ -20,7 +20,7 @@ eval {
 my $test_name = 'Net::SSL->new';
 if ($@) {
     my $fail = $@;
-    if ($fail =~ /\AConnect failed: connect: \b/i) {
+    if ($fail =~ /\AConnect failed:/i) {
         pass( "$test_name - expected failure" );
     }
     elsif ($fail =~ /\ASSL negotiation failed:/i) {

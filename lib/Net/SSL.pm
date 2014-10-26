@@ -2,19 +2,25 @@ package Net::SSL;
 
 use strict;
 use MIME::Base64;
-use Socket;
+use Socket qw(:DEFAULT :crlf);
 use Carp;
 
 use vars qw(@ISA $VERSION $NEW_ARGS);
-$VERSION = '2.86';
+$VERSION = '2.87';
 $VERSION = eval $VERSION;
 
-require IO::Socket;
-@ISA=qw(IO::Socket::INET);
+BEGIN {
+    if (require IO::Socket::IP) {
+        @ISA = qw( IO::Socket::IP );
+    }
+    else {
+        require IO::Socket;
+        @ISA = qw( IO::Socket::INET );
+    }
+}
 
 my %REAL; # private to this package only
 my $DEFAULT_VERSION = '23';
-my $CRLF = "\015\012";
 my $SEND_USERAGENT_TO_PROXY = 0;
 
 require Crypt::SSLeay;
