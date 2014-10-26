@@ -18,7 +18,6 @@ or do {
     bootstrap Crypt::SSLeay;
 };
 
-
 use Crypt::SSLeay::X509;
 
 # A xsupp bug made this necessary

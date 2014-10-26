@@ -22,11 +22,12 @@ extern "C" {
 #define PERL5 1
 #endif
 
-#include <openssl/ssl.h>
+#include <openssl/bio.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
-#include <openssl/rand.h>
 #include <openssl/pkcs12.h>
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
 
 #define CRYPT_SSLEAY_free OPENSSL_free
 
@@ -44,36 +45,48 @@ extern "C" {
 
 #define CRYPT_SSL_CLIENT_METHOD SSLv23_client_method()
 
-static void InfoCallback(const SSL *s,int where,int ret)
-    {
-    const char *str;
-    int w;
+static void
+info_callback(const SSL *s, int where, int ret) {
+    BIO *bio_err = BIO_new_fp(stderr, BIO_NOCLOSE);
+    int w = where & ~SSL_ST_MASK;
+    const char *mode = (w & SSL_ST_CONNECT) ? "SSL_connect"
+                     : (w & SSL_ST_ACCEPT)  ? "SSL_accept"
+                     : "unknown"
+    ;
 
-    w = where & ~SSL_ST_MASK;
-
-    if(w & SSL_ST_CONNECT)
-       str="SSL_connect";
-    else if(w & SSL_ST_ACCEPT)
-       str="SSL_accept";
-    else
-       str="undefined";
-
-    if(where & SSL_CB_LOOP) {
-       fprintf(stderr,"%s:%s\n",str,SSL_state_string_long(s));
+    if (where & SSL_CB_LOOP) {
+        BIO_printf(bio_err, "%s: %s\n", mode, SSL_state_string_long(s));
+        return;
     }
-    else if(where & SSL_CB_ALERT) {
-       str=(where & SSL_CB_READ)?"read":"write";
-       fprintf(stderr,"SSL3 alert %s:%s:%s\n",str,
-           SSL_alert_type_string_long(ret),
-           SSL_alert_desc_string_long(ret));
-       }
-    else if(where & SSL_CB_EXIT) {
-       if(ret == 0)
-         fprintf(stderr,"%s:failed in %s\n",str,SSL_state_string_long(s));
-       else if (ret < 0)
-         fprintf(stderr,"%s:error in %s\n",str,SSL_state_string_long(s));
-       }
+
+    if (where & SSL_CB_ALERT) {
+        BIO_printf(
+            bio_err, "SSL/TLS alert %s: %s: %s\n",
+            (where & SSL_CB_READ) ? "read" : "write",
+            SSL_alert_type_string_long(ret),
+            SSL_alert_desc_string_long(ret)
+        );
+        return;
     }
+
+    if (where & SSL_CB_EXIT) {
+        if (ret == 0) {
+            BIO_printf(
+                bio_err, "%s: failed in %s\n",
+                mode,  SSL_state_string_long(s)
+            );
+            return;
+        }
+        if (ret < 0) {
+            BIO_printf(
+                bio_err, "%s:error in %s\n",
+                mode, SSL_state_string_long(s)
+            );
+            return;
+        }
+    }
+}
+
 
 MODULE = Crypt::SSLeay                PACKAGE = Crypt::SSLeay
 
