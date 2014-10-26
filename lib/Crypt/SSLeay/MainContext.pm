@@ -4,6 +4,11 @@ package Crypt::SSLeay::MainContext;
 
 use strict;
 use Carp ();
+use Exporter qw ( import );
+
+use vars qw( @EXPORT @EXPORT_OK );
+@EXPORT = ();
+@EXPORT_OK = qw( main_ctx );
 
 require Crypt::SSLeay::CTX;
 
@@ -34,11 +39,9 @@ use constant CRYPT_SSLEAY_DEFAULT_CIPHER_LIST => join(
     )
 );
 
-my $ctx = &main_ctx();
-
 sub main_ctx {
     my $ctx = Crypt::SSLeay::CTX->new(
-        defined $ENV{CRYPT_SSLEAY_ALLOW_SSLv3}
+        $ENV{CRYPT_SSLEAY_ALLOW_SSLv3} ? 1 : 0
     );
 
     if ($ENV{CRYPT_SSLEAY_CIPHER}) {
@@ -50,26 +53,6 @@ sub main_ctx {
         );
     }
     $ctx;
-}
-
-my %sub_cache = ('main_ctx' => \&main_ctx );
-
-sub import {
-    my $pkg = shift;
-    my $callpkg = caller();
-    my @func = @_;
-    for (@func) {
-        s/^&//;
-        Carp::croak("Can't export $_ from $pkg") if /\W/;;
-        my $sub = $sub_cache{$_};
-        unless ($sub) {
-            my $method = $_;
-            $method =~ s/^main_ctx_//;  # optional prefix
-            $sub = $sub_cache{$_} = sub { $ctx->$method(@_) };
-        }
-        no strict 'refs';
-        *{"${callpkg}::$_"} = $sub;
-    }
 }
 
 1;
