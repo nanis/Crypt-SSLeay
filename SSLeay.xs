@@ -112,7 +112,6 @@ SSL_CTX_new(package,allow_sslv3)
      CODE:
         SSL_CTX* ctx;
         static int bNotFirstTime;
-        unsigned char buf[ CRYPT_SSLEAY_RAND_BUFSIZE ];
         size_t i;
 
         if(!bNotFirstTime) {
@@ -142,8 +141,7 @@ SSL_CTX_new(package,allow_sslv3)
                 croak("Failed to get random bytes\n");
             }
             random_bytes = POPs;
-            memcpy(
-                buf,
+            RAND_seed(
                 SvPVbyte_nolen(random_bytes),
                 CRYPT_SSLEAY_RAND_BUFSIZE
             );
@@ -151,8 +149,6 @@ SSL_CTX_new(package,allow_sslv3)
             FREETMPS;
             LEAVE;
         } while (0);
-
-        RAND_seed(buf, CRYPT_SSLEAY_RAND_BUFSIZE);
 
         ctx = SSL_CTX_new(CRYPT_SSL_CLIENT_METHOD);
         if (allow_sslv3) {
