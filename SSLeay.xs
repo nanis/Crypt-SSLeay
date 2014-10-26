@@ -268,40 +268,36 @@ SSL_CTX_set_verify(ctx)
 MODULE = Crypt::SSLeay        PACKAGE = Crypt::SSLeay::Conn        PREFIX = SSL_
 
 SSL*
-SSL_new(packname, ctx, debug, ...)
-        SV* packname
-        SSL_CTX* ctx
-        SV* debug
-        PREINIT:
-        SSL* ssl;
-        CODE:
-           ssl = SSL_new(ctx);
-           SSL_set_connect_state(ssl);
-           /* The set mode is necessary so the SSL connection can
-            * survive a renegotiated cipher that results from
-            * modssl VerifyClient config changing between
-            * VirtualHost & some other config block.  At modssl
-            * this would be a [trace] ssl message:
-            *  "Changed client verification type will force renegotiation"
-            * -- jc 6/28/2001
-            */
-#ifdef SSL_MODE_AUTO_RETRY
-           SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-#endif
-           RETVAL = ssl;
-           if(SvTRUE(debug)) {
-             SSL_set_info_callback(RETVAL,InfoCallback);
-           }
-           if (items > 2) {
-               PerlIO* io = IoIFP(sv_2io(ST(3)));
+SSL_new(package, ctx, debug, ...)
+    SV *package
+    SSL_CTX *ctx
+    SV *debug
+
+    PREINIT:
+        SSL *ssl;
+
+    CODE:
+        ssl = SSL_new(ctx);
+        SSL_set_connect_state(ssl);
+        SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+
+        if (SvTRUE(debug)) {
+            SSL_set_info_callback(ssl, info_callback);
+        }
+
+        if (items > 2) {
+            PerlIO *io = IoIFP(sv_2io(ST(3)));
 #ifdef _WIN32
-               SSL_set_fd(RETVAL, _get_osfhandle(PerlIO_fileno(io)));
+            int fd = _get_osfhandle(PerlIO_fileno(io));
 #else
-               SSL_set_fd(RETVAL, PerlIO_fileno(io));
+            int fd = PerlIO_fileno(io);
 #endif
-           }
+            SSL_set_fd(ssl, fd);
+        }
+        RETVAL = ssl;
+
         OUTPUT:
-           RETVAL
+            RETVAL
 
 void
 SSL_free(ssl)
