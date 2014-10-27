@@ -45,6 +45,56 @@ extern "C" {
 
 #define CRYPT_SSL_CLIENT_METHOD SSLv23_client_method()
 
+/* https://www.openssl.org/docs/ssl/SSL_CTX_set_msg_callback.html */
+static void
+msg_callback(
+    int write_p,
+    int version,
+    int content_type,
+    const void *buf,
+    size_t len,
+    SSL *ssl,
+    void *arg
+) {
+    size_t i = 0;
+    BIO *bio_err = BIO_new_fp(stderr, BIO_NOCLOSE);
+    const char *rw = write_p ? "Sent" : "Received";
+    const char *vstr = (version == TLS1_2_VERSION) ? "TLSv1.2"
+                     : (version == TLS1_1_VERSION) ? "TLSv1.1"
+                     : (version == TLS1_VERSION) ? "TLSv1"
+                     : (version == SSL3_VERSION) ? "SSLv3"
+                     : (version == SSL2_VERSION) ? "SSLv2"
+                     : "unknown protocol"
+    ;
+    const char *ctstr = (content_type == 20) ? "change_cipher_spec"
+                      : (content_type == 21) ? "alert"
+                      : (content_type == 22) ? "handshake"
+                      : "unknown content type"
+    ;
+    BIO_printf(bio_err,
+        "%s %s %d (%s):",
+        vstr, rw, content_type, ctstr
+    );
+    for (i = 0; i < len; i += 1) {
+        BIO_printf(bio_err, " %02x", ((unsigned char *) buf)[i]);
+    }
+    BIO_puts(bio_err, "\n");
+
+    if (content_type == 20) {
+        char buf[256];
+        const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
+        if (cipher) {
+            if (SSL_CIPHER_description(cipher, buf, 256)) {
+                buf[255] = 0;
+                BIO_puts(bio_err, buf);
+                BIO_puts(bio_err, "\n");
+            }
+        }
+    }
+    BIO_free(bio_err);
+    return;
+}
+
 static void
 info_callback(const SSL *s, int where, int ret) {
     BIO *bio_err = BIO_new_fp(stderr, BIO_NOCLOSE);
@@ -56,7 +106,7 @@ info_callback(const SSL *s, int where, int ret) {
 
     if (where & SSL_CB_LOOP) {
         BIO_printf(bio_err, "%s: %s\n", mode, SSL_state_string_long(s));
-        return;
+        goto LAST;
     }
 
     if (where & SSL_CB_ALERT) {
@@ -66,7 +116,7 @@ info_callback(const SSL *s, int where, int ret) {
             SSL_alert_type_string_long(ret),
             SSL_alert_desc_string_long(ret)
         );
-        return;
+        goto LAST;
     }
 
     if (where & SSL_CB_EXIT) {
@@ -75,16 +125,19 @@ info_callback(const SSL *s, int where, int ret) {
                 bio_err, "%s: failed in %s\n",
                 mode,  SSL_state_string_long(s)
             );
-            return;
+            goto LAST;
         }
         if (ret < 0) {
             BIO_printf(
                 bio_err, "%s:error in %s\n",
                 mode, SSL_state_string_long(s)
             );
-            return;
+            goto LAST;
         }
     }
+    LAST:
+        BIO_free(bio_err);
+        return;
 }
 
 
