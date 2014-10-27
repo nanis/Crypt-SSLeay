@@ -118,12 +118,12 @@ MODULE = Crypt::SSLeay    PACKAGE = Crypt::SSLeay::CTX    PREFIX = SSL_CTX_
 
 #define CRYPT_SSLEAY_RAND_BUFSIZE 1024
 
-SSL_CTX*
-SSL_CTX_new(package,allow_sslv3)
+SSL_CTX *
+SSL_CTX_new(package, allow_sslv3)
      SV *package
      int allow_sslv3
      CODE:
-        SSL_CTX* ctx;
+        SSL_CTX *ctx;
         static int bNotFirstTime;
         size_t i;
 
@@ -186,28 +186,28 @@ SSL_CTX_new(package,allow_sslv3)
 
 void
 SSL_CTX_free(ctx)
-     SSL_CTX* ctx
+     SSL_CTX *ctx
 
 int
 SSL_CTX_set_cipher_list(ctx, ciphers)
-     SSL_CTX* ctx
-     char* ciphers
+     SSL_CTX *ctx
+     char *ciphers
 
 int
 SSL_CTX_use_certificate_file(ctx, filename, mode)
-     SSL_CTX* ctx
-     char* filename
+     SSL_CTX *ctx
+     char *filename
      int mode
 
 int
 SSL_CTX_use_PrivateKey_file(ctx, filename ,mode)
-     SSL_CTX* ctx
-     char* filename
+     SSL_CTX *ctx
+     char *filename
      int mode
 
 int
 SSL_CTX_use_pkcs12_file(ctx, filename, password)
-     SSL_CTX* ctx
+     SSL_CTX *ctx
      const char *filename
      const char *password
      PREINIT:
@@ -241,14 +241,14 @@ SSL_CTX_use_pkcs12_file(ctx, filename, password)
 
 int
 SSL_CTX_check_private_key(ctx)
-     SSL_CTX* ctx
+     SSL_CTX *ctx
 
-SV*
+SV *
 SSL_CTX_set_verify(ctx)
-     SSL_CTX* ctx
+     SSL_CTX *ctx
      PREINIT:
-        char* CAfile;
-        char* CAdir;
+        char *CAfile;
+        char *CAdir;
      CODE:
         CAfile=getenv("HTTPS_CA_FILE");
         CAdir =getenv("HTTPS_CA_DIR");
@@ -267,7 +267,7 @@ SSL_CTX_set_verify(ctx)
 
 MODULE = Crypt::SSLeay        PACKAGE = Crypt::SSLeay::Conn        PREFIX = SSL_
 
-SSL*
+SSL *
 SSL_new(package, ctx, debug, ...)
     SV *package
     SSL_CTX *ctx
@@ -283,6 +283,7 @@ SSL_new(package, ctx, debug, ...)
 
         if (SvTRUE(debug)) {
             SSL_set_info_callback(ssl, info_callback);
+            SSL_set_msg_callback(ssl, msg_callback);
         }
 
         if (items > 2) {
@@ -301,35 +302,35 @@ SSL_new(package, ctx, debug, ...)
 
 void
 SSL_free(ssl)
-        SSL* ssl
+        SSL *ssl
 
 int
 SSL_pending(ssl)
-        SSL* ssl
+        SSL *ssl
 
 int
 SSL_set_fd(ssl,fd)
-        SSL* ssl
+        SSL *ssl
         int  fd
 
 int
 SSL_connect(ssl)
-        SSL* ssl
+        SSL *ssl
 
 int
 SSL_accept(ssl)
-        SSL* ssl
+        SSL *ssl
 
-SV*
+SV *
 SSL_write(ssl, buf, ...)
-        SSL* ssl
+        SSL *ssl
         PREINIT:
            STRLEN blen;
            int len;
            int offset = 0;
            int keep_trying_to_write = 1;
         INPUT:
-           char* buf = SvPV(ST(1), blen);
+           char *buf = SvPV(ST(1), blen);
         CODE:
            if (items > 2) {
                len = SvOK(ST(2)) ? SvIV(ST(2)) : blen;
@@ -381,9 +382,9 @@ SSL_write(ssl, buf, ...)
         OUTPUT:
            RETVAL
 
-SV*
+SV *
 SSL_read(ssl, buf, len,...)
-        SSL* ssl
+        SSL *ssl
         int len
         PREINIT:
            char *buf;
@@ -391,7 +392,7 @@ SSL_read(ssl, buf, len,...)
            int offset = 0;
            int keep_trying_to_read = 1;
         INPUT:
-           SV* sv = ST(1);
+           SV *sv = ST(1);
         CODE:
            buf = SvPV_force(sv, blen);
            if (items > 3) {
@@ -448,13 +449,13 @@ SSL_read(ssl, buf, len,...)
         OUTPUT:
            RETVAL
 
-X509*
+X509 *
 SSL_get_peer_certificate(ssl)
-        SSL* ssl
+        SSL *ssl
 
-SV*
+SV *
 SSL_get_verify_result(ssl)
-        SSL* ssl
+        SSL *ssl
         CODE:
            RETVAL = newSViv((SSL_get_verify_result(ssl) == X509_V_OK) ? 1 : 0);
         OUTPUT:
@@ -462,9 +463,9 @@ SSL_get_verify_result(ssl)
 
 #define CRYPT_SSLEAY_SHARED_CIPHERS_BUFSIZE 512
 
-char*
+char *
 SSL_get_shared_ciphers(ssl)
-    SSL* ssl
+    SSL *ssl
     PREINIT:
         char buf[ CRYPT_SSLEAY_SHARED_CIPHERS_BUFSIZE ];
     CODE:
@@ -474,11 +475,11 @@ SSL_get_shared_ciphers(ssl)
     OUTPUT:
         RETVAL
 
-char*
+char *
 SSL_get_cipher(ssl)
-        SSL* ssl
+        SSL *ssl
         CODE:
-           RETVAL = (char*) SSL_get_cipher(ssl);
+           RETVAL = (char *) SSL_get_cipher(ssl);
         OUTPUT:
            RETVAL
 
@@ -495,13 +496,13 @@ MODULE = Crypt::SSLeay        PACKAGE = Crypt::SSLeay::X509        PREFIX = X509
 
 void
 X509_free(cert)
-       X509* cert
+       X509 *cert
 
-SV*
+SV *
 subject_name(cert)
-        X509* cert
+        X509 *cert
         PREINIT:
-           char* str;
+           char *str;
         CODE:
            str = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
            RETVAL = newSVpv(str, 0);
@@ -509,11 +510,11 @@ subject_name(cert)
         OUTPUT:
            RETVAL
 
-SV*
+SV *
 issuer_name(cert)
-        X509* cert
+        X509 *cert
         PREINIT:
-           char* str;
+           char *str;
         CODE:
            str = X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0);
            RETVAL = newSVpv(str, 0);
@@ -523,7 +524,7 @@ issuer_name(cert)
 
 char *
 get_notBeforeString(cert)
-         X509* cert
+         X509 *cert
          CODE:
             RETVAL = (char *)X509_get_notBefore(cert)->data;
          OUTPUT:
@@ -531,7 +532,7 @@ get_notBeforeString(cert)
 
 char *
 get_notAfterString(cert)
-         X509* cert
+         X509 *cert
          CODE:
             RETVAL = (char *)X509_get_notAfter(cert)->data;
          OUTPUT:
@@ -580,5 +581,4 @@ VERSION_openssl_dir()
         RETVAL = SSLeay_version(SSLEAY_DIR);
     OUTPUT:
         RETVAL
-
 
