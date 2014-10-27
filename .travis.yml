@@ -8,4 +8,7 @@ perl:
     - "5.12"
     - "5.10"
     - "5.8"
+env:
+    AUTOMATED_TESTING=1
+    PERL_MM_USE_DEFAULT=1
 
