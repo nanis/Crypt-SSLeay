@@ -10,7 +10,7 @@ $VERSION = '2.88';
 $VERSION = eval $VERSION;
 
 BEGIN {
-    if (require IO::Socket::IP) {
+    if (eval { require IO::Socket::IP; 1 }) {
         @ISA = qw( IO::Socket::IP );
     }
     else {
