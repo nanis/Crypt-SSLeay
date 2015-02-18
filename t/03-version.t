@@ -50,11 +50,6 @@ use Crypt::SSLeay::Version qw(
     my $platform = openssl_platform();
     ok(defined $platform, 'openssl_platform returns a defined value');
     note $platform;
-    like(
-        $platform,
-        qr/\Aplatform:/,
-        'openssl_platform return value looks valid',
-    );
 }
 
 {
