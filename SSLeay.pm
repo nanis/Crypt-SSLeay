@@ -248,6 +248,11 @@ If you would like to use C<cpanm> with such custom locations, you can do
 
     $ OPENSSL_INCLUDE=... OPENSSL_LIB=... cpanm Crypt::SSLeay
 
+For example, on OS X (Mac) with Homebrew:
+
+    $ brew install openssl
+    $ OPENSSL_INCLUDE=$(brew --prefix openssl)/include OPENSSL_LIB=$(brew --prefix openssl)/lib cpanm Crypt::SSLeay
+
 or, on Windows,
 
     > set OPENSSL_INCLUDE=...
