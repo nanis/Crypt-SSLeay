@@ -7,7 +7,8 @@ use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
 use Getopt::Long qw( GetOptionsFromArray );
 use Path::Class;
-use inc::IO::Interactive::Tiny;
+
+require './inc/IO/Interactive/Tiny.pm';
 
 run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
 
