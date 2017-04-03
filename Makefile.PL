@@ -5,8 +5,8 @@ use warnings;
 use Config;
 use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
+use File::Spec::Functions qw( catfile rel2abs );
 use Getopt::Long qw( GetOptionsFromArray );
-use Path::Class;
 use inc::IO::Interactive::Tiny;
 
 run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
@@ -45,15 +45,15 @@ sub run {
     }
 
     $opt{incpath} = select_first_realpath(
-        [$opt{incpath}],
-        [$ENV{OPENSSL_INCLUDE}],
-        [$ENV{OPENSSL_PREFIX}, 'include'],
+        $opt{incpath},
+        $ENV{OPENSSL_INCLUDE},
+        catfile($ENV{OPENSSL_PREFIX}, 'include'),
     );
 
     $opt{libpath} = select_first_realpath(
-        [$opt{libpath}],
-        [$ENV{OPENSSL_LIB}],
-        [$ENV{OPENSSL_PREFIX}, 'lib'],
+        $opt{libpath},
+        $ENV{OPENSSL_LIB},
+        catfile($ENV{OPENSSL_PREFIX}, 'lib'),
     );
 
     unless ($ENV{AUTOMATED_TESTING}) {
@@ -132,7 +132,6 @@ sub run {
         CONFIGURE_REQUIRES => {
             'ExtUtils::CBuilder' => '0.280205',
             'Getopt::Long' => 0,
-            'Path::Class' => '0.26',
         },
 
         PREREQ_PM => {
@@ -221,11 +220,16 @@ sub write_test_config {
     my $file = shift;
     my $config = shift;
 
-    file($file)->spew(
-        [
-            map sprintf("%s\t%s\n", $_, $config->{$_}), sort keys %$config
-        ]
-    );
+    open my $fh, '>', $file
+        or die "Failed to open '$file' to write config: $!";
+
+    for my $k ( sort keys %$config) {
+        print join("\t", $k, $config->{$k}), "\n";
+    }
+
+    close $fh
+        or die "Failed to close '$file' after writing config: $!";
+
     return;
 }
 
@@ -259,11 +263,14 @@ sub build_openssl_version {
         objects => $object,
     );
 
-    return file($executable)->absolute->resolve;
+    -e $executable
+        and return rel2abs($executable);
+
+    return;
 }
 
 sub select_first_realpath {
-    my ($ret) = map eval {dir(@$_)->absolute->resolve}, @_;
+    my ($ret) = map rel2abs($_), grep -d, @_;
     $ret;
 }
 
