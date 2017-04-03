@@ -341,6 +341,12 @@ SSL_new(package, ctx, debug, ...)
         if (items > 2) {
             PerlIO *io = IoIFP(sv_2io(ST(3)));
 #ifdef _WIN32
+            /* PROBLEM:
+             * _get_osfhandle returns intptr_t but the OpenSSL set_fd
+             * takes an int as the fd argument. see
+             * https://www.openssl.org/docs/manmaster/man3/SSL_set_fd.html
+             * https://msdn.microsoft.com/en-us/library/ks2530z6.aspx
+             */
             int fd = _get_osfhandle(PerlIO_fileno(io));
 #else
             int fd = PerlIO_fileno(io);
