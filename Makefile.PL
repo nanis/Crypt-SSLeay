@@ -7,7 +7,10 @@ use ExtUtils::CBuilder;
 use ExtUtils::MakeMaker;
 use File::Spec::Functions qw( catfile rel2abs );
 use Getopt::Long qw( GetOptionsFromArray );
-use inc::IO::Interactive::Tiny;
+
+unless( require( catfile qw(inc IO Interactive Tiny.pm) ) ) {
+    die 'Your distribution is incomplete: Failed to load bundled IO::Interactive::Tiny';
+}
 
 run(\@ARGV, [qw{ssl crypto ssl32 ssleay32 eay32 libeay32 z}]);
 
