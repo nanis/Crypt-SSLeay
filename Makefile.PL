@@ -265,7 +265,7 @@ sub build_openssl_version {
 }
 
 sub select_first_realpath {
-    my ($ret) = map rel2abs($_), grep -d, @_;
+    my ($ret) = map rel2abs($_), grep defined && -d, @_;
     $ret;
 }
 
