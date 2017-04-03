@@ -1,6 +1,13 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.73_06 2017-04-03 16:16:00 UTC
+
+-   Update Travis CI configuration
+-   Don't rely on '.' being in @INC when loading bundled IO::Interactive::Tiny
+-   No more problems with Devel::CheckLib on Windows
+-   Don't depend on Path::Class to configure build
+
 0.73_03 2014-10-27  02:23:17 UTC
 
 -   Inherit from IO::Socket::IP if available
