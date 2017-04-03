@@ -178,7 +178,6 @@ SSL_CTX_new(package, allow_sslv3)
      CODE:
         SSL_CTX *ctx;
         static int bNotFirstTime;
-        size_t i;
 
         if(!bNotFirstTime) {
             OpenSSL_add_all_algorithms();
