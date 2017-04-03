@@ -60,13 +60,7 @@ sub run {
         show_do_you_need_crypt_ssleay();
     }
 
-    if ($Config{cc} ne 'cl') {
-        # Problems with recent versions of Devel::CheckLib on Windows.
-        # I do not know if they are due to the library, the OS, the
-        # toolchain, or my specific configuration, so disable this when
-        # using the MS compiler for now.
-        $libs = filter_libs(\%opt, $libs);
-    }
+    $libs = filter_libs(\%opt, $libs);
 
     my $my_openssl_version_cmd = eval {
         build_openssl_version(\%opt, 'openssl-version.c');
@@ -130,6 +124,7 @@ sub run {
         },
 
         CONFIGURE_REQUIRES => {
+            'Devel::CheckLib' => '1.09',
             'ExtUtils::CBuilder' => '0.280205',
             'Getopt::Long' => 0,
         },
