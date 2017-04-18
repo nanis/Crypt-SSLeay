@@ -1,6 +1,11 @@
 Revision history for Crypt-SSLeay
 =================================
 
+0.73_07 2017-04-18 18:27:00 UTC
+-   James Keenan noticed I forgot to push '.' to @INC. Thanks.
+-   Version tests fail because of variation in format of returned
+    strings. Drop tests that depend on the contents of those strings.
+
 0.73_06 2017-04-03 16:16:00 UTC
 
 -   Update Travis CI configuration

@@ -6,6 +6,7 @@
 /SSLeay.o
 /blib/
 /openssl-version
+/openssl-version.exe
 /openssl-version.o
 /pm_to_blib
 /test.config

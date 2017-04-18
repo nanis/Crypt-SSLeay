@@ -17,33 +17,18 @@ use Crypt::SSLeay::Version qw(
     my $built_on = openssl_built_on();
     ok(defined $built_on, 'openssl_built_on returns a defined value');
     note $built_on;
-    like(
-        $built_on,
-        qr/\Abuilt on:/,
-        'openssl_built_on return value looks valid',
-    );
 }
 
 {
     my $cflags = openssl_cflags();
     ok(defined $cflags, 'openssl_cflags returns a defined value');
     note $cflags;
-    like(
-        $cflags,
-        qr/\Acompiler:/,
-        'openssl_cflags return value looks valid',
-    );
 }
 
 {
     my $dir = openssl_dir();
     ok(defined $dir, 'openssl_dir returns a defined value');
     note $dir;
-    like(
-        $dir,
-        qr/\AOPENSSLDIR:/,
-        'openssl_dir return value looks valid',
-    );
 }
 
 {
@@ -56,11 +41,6 @@ use Crypt::SSLeay::Version qw(
     my $version = openssl_version();
     ok(defined $version, 'openssl_version returns a defined value');
     note $version;
-    like(
-        $version,
-        qr/\AOpenSSL/,
-        'openssl_version return value looks valid',
-    );
 }
 
 {
