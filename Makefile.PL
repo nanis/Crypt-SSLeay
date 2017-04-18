@@ -8,6 +8,7 @@ use ExtUtils::MakeMaker;
 use File::Spec::Functions qw( catfile rel2abs );
 use Getopt::Long qw( GetOptionsFromArray );
 
+push @INC, '.';
 unless( require( catfile qw(inc IO Interactive Tiny.pm) ) ) {
     die 'Your distribution is incomplete: Failed to load bundled IO::Interactive::Tiny';
 }
