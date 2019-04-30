@@ -277,6 +277,17 @@ sub filter_libs {
     my $opt = shift;
     my $libs = shift;
 
+    if (eval { require ExtUtils::PkgConfig } &&
+            ExtUtils::PkgConfig->exists('openssl')) {
+        my @libs = map { s/^-l//; $_ }
+            split(' ', ExtUtils::PkgConfig->libs_only_l('openssl'));
+        $opt->{libpath} = ExtUtils::PkgConfig->libs_only_L('openssl') // '';
+        $opt->{libpath} =~ s/^-L//;
+        $opt->{incpath} = ExtUtils::PkgConfig->cflags_only_I('openssl') // '';
+        $opt->{incpath} =~ s/-I//;
+        return \@libs;
+    }
+
     return $libs unless eval {
         require Devel::CheckLib;
         1;
