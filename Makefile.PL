@@ -56,13 +56,13 @@ sub run {
     $opt{incpath} = select_first_realpath(
         $opt{incpath},
         $ENV{OPENSSL_INCLUDE},
-        catfile($ENV{OPENSSL_PREFIX}, 'include'),
+        $ENV{OPENSSL_PREFIX} ? catfile($ENV{OPENSSL_PREFIX}, 'include') : (),
     );
 
     $opt{libpath} = select_first_realpath(
         $opt{libpath},
         $ENV{OPENSSL_LIB},
-        catfile($ENV{OPENSSL_PREFIX}, 'lib'),
+        $ENV{OPENSSL_PREFIX} ? catfile($ENV{OPENSSL_PREFIX}, 'lib') : (),
     );
 
     unless ($ENV{AUTOMATED_TESTING}) {
